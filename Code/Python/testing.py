@@ -4,6 +4,7 @@ import numpy as np
 import scipy.integrate
 import matplotlib.pyplot as plt
 from CR3BP import *
+from shooting import *
 
 
 def ode_eq(t, X, mu):
@@ -31,3 +32,13 @@ if __name__ == "__main__":
     ax.plot(results.y[0], results.y[1])
     ax.set_aspect("equal")
     plt.show()
+
+    residual = np.ones(3)
+    while np.linalg.norm(residual) >= 1e-12:
+
+        inputs = guess2integration(guess)
+        propagation = scipy.integrate.solve_ivp(**inputs, args=(mu,))
+        residual = constraint_function(propagation.y)
+
+        new_guess = guess - np.linalg.lstsq(constraint_jacobian(guess), residual)
+        guess = new_guess
