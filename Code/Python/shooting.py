@@ -14,7 +14,13 @@ def constraint_function(propagation):
 
     return residual
 
-def constraint_jacobian()
+def constraint_jacobian(guess):
+
+    jacobian = np.array([[],
+                         [],
+                         []])
+
+    return jacobian
 
 def guess2integration(guess):
 
@@ -31,5 +37,3 @@ def guess2integration(guess):
 
     return inputs
     
-
-
