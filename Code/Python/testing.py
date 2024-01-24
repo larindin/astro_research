@@ -21,7 +21,7 @@ def ode_eq_STM(t, X, mu):
     STM = X[6:].reshape((6, 6))
 
     state_derivative = CR3BP_DEs(x, y, z, vx, vy, vz, mu)
-    jacobian = CR3BP_jacobian(x, y, z, vx, vy, vz, mu)
+    jacobian = CR3BP_jacobian(x, y, z, mu)
     ddtSTM = np.matmul(jacobian, STM)
 
     ddtX = np.concatenate((state_derivative, ddtSTM.flatten()))
@@ -57,9 +57,6 @@ time = results.t
 output = results.y
 
 final_STM = np.reshape(output[6:, -1], (6, 6))
-
-print(final_STM)
-print(final_STM @ initial_state)
 
 num_points = len(time)
 STM_results = np.zeros((6, num_points))

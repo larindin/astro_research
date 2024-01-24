@@ -24,7 +24,7 @@ def CR3BP_DEs(x, y, z, vx, vy, vz, mu):
 
     return dXdt
 
-def CR3BP_jacobian(x, y, z, vx, vy, vz, mu):
+def CR3BP_jacobian(x, y, z, mu):
 
     # Intermediate values
     d = np.array([x+mu, y, z])
