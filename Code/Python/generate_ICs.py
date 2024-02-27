@@ -99,7 +99,7 @@ def CR3BP_STM(t, X):
     return ddtX
 
 # initial_state = np.array([1.1503 0 −0.1459 0 −0.2180 0)
-initial_guess = np.array([8.2812839246738457E-1, 0, 7.8856116533557966E-2, 2.71])
+initial_guess = np.array([1.1277174668299654, 0, 1.4106927720325751e-1, 3.40])
 
 original_solution = single_shooting(initial_guess, CR3BP_STM, CR3BP_periodic_constraint, CR3BP_periodic_constraint_jacobian_not, guess2integration, 1e-9, 0.5)
 
@@ -107,7 +107,7 @@ solutions = [original_solution]
 
 index = 0
 try: 
-    while solutions[-1][3] < 7.5:
+    while solutions[-1][3] < 8.2:
 
         guess = solutions[-1] + np.array([0, 0, 0, 1e-2])
         new_solution = single_shooting(guess, CR3BP_STM, CR3BP_periodic_constraint, CR3BP_periodic_constraint_jacobian_not, guess2integration, 1e-9, 0.5)
@@ -117,9 +117,9 @@ except:
     solutions_tobesaved = np.zeros((4, len(solutions)))
     for solution_index, solution in enumerate(solutions):
         solutions_tobesaved[:, solution_index] = solution
-    np.savetxt("L1_lyapunov.csv", solutions_tobesaved.T, delimiter=",")
+    np.savetxt("L2_lyapunov.csv", solutions_tobesaved.T, delimiter=",")
 
 solutions_tobesaved = np.zeros((4, len(solutions)))
 for solution_index, solution in enumerate(solutions):
     solutions_tobesaved[:, solution_index] = solution
-np.savetxt("L1_lyapunov.csv", solutions_tobesaved.T, delimiter=",")
+np.savetxt("L2_lyapunov.csv", solutions_tobesaved.T, delimiter=",")

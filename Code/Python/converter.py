@@ -20,8 +20,13 @@ def toICs(solution):
     to_be_saved = np.array([x, 0, z, 0, vy, 0, JC, T])
     return to_be_saved
     
+def NtoStoN(IC):
 
-solutions = np.loadtxt("./L2_halo/L2_halo_southern_ICs.csv", delimiter=",")
+    x, y, z, vx, vy, vz, JC, T = IC
+    IC = np.array([x, y, -z, vx, vy, vz, JC, T])
+    return IC
+
+solutions = np.loadtxt("L2_lyapunov.csv", delimiter=",")
 
 num_sol = np.size(solutions, 0)
 total = np.zeros((num_sol, 8))
@@ -31,4 +36,16 @@ for sol_index in np.arange(num_sol):
     to_be_saved = toICs(solution)
     total[sol_index, :] = to_be_saved
 
-np.savetxt("L2_halo_southern_ICs.csv", total, delimiter=",")
+np.savetxt("L2_lyapunov_ICs.csv", total, delimiter=",")
+
+# ICs = np.loadtxt("./L1_halo/L1_halo_southern_ICs.csv", delimiter=",")
+
+# num_IC = np.size(ICs, 0)
+# total = ICs*0
+
+# for IC_index in np.arange(num_IC):
+#     IC = ICs[IC_index]
+#     to_be_saved = NtoStoN(IC)
+#     total[IC_index, :] = to_be_saved
+
+# np.savetxt("./L1_halo/L1_halo_northern_ICs.csv", total, delimiter=",")
