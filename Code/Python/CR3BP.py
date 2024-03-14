@@ -3,9 +3,9 @@
 import numpy as np
 
 
-def CR3BP_DEs(X, mu):
+def CR3BP_DEs(state, mu):
 
-    x, y, z, vx, vy, vz = X
+    x, y, z, vx, vy, vz = state
 
     d = np.array([x+mu, y, z])
     r = np.array([x+mu-1, y, z])
@@ -23,9 +23,9 @@ def CR3BP_DEs(X, mu):
 
     return dXdt
 
-def CR3BP_jacobian(X, mu):
+def CR3BP_jacobian(state, mu):
 
-    x, y, z, vx, vy, vz = X
+    x, y, z, vx, vy, vz = state
 
     # Intermediate values
     d = np.array([x + mu, y, z])
@@ -51,3 +51,9 @@ def CR3BP_jacobian(X, mu):
                          [dzdx, dzdy, dzdz, 0, 0, 0]])
     
     return jacobian
+
+def CR3BP_costate_DEs(state, costate, mu):
+
+    jacobian = CR3BP_jacobian(state, mu)
+    ddt_costate = -jacobian.T @ costate
+    return ddt_costate
