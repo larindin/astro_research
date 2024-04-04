@@ -2,6 +2,14 @@
 
 import numpy as np
 
+def calculate_JC(IC):
+    mu = 1.215059e-2
+    
+    x, y, z, vx, vy, vz = IC
+    r1 = np.sqrt((x + mu)**2 + y**2 + z**2)
+    r2 = np.sqrt((x - 1 + mu)**2 + y**2 + z**2)
+
+    return x**2 + y**2 + 2*((1 - mu)/r1 + (mu)/r2) - (vx**2 + vy**2 + vz**2)
 
 def CR3BP_DEs(state, mu):
 

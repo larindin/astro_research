@@ -74,7 +74,7 @@ def min_energy_shooting_function(guess, initial_state, target_state, mu, umax):
     print(constraint)
     return constraint
 
-def min_thrust_shooting_function(guess, initial_state, target_state, mu, umax):
+def min_thrust_shooting_function(guess, initial_state, target_state, mu, umax, rho):
 
     initial_costate = guess[0:6]
     tf = guess[6]
@@ -82,7 +82,7 @@ def min_thrust_shooting_function(guess, initial_state, target_state, mu, umax):
     ICs = np.concatenate((initial_state, initial_costate))
     timespan = np.array([0, tf])
 
-    result = scipy.integrate.solve_ivp(minimum_energy_ODE, timespan, ICs, args=(mu, umax), atol=1e-12, rtol=1e-12)
+    result = scipy.integrate.solve_ivp(minimum_thrust_ODE, timespan, ICs, args=(mu, umax, rho), atol=1e-12, rtol=1e-12)
 
     final = result.y[:, -1]
     final_state = final[0:6]
@@ -99,3 +99,36 @@ def min_thrust_shooting_function(guess, initial_state, target_state, mu, umax):
 
     print(constraint)
     return constraint
+
+def get_min_energy_control(costate_output, umax):
+
+    B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+
+    control = costate_output[0:3]*0
+    for time_index in np.arange(len(costate_output[0])):
+        
+        costate = costate_output[:, time_index]
+
+        p = -B.T @ costate
+        p_mag = np.linalg.norm(p)
+
+        if p_mag > 2*umax:
+            control[:, time_index] = umax * p/p_mag
+        else:
+            control[:, time_index] = p/2
+    
+    return control
+
+def get_min_thrust_control(costate_output, umax, rho):
+
+    B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+
+    control = costate_output[0:3]*0
+    for time_index in np.arange(len(costate_output[0])):
+
+        costate = costate_output[:, time_index]
+
+        p = -B.T @ costate
+        control[:, time_index] = umax/2 * (1 + np.tanh((np.linalg.norm(p) - 1)/rho)) * p/np.linalg.norm(p)
+    
+    return control
