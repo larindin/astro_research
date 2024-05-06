@@ -40,6 +40,34 @@ def azimuth_elevation_jacobian(X, mu):
 
     return jacobian
 
+def cartesian_costate(X):
+
+    B = np.hstack((np.eye(3), np.zeros((3, 9))))
+
+    x, y, z = B @ X
+
+    return x, y, z
+
+def cartesian_jacobian_costate(X):
+
+    jacobian = np.hstack((np.eye(3), np.zeros((3, 9))))
+
+    return jacobian
+
+def cartesian(X):
+
+    B = np.hstack((np.eye(3), np.zeros((3, 3))))
+
+    x, y, z = B @ X
+    
+    return x, y, z
+
+def cartesian_jacobian(X):
+
+    B = np.hstack((np.eye(3), np.zeros((3, 3))))
+
+    return B
+
 def generate_measurements(time_vals: np.ndarray, truth_vals: np.ndarray, measurement_equation, measurement_size: int, noise_covariance, measurement_args, seed):
 
     num_measurements = len(time_vals[1:])
@@ -53,6 +81,4 @@ def generate_measurements(time_vals: np.ndarray, truth_vals: np.ndarray, measure
         args = (truth_vals[:, time_index],) + measurement_args
         measurement_vals[:, time_index] = measurement_equation(*args) + noise_vals[time_index, :]
     
-
-
     return Measurements(time_vals[1:], measurement_vals)

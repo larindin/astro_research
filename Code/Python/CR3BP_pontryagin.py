@@ -74,6 +74,22 @@ def min_energy_shooting_function(guess, initial_state, target_state, mu, umax):
     print(constraint)
     return constraint
 
+def min_energy_shooting_function_noT(guess, initial_state, target_state, tf, mu, umax):
+
+    initial_costate = guess
+
+    ICs = np.concatenate((initial_state, initial_costate))
+    timespan = np.array([0, tf])
+
+    result = scipy.integrate.solve_ivp(minimum_energy_ODE, timespan, ICs, args=(mu, umax), atol=1e-12, rtol=1e-12)
+
+    final_state = result.y[0:6, -1]
+
+    constraint = final_state - target_state
+
+    print(constraint)
+    return constraint
+
 def min_thrust_shooting_function(guess, initial_state, target_state, mu, umax, rho):
 
     initial_costate = guess[0:6]
