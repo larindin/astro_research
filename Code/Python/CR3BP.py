@@ -11,7 +11,7 @@ def calculate_JC(IC):
 
     return x**2 + y**2 + 2*((1 - mu)/r1 + (mu)/r2) - (vx**2 + vy**2 + vz**2)
 
-def CR3BP_DEs(state, mu):
+def CR3BP_DEs(t, state, mu):
 
     x, y, z, vx, vy, vz = state
 
@@ -60,7 +60,7 @@ def CR3BP_jacobian(state, mu):
     
     return jacobian
 
-def CR3BP_costate_DEs(state, costate, mu):
+def CR3BP_costate_DEs(t, state, costate, mu):
 
     jacobian = CR3BP_jacobian(state, mu)
     ddt_costate = -jacobian.T @ costate
