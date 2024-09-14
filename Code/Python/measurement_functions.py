@@ -124,8 +124,8 @@ def az_el_sensor_jacobian_costate(X, sensor_pos):
     z_diff = z - sensor_z
 
     jacobian = np.zeros((2, 12))
-    jacobian[0, 0] = 1 / (1 + ((y_diff) / (x_diff)**2)) * (-(y_diff) / (x_diff)**2)
-    jacobian[0, 1] = 1 / (1 + ((y_diff) / (x_diff)**2)) * (1 / (x_diff))
+    jacobian[0, 0] = 1 / (1 + ((y_diff) / (x_diff))**2) * (-(y_diff) / (x_diff)**2)
+    jacobian[0, 1] = 1 / (1 + ((y_diff) / (x_diff))**2) * (1 / (x_diff))
     jacobian[1, 0] = 1 / (1 + ((z_diff)**2 / ((x_diff)**2 + (y_diff)**2))) * -(x_diff)*(z_diff) / ((x_diff)**2 + (y_diff)**2)**(3/2)
     jacobian[1, 1] = 1 / (1 + ((z_diff)**2 / ((x_diff)**2 + (y_diff)**2))) * -(y_diff)*(z_diff) / ((x_diff)**2 + (y_diff)**2)**(3/2)
     jacobian[1, 2] = 1 / (1 + ((z_diff)**2 / ((x_diff)**2 + (y_diff)**2))) * 1 / np.sqrt((x_diff)**2 + (y_diff)**2)
@@ -183,6 +183,21 @@ def check_exclusion_dynamic(time, target_pos, sensor_pos, exclusion_vector, diam
     exclusion_angle = 2*np.arcsin(diameter/2/distance) + additional_exclusion
 
     return (conjunction_angle > exclusion_angle)
+
+def check_brightness(time, target_pos, sensor_pos, sun_vector, reflectivity, object_radius, ):
+
+    object_flux = 1.79161566e9
+
+    measurement_vector = target_pos - sensor_pos
+    measurement_distance = np.linalg.norm(measurement_vector)
+
+    object_radius /= 3.844e5
+
+    sensor_flux = (object_radius / measurement_distance)**2 * object_flux
+
+    sun_vector = 385.17 * sun_vector  - 0
+    moon_vector = np.array([1 - 1.215059e-2, 0, 0]) - sensor_pos
+
 
 def check_validity(time_vals: np.ndarray, target_pos_vals: np.ndarray, sensor_pos_vals: np.ndarray, exclusion_vector_vals, check_function: Callable, check_parameters: tuple):
     
