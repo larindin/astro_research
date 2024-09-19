@@ -118,11 +118,11 @@ def run_EKF(initial_estimate, initial_covariance,
     measurement_size = np.size(measurement_vals, 0)
     num_measurements = np.size(measurement_vals, 1)
 
-    anterior_estimate_vals = np.zeros((state_size, num_measurements))
-    posterior_estimate_vals = np.zeros((state_size, num_measurements+1))
-    anterior_covariance_vals = np.zeros((state_size, state_size, num_measurements))
-    posterior_covariance_vals = np.zeros((state_size, state_size, num_measurements+1))
-    innovations_vals = np.zeros((measurement_size, num_measurements))
+    anterior_estimate_vals = np.empty((state_size, num_measurements))
+    posterior_estimate_vals = np.empty((state_size, num_measurements+1))
+    anterior_covariance_vals = np.empty((state_size, state_size, num_measurements))
+    posterior_covariance_vals = np.empty((state_size, state_size, num_measurements+1))
+    innovations_vals = np.empty((measurement_size, num_measurements))
 
     posterior_estimate_vals[:, 0] = initial_estimate
     posterior_covariance_vals[:, :, 0] = initial_covariance

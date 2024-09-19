@@ -9,6 +9,7 @@ initial_truth = np.array([1.023860, 0, -0.183349, 0, -0.107237, 0, 1.00527167271
 # initial_truth = np.array([0.869093134528914, 0, 0, 0, 0.471129523484998, 0, 2.728393465768669479e+00,-2.213062564132921128e+00, -1.368370228190690652e+00, 9.316407006623674825e-01, -2.255988376284393804e-01, 3.620024666599501173e-01])
 # final_time = 6.185934071545815982
 final_time = 2.199798443376498547
+# final_time = 0.5
 # final_time = 2.346224101773999760
 dt = 0.01
 dynamics_equation = minimum_energy_ODE
@@ -30,9 +31,7 @@ sun_exclusion_angle = np.deg2rad(20)
 seed = 0
 
 # Filter parameters
-# initial_estimate = np.array([5.700765369968086027e-01, 0, 0, 0, 1.001309137115701908e+00, 0, 0, 0, 0, 0, 0, 0])
-initial_estimate = np.array([1.023860, 0, -0.183349, 0, -0.107237, 0, 0, 0, 0, 0, 0, 0])
-# initial_estimate = np.array([0.869093134528914, 0, 0, 0, 0.471129523484998, 0, 0, 0, 0, 0, 0, 0])
-initial_covariance = np.vstack((np.hstack((np.eye(6)*0.02**2, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), np.eye(6)*1**2))))
+initial_covariance = np.vstack((np.hstack((np.eye(6)*0.05**2, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), np.eye(6)*1**2))))
 initial_estimate = np.concatenate((np.random.default_rng(seed).multivariate_normal(initial_truth[0:6], initial_covariance[0:6, 0:6]), np.array([0, 0, 0, 0, 0, 0])))
-process_noise_covariance = np.vstack((np.hstack((np.eye(6)*0.001**2, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), np.eye(6)*0.3**2))))
+costate_process_noise_covariance = np.vstack((np.hstack((np.eye(3)*0.01**2, np.zeros((3, 3)))), np.hstack((np.zeros((3, 3)), np.eye(3)*0.01**2))))
+process_noise_covariance = np.vstack((np.hstack((np.eye(6)*0.01**2, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), costate_process_noise_covariance))))

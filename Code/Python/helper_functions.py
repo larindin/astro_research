@@ -3,6 +3,9 @@
 import numpy as np
 import scipy
 
+NONDIM_LENGTH = 3.844e5
+NONDIM_TIME = 3.751903e5
+
 def generate_sun_vectors(time_vals, phase):
 
     num_vals = len(time_vals)

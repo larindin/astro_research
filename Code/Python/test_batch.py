@@ -7,6 +7,7 @@ from configuration_costate import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from EKF import *
+from batch import *
 from dynamics_functions import *
 from helper_functions import *
 from measurement_functions import *
@@ -40,33 +41,28 @@ for sensor_index in np.arange(num_sensors):
     sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
     check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
 
-# check_results[0, -100:] = 0
-# check_results[1, -100:] = 0
-
-# check_results[0, :25] = 0
-# check_results[1, :25] = 1
-
-# check_results[:, :] = 1
+check_results[:, :] = 0
+check_results[:, 0:5] = 1
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
 dynamics_args = (mu, umax)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 
-def EKF_dynamics_equation(t, X, mu, umax, process_noise_covariance):
+def dynamics_function(t, X, mu, umax):
 
     state = X[0:6]
     costate = X[6:12]
-    covariance = X[12:156].reshape((12, 12))
+    STM = X[12:156].reshape((12, 12))
 
     jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
 
     ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+    ddt_STM = jacobian @ STM
 
-    return np.concatenate((ddt_state, ddt_covariance.flatten()))
-    
-def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
+
+def measurement_function(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
     measurement = np.empty(num_sensors*individual_measurement_size)
@@ -80,19 +76,30 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 
     return measurement, measurement_jacobian
 
+how_many = 10
+time_indices = np.array(np.arange(how_many))
+measurements.t = measurements.t[0:how_many]
+measurements.measurements = measurements.measurements[:, 0:how_many]
 
-filter_output = run_EKF(initial_estimate, initial_covariance,
-                        EKF_dynamics_equation, EKF_measurement_equation,
-                        measurements, process_noise_covariance,
-                        measurement_noise_covariance, 
-                        dynamics_args, measurement_args)
+initial_estimate = initial_truth
 
-filter_time = filter_output.t
-posterior_estimate_vals = filter_output.posterior_estimate_vals
-posterior_covariance_vals = filter_output.posterior_covariance_vals
-anterior_estimate_vals = filter_output.anterior_estimate_vals
-anterior_covariance_vals = filter_output.anterior_covariance_vals
-innovations = filter_output.innovations_vals
+estimates, initial_covariance = run_batch_processor(initial_estimate, initial_covariance, time_indices,
+                                                           measurements, dynamics_function, measurement_function, 
+                                                           dynamics_args, measurement_args, max_iterations = 100)
+
+
+ax = plt.figure().add_subplot(projection="3d")
+ax.set_aspect("equal")
+ax.plot(truth_vals[0, 0:how_many], truth_vals[1, 0:how_many], truth_vals[2, 0:how_many])
+for estimate_index in np.arange(np.size(estimates, 0)):
+    estimate = estimates[estimate_index, :]
+    propagation = scipy.integrate.solve_ivp(minimum_energy_ODE, np.array([0, how_many*0.01]), estimate, args=dynamics_args, atol=1e-12, rtol=1e-12)
+    output = propagation.y
+    ax.plot(output[0], output[1], output[2])
+
+plt.show()
+
+quit()
 
 ax = plt.figure().add_subplot()
 ax.plot(measurements.t, measurements.measurements[0])

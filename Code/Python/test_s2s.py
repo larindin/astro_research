@@ -43,6 +43,8 @@ check_results[1, -100:] = 0
 check_results[0, :25] = 0
 check_results[1, :25] = 0
 
+check_results[:, :] = 1
+
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
 dynamics_args = (mu, )
