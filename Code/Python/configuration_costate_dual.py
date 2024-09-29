@@ -34,6 +34,7 @@ seed = 0
 # Filter parameters
 initial_covariance = np.vstack((np.hstack((np.eye(6)*0.03**2, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), np.eye(6)*1**2))))
 initial_estimate = np.concatenate((np.random.default_rng(seed).multivariate_normal(initial_truth[0:6], initial_covariance[0:6, 0:6]), np.array([0, 0, 0, 0, 0, 0])))
+EKF_process_noise_covriance = np.vstack((np.hstack((np.eye(3)*1**2, np.zeros((3, 3)))), np.hstack((np.zeros((3, 3)), np.eye(3)*1**2))))
 state_process_noise_covariance = np.vstack((np.hstack((np.eye(3)*0.02**2, np.zeros((3, 3)))), np.hstack((np.zeros((3, 3)), np.eye(3)*0.02**2))))
 costate_process_noise_covariance = np.vstack((np.hstack((np.eye(3)*0.01**2, np.zeros((3, 3)))), np.hstack((np.zeros((3, 3)), np.eye(3)*0.01**2))))
 process_noise_covariance = np.vstack((np.hstack((state_process_noise_covariance, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), costate_process_noise_covariance))))

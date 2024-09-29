@@ -64,6 +64,10 @@ def iterate_EKF(time_index, previous_posterior_estimate, previous_posterior_cova
     anterior_covariance = output[state_size:(state_size+state_size**2), -1].reshape((state_size, state_size))
     anterior_covariance = enforce_symmetry(anterior_covariance)
 
+    # fudge = np.sqrt(np.diag(np.array([1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05])))
+    # anterior_covariance = fudge @ anterior_covariance @ fudge
+    # anterior_covariance = enforce_symmetry(anterior_covariance)
+
     measurement, valid_indices = assess_measurement(measurement, individual_measurement_size)
 
     predicted_measurement, measurement_jacobian = measurement_equation(time_index, anterior_estimate, *measurement_args)
@@ -78,6 +82,7 @@ def iterate_EKF(time_index, previous_posterior_estimate, previous_posterior_cova
     innovations = measurement - predicted_measurement
     innovations = check_innovations(innovations)
 
+    # posterior_estimate = anterior_estimate + gain_matrix @ innovations * np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     posterior_estimate = anterior_estimate + gain_matrix @ innovations
     posterior_covariance = anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T
     posterior_covariance = enforce_symmetry(posterior_covariance)
@@ -131,10 +136,10 @@ def run_EKF(initial_estimate, initial_covariance,
     previous_posterior_estimate = initial_estimate
     previous_posterior_covariance = initial_covariance
 
-    for time_index in np.arange(num_measurements):
+    for time_index in np.arange(1, num_measurements + 1):
 
-        measurement = measurement_vals[:, time_index]
-        current_time = time_vals[time_index]
+        measurement = measurement_vals[:, time_index-1]
+        current_time = time_vals[time_index-1]
         timespan = current_time - previous_time
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
@@ -148,10 +153,10 @@ def run_EKF(initial_estimate, initial_covariance,
                         measurement, timespan, dynamics_args, measurement_args)      
             anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = iterate_EKF(*EKF_inputs)
         
-        anterior_estimate_vals[:, time_index] = anterior_estimate
-        posterior_estimate_vals[:, time_index+1] = posterior_estimate
-        anterior_covariance_vals[:, :, time_index] = anterior_covariance
-        posterior_covariance_vals[:, :, time_index+1] = posterior_covariance
+        anterior_estimate_vals[:, time_index-1] = anterior_estimate
+        posterior_estimate_vals[:, time_index] = posterior_estimate
+        anterior_covariance_vals[:, :, time_index-1] = anterior_covariance
+        posterior_covariance_vals[:, :, time_index] = posterior_covariance
         # innovations_vals[:, time_index] = innovations
 
         previous_time = current_time

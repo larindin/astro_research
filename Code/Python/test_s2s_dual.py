@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
-from configuration_costate import *
+from configuration_costate_dual import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from EKF import *
@@ -46,14 +46,40 @@ for sensor_index in np.arange(num_sensors):
 # check_results[0, :25] = 0
 # check_results[1, :25] = 1
 
+# check_results[:, 0:100] = 1
+# check_results[:, 100:] = 0
+
 check_results[:, :] = 1
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
-dynamics_args = (mu, umax)
-measurement_args = (mu, sensor_position_vals, individual_measurement_size)
+def EKF_dynamics_equation(t, X, mu, process_noise_covariance):
 
-def EKF_dynamics_equation(t, X, mu, umax, process_noise_covariance):
+    state = X[0:6]
+    covariance = X[6:42].reshape((6, 6))
+
+    jacobian = CR3BP_jacobian(state, mu)
+
+    ddt_state = CR3BP_DEs(t, state, mu)
+    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+
+    return np.concatenate((ddt_state, ddt_covariance.flatten()))
+    
+def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
+
+    num_sensors = int(np.size(sensor_position_vals, 0)/3)
+    measurement = np.empty(num_sensors*individual_measurement_size)
+    measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 6))
+
+    for sensor_index in np.arange(num_sensors):
+        sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
+        
+        measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)
+        measurement_jacobian[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor_jacobian(X, sensor_position)
+
+    return measurement, measurement_jacobian
+
+def costate_dynamics_equation(t, X, mu, umax, process_noise_covariance):
 
     state = X[0:6]
     costate = X[6:12]
@@ -66,7 +92,7 @@ def EKF_dynamics_equation(t, X, mu, umax, process_noise_covariance):
 
     return np.concatenate((ddt_state, ddt_covariance.flatten()))
     
-def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
+def costate_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
     measurement = np.empty(num_sensors*individual_measurement_size)
@@ -80,25 +106,71 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 
     return measurement, measurement_jacobian
 
+the_factor = 5
 
-filter_output = run_EKF(initial_estimate, initial_covariance,
-                        EKF_dynamics_equation, EKF_measurement_equation,
-                        measurements, process_noise_covariance,
+first_dynamics_args = (mu,)
+second_dynamics_args = (mu, umax)
+first_measurement_args = (mu, sensor_position_vals[:, 0:the_factor+1], individual_measurement_size)
+second_measurement_args = (mu, sensor_position_vals[:, the_factor:], individual_measurement_size)
+
+first_measurements = Measurements(measurements.t[0:the_factor], measurements.measurements[:, 0:the_factor], 2)
+second_measurements = Measurements(measurements.t[the_factor:], measurements.measurements[:, the_factor:], 2)
+
+first_output = run_EKF(initial_estimate[0:6], initial_covariance[0:6, 0:6],
+                       EKF_dynamics_equation, EKF_measurement_equation,
+                       first_measurements, EKF_process_noise_covriance,
+                       filter_measurement_covariance,
+                       first_dynamics_args, first_measurement_args)
+
+first_filter_time = first_output.t
+first_anterior_estimate_vals = first_output.anterior_estimate_vals
+first_posterior_estimate_vals = first_output.posterior_estimate_vals
+first_posterior_covariance_vals = first_output.posterior_covariance_vals
+
+updated_estimate = first_posterior_estimate_vals[:, -1]
+updated_covariance = first_posterior_covariance_vals[:, :, -1]
+
+updated_estimate = np.concatenate((updated_estimate, initial_estimate[6:12]))
+updated_covariance = np.vstack((np.hstack((updated_covariance, np.zeros((6, 6)))), np.hstack((np.zeros((6, 6)), initial_covariance[6:12, 6:12]))))
+# updated_covariance = initial_covariance
+
+second_output = run_EKF(updated_estimate, updated_covariance,
+                        costate_dynamics_equation, costate_measurement_equation,
+                        second_measurements, process_noise_covariance,
                         filter_measurement_covariance, 
-                        dynamics_args, measurement_args)
+                        second_dynamics_args, second_measurement_args)
 
-filter_time = filter_output.t
-posterior_estimate_vals = filter_output.posterior_estimate_vals
-posterior_covariance_vals = filter_output.posterior_covariance_vals
-anterior_estimate_vals = filter_output.anterior_estimate_vals
-anterior_covariance_vals = filter_output.anterior_covariance_vals
-innovations = filter_output.innovations_vals
+second_filter_time = second_output.t
+second_anterior_estimate_vals = second_output.anterior_estimate_vals
+second_posterior_estimate_vals = second_output.posterior_estimate_vals
+second_posterior_covariance_vals = second_output.posterior_covariance_vals
+
+first_anterior_estimate_vals = np.vstack((first_anterior_estimate_vals, 0*first_anterior_estimate_vals))
+first_posterior_estimate_vals = np.vstack((first_posterior_estimate_vals, 0*first_posterior_estimate_vals))
+first_posterior_estimate_vals = first_posterior_estimate_vals[:, 0:-1]
+new_thing = np.empty((12, 12, len(first_filter_time) + 1))
+for index in np.arange(len(first_filter_time) + 1):
+    new_thing[:, :, index] = np.vstack((np.hstack((first_posterior_covariance_vals[:, :, index], np.zeros((6, 6)))), np.zeros((6, 12))))
+first_posterior_covariance_vals = new_thing[:, :, 0:-1]
+# first_posterior_covariance_vals = new_thing
+
+anterior_estimate_vals = np.concatenate((first_anterior_estimate_vals, second_anterior_estimate_vals), 1)
+
+posterior_estimate_vals = np.concatenate((first_posterior_estimate_vals, second_posterior_estimate_vals), 1)
+posterior_covariance_vals = np.concatenate((first_posterior_covariance_vals, second_posterior_covariance_vals), 2)
+
+print(np.size(first_posterior_estimate_vals, 1))
+print(np.size(first_posterior_covariance_vals, 2))
 
 ax = plt.figure().add_subplot()
-ax.plot(measurements.t, measurements.measurements[0])
-ax.plot(measurements.t, measurements.measurements[1])
-ax.plot(measurements.t, measurements.measurements[2])
-ax.plot(measurements.t, measurements.measurements[3])
+ax.scatter(first_measurements.t, first_measurements.measurements[0])
+ax.scatter(first_measurements.t, first_measurements.measurements[1])
+ax.scatter(first_measurements.t, first_measurements.measurements[2])
+ax.scatter(first_measurements.t, first_measurements.measurements[3])
+ax.scatter(second_measurements.t, second_measurements.measurements[0])
+ax.scatter(second_measurements.t, second_measurements.measurements[1])
+ax.scatter(second_measurements.t, second_measurements.measurements[2])
+ax.scatter(second_measurements.t, second_measurements.measurements[3])
 
 ax = plt.figure().add_subplot()
 ax.plot(time_vals, check_results[0], alpha=0.25)
@@ -120,8 +192,12 @@ ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 ax.set_aspect("equal")
 
 ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
+ax.scatter(truth_vals[0], truth_vals[1], truth_vals[2])
+ax.scatter(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
+ax.scatter(anterior_estimate_vals[0], anterior_estimate_vals[1], anterior_estimate_vals[2])
+# ax.scatter(truth_vals[0, 5:], truth_vals[1, 5:], truth_vals[2, 5:])
+# ax.scatter(second_posterior_estimate_vals[0], second_posterior_estimate_vals[1], second_posterior_estimate_vals[2])
+# ax.scatter(second_anterior_estimate_vals[0], second_anterior_estimate_vals[1], second_anterior_estimate_vals[2])
 ax.set_aspect("equal")
 
 posterior_estimates = [posterior_estimate_vals]

@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
+from joblib import Parallel, delayed
 from configuration_costate import *
 from CR3BP import *
 from CR3BP_pontryagin import *
@@ -48,7 +49,7 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
+check_results[:, 100:150] = 0
 
 dynamics_args = (mu, umax)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
@@ -80,73 +81,42 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 
     return measurement, measurement_jacobian
 
+def big_function(seed):
 
-filter_output = run_EKF(initial_estimate, initial_covariance,
-                        EKF_dynamics_equation, EKF_measurement_equation,
-                        measurements, process_noise_covariance,
-                        filter_measurement_covariance, 
-                        dynamics_args, measurement_args)
+    initial_estimate = np.concatenate((np.random.default_rng(seed).multivariate_normal(initial_truth[0:6], initial_covariance[0:6, 0:6]), np.array([0, 0, 0, 0, 0, 0])))
 
-filter_time = filter_output.t
-posterior_estimate_vals = filter_output.posterior_estimate_vals
-posterior_covariance_vals = filter_output.posterior_covariance_vals
-anterior_estimate_vals = filter_output.anterior_estimate_vals
-anterior_covariance_vals = filter_output.anterior_covariance_vals
-innovations = filter_output.innovations_vals
+    measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
-ax = plt.figure().add_subplot()
-ax.plot(measurements.t, measurements.measurements[0])
-ax.plot(measurements.t, measurements.measurements[1])
-ax.plot(measurements.t, measurements.measurements[2])
-ax.plot(measurements.t, measurements.measurements[3])
+    filter_output = run_EKF(initial_estimate, initial_covariance,
+                            EKF_dynamics_equation, EKF_measurement_equation,
+                            measurements, process_noise_covariance,
+                            filter_measurement_covariance, 
+                            dynamics_args, measurement_args)
 
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, check_results[0], alpha=0.25)
-ax.plot(time_vals, earth_results[0], alpha=0.25)
-ax.plot(time_vals, moon_results[0], alpha=0.25)
-ax.plot(time_vals, sun_results[0], alpha=0.25)
+    return filter_output
 
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, check_results[1], alpha=0.25)
-ax.plot(time_vals, earth_results[1], alpha=0.25)
-ax.plot(time_vals, moon_results[1], alpha=0.25)
-ax.plot(time_vals, sun_results[1], alpha=0.25)
+results = Parallel(n_jobs=4)(delayed(big_function)(seed) for seed in range(50))
 
-ax = plt.figure().add_subplot(projection="3d")
-ax.set_aspect("equal")
-ax.plot(sensor_position_vals[0], sensor_position_vals[1], sensor_position_vals[2])
-ax.plot(sensor_position_vals[3], sensor_position_vals[4], sensor_position_vals[5])
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.set_aspect("equal")
+posterior_estimates = []
+posterior_covariances = []
 
-ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
-ax.set_aspect("equal")
-
-posterior_estimates = [posterior_estimate_vals]
-posterior_covariances = [posterior_covariance_vals]
+for result in results:
+    posterior_estimates.append(result.posterior_estimate_vals)
+    posterior_covariances.append(result.posterior_covariance_vals)
 
 estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 12)
 three_sigmas = compute_3sigmas(posterior_covariances, 12)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 1, 1, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 1, 1, 6)
+divergence_results = check_divergence(estimation_errors, three_sigmas)
 
-truth_control = get_min_energy_control(truth_vals[6:12, :], umax)
-posterior_control = get_min_energy_control(posterior_estimate_vals[6:12, :], umax)
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, np.linalg.norm(truth_control, axis=0))
-ax.plot(time_vals, np.linalg.norm(posterior_control, axis=0))
+ax = plt.figure().add_subplot(projection="3d")
+ax.set_aspect("equal")
+ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.5)
+for run_index in range(len(divergence_results)):
+    if divergence_results[run_index]:
+        vals = posterior_estimates[run_index]
+        ax.plot(vals[0], vals[1], vals[2], alpha=0.25)
 
-fig = plt.figure()
-ax = fig.add_subplot(311)
-ax.plot(time_vals, truth_control[0])
-ax.plot(time_vals, posterior_control[0])
-ax = fig.add_subplot(312)
-ax.plot(time_vals, truth_control[1])
-ax.plot(time_vals, posterior_control[1])
-ax = fig.add_subplot(313)
-ax.plot(time_vals, truth_control[2])
-ax.plot(time_vals, posterior_control[2])
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.5, 0.5], 0.25)
+plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6, [-5, 5], 0.25)
 
 plt.show()

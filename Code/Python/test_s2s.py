@@ -80,7 +80,7 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 filter_output = run_EKF(initial_estimate, initial_covariance,
                         EKF_dynamics_equation, EKF_measurement_equation,
                         measurements, process_noise_covariance,
-                        measurement_noise_covariance, 
+                        filter_measurement_covariance, 
                         dynamics_args, measurement_args)
 
 filter_time = filter_output.t

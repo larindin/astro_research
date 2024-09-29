@@ -34,3 +34,4 @@ seed = 0
 initial_covariance = np.eye(6)*0.3**2
 initial_estimate = np.random.default_rng(seed).multivariate_normal(initial_truth[0:6], initial_covariance)
 process_noise_covariance = np.eye(6)*0.15**2
+filter_measurement_covariance = measurement_noise_covariance * (1.5)**2
