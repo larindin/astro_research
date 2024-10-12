@@ -49,7 +49,11 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 100:150] = 0
+# check_results[:, 50:125] = 0
+# check_results[:, 150:] = 0
+
+check_results[:, 100:300] = 0
+check_results[:, 325:] = 0
 
 dynamics_args = (mu, umax)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
@@ -95,7 +99,7 @@ def big_function(seed):
 
     return filter_output
 
-results = Parallel(n_jobs=4)(delayed(big_function)(seed) for seed in range(50))
+results = Parallel(n_jobs=6)(delayed(big_function)(seed) for seed in range(50))
 
 posterior_estimates = []
 posterior_covariances = []
@@ -108,15 +112,20 @@ estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 1
 three_sigmas = compute_3sigmas(posterior_covariances, 12)
 divergence_results = check_divergence(estimation_errors, three_sigmas)
 
+print(np.count_nonzero(divergence_results))
+
+divergence_results[:] = 1
+
 ax = plt.figure().add_subplot(projection="3d")
-ax.set_aspect("equal")
+ax.scatter(1-mu, 0, 0, "gray")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.5)
 for run_index in range(len(divergence_results)):
     if divergence_results[run_index]:
         vals = posterior_estimates[run_index]
         ax.plot(vals[0], vals[1], vals[2], alpha=0.25)
+ax.set_aspect("equal")
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.5, 0.5], 0.25)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6, [-5, 5], 0.25)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, bounds=(-1, 1), alpha=0.25)
+plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6, bounds=(-5, 5), alpha=0.25)
 
 plt.show()

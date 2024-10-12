@@ -4,17 +4,18 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 
 
-def plot_3sigma(time_vals, estimation_errors, three_sigmas, state_size, bounds, alpha=0.5):
+def plot_3sigma(time_vals, estimation_errors, three_sigmas, state_size, bounds=(None, None), alpha=0.5):
 
     ylabels = [r"X Position Estimation Error", r"Y Position Estimation Error", r"Z Position Estimation Error", r"X Velocity Estimation Error", r"Y Velocity Estimation Error", r"Z Velocity Estimation Error"]
     fig, axes = plt.subplots(2, 3, layout="constrained")
+    fig.set_figheight(6.4)
     
     axes_rowref = [0, 0, 0, 1, 1, 1]
     axes_colref = [0, 1, 2, 0, 1, 2]
     for state_index in range(state_size):
         
         ax = axes[axes_rowref[state_index], axes_colref[state_index]]
-        ax.set_ylim(bounds)
+        ax.set_ylim(bounds[0], bounds[1], auto=bounds[0]==None)
         if axes_rowref[state_index] == 1:
             ax.set_xlabel("Time, s", fontname="Times New Roman")
         ax.set_ylabel(ylabels[state_index], fontname="Times New Roman")
@@ -25,17 +26,18 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, state_size, bounds, 
             ax.step(time_vals, -three_sigmas[run_num][state_index], color="red", alpha=alpha)
             ax.grid(True)
 
-def plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, state_size, bounds, alpha=0.5):
+def plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, state_size, bounds=(None, None), alpha=0.5):
 
     ylabels = [r"$\lambda_1$ Estimation Error", r"$\lambda_2$ Estimation Error", r"$\lambda_3$ Estimation Error", r"$\lambda_4$ Estimation Error", r"$\lambda_5$ Estimation Error", r"$\lambda_6$ Estimation Error"]
     fig, axes = plt.subplots(2, 3, layout="constrained")
+    fig.set_figheight(6.4)
     
     axes_rowref = [0, 0, 0, 1, 1, 1]
     axes_colref = [0, 1, 2, 0, 1, 2]
     for state_index in range(state_size):
         
         ax = axes[axes_rowref[state_index], axes_colref[state_index]]
-        ax.set_ylim(bounds)
+        ax.set_ylim(bounds[0], bounds[1], auto=bounds[0]==None)
         if axes_rowref[state_index] == 1:
             ax.set_xlabel("Time, s", fontname="Times New Roman")
         ax.set_ylabel(ylabels[state_index], fontname="Times New Roman")
