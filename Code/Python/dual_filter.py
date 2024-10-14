@@ -12,7 +12,7 @@ def run_dual_filter(initial_estimate, initial_covariance,
             second_process_noise_covariance, second_measurement_noise_covariance, 
             first_dynamics_args, first_measurement_args,
             second_dynamics_args, second_measurement_args,
-            timeout_count, switching_count):
+            timeout_count, switching_count, filter_index):
 
     time_vals = measurements.t
     measurement_vals = measurements.measurements
@@ -38,7 +38,7 @@ def run_dual_filter(initial_estimate, initial_covariance,
     observable_count = 0
     unobservable_count = 0
 
-    active_filter_index = 1
+    active_filter_index = filter_index
 
     for time_index in np.arange(1, num_measurements + 1):
 

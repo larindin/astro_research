@@ -37,10 +37,10 @@ def minimum_thrust_ODE(t, X, mu, umax, rho):
     p = -B.T @ costate
     control = umax/2 * (1 + np.tanh((np.linalg.norm(p) - 1)/rho)) * p/np.linalg.norm(p)
 
-    ddt_state_kepler = CR3BP_DEs(state, mu)
+    ddt_state_kepler = CR3BP_DEs(t, state, mu)
     ddt_state = ddt_state_kepler + B @ control
 
-    ddt_costate = CR3BP_costate_DEs(state, costate, mu)
+    ddt_costate = CR3BP_costate_DEs(t, state, costate, mu)
 
     return np.concatenate((ddt_state, ddt_costate), 0)
 
