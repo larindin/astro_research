@@ -15,8 +15,10 @@ from plotting import *
 
 time_vals = np.arange(0, final_time, dt)
 tspan = np.array([time_vals[0], time_vals[-1]])
-truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=(mu, umax, rho), t_eval=time_vals, atol=1e-12, rtol=1e-12)
+truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=(mu, umax, truth_rho), t_eval=time_vals, atol=1e-12, rtol=1e-12)
 truth_vals = truth_propagation.y
+origin_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, tspan, initial_truth[0:6], args=(mu,), atol=1e-12, rtol=1e-12)
+origin_vals = origin_propagation.y
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
 
@@ -52,7 +54,7 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-# check_results[:, 50:125] = 0
+# check_results[:, 100:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -111,7 +113,7 @@ def costate_measurement_equation(time_index, X, mu, sensor_position_vals, indivi
 
 
 EKF_dynamics_args = (mu,)
-costate_dynamics_args = (mu, umax, rho)
+costate_dynamics_args = (mu, umax, filter_rho)
 EKF_measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 costate_measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 
@@ -166,8 +168,8 @@ three_sigmas = compute_3sigmas(posterior_covariances, 12)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.5, 0.5], 0.25)
 plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6, [-5, 5], 0.25)
 
-truth_control = get_min_thrust_control(truth_vals[6:12, :], umax, rho)
-posterior_control = get_min_thrust_control(posterior_estimate_vals[6:12, :], umax, rho)
+truth_control = get_min_thrust_control(truth_vals[6:12, :], umax, truth_rho)
+posterior_control = get_min_thrust_control(posterior_estimate_vals[6:12, :], umax, filter_rho)
 ax = plt.figure().add_subplot()
 ax.step(time_vals, np.linalg.norm(truth_control, axis=0))
 ax.step(time_vals, np.linalg.norm(posterior_control, axis=0))
@@ -182,5 +184,25 @@ ax.step(time_vals, posterior_control[1])
 ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
 ax.step(time_vals, posterior_control[2])
+
+fig = plt.figure()
+ax = fig.add_subplot(231)
+ax.plot(time_vals, truth_vals[6])
+ax.plot(time_vals, posterior_estimate_vals[6])
+ax = fig.add_subplot(232)
+ax.plot(time_vals, truth_vals[7])
+ax.plot(time_vals, posterior_estimate_vals[7])
+ax = fig.add_subplot(233)
+ax.plot(time_vals, truth_vals[8])
+ax.plot(time_vals, posterior_estimate_vals[8])
+ax = fig.add_subplot(234)
+ax.plot(time_vals, truth_vals[9])
+ax.plot(time_vals, posterior_estimate_vals[9])
+ax = fig.add_subplot(235)
+ax.plot(time_vals, truth_vals[10])
+ax.plot(time_vals, posterior_estimate_vals[10])
+ax = fig.add_subplot(236)
+ax.plot(time_vals, truth_vals[11])
+ax.plot(time_vals, posterior_estimate_vals[11])
 
 plt.show()

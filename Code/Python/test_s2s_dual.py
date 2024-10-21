@@ -122,7 +122,7 @@ output = run_dual_filter(initial_estimate, initial_covariance,
                          EKF_process_noise_covriance, filter_measurement_covariance,
                          costate_dynamics_args, costate_measurement_args,
                          EKF_dynamics_args, EKF_measurement_args,
-                         timeout_count, switching_count)
+                         timeout_count, switching_count, filter_index)
 
 anterior_estimate_vals = output.anterior_estimate_vals
 posterior_estimate_vals = output.posterior_estimate_vals
