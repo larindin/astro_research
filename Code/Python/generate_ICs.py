@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
 from CR3BP import *
-from dynamics_functions import *
 from shooting import *
 
 

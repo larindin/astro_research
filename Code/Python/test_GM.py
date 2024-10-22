@@ -3,10 +3,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
-from configuration_costate_fuel import *
+from configuration_GM_fuel import *
 from CR3BP import *
 from CR3BP_pontryagin import *
-from EKF import *
+from GM_EKF import *
 from dual_filter import *
 from helper_functions import *
 from measurement_functions import *
@@ -16,8 +16,6 @@ time_vals = np.arange(0, final_time, dt)
 tspan = np.array([time_vals[0], time_vals[-1]])
 truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=(mu, umax, truth_rho), t_eval=time_vals, atol=1e-12, rtol=1e-12)
 truth_vals = truth_propagation.y
-origin_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, tspan, initial_truth[0:6], args=(mu,), atol=1e-12, rtol=1e-12)
-origin_vals = origin_propagation.y
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
 
@@ -57,32 +55,6 @@ check_results[:, :] = 1
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
-def EKF_dynamics_equation(t, X, mu, process_noise_covariance):
-
-    state = X[0:6]
-    covariance = X[6:42].reshape((6, 6))
-
-    jacobian = CR3BP_jacobian(state, mu)
-
-    ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
-
-    return np.concatenate((ddt_state, ddt_covariance.flatten()))
-    
-def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
-
-    num_sensors = int(np.size(sensor_position_vals, 0)/3)
-    measurement = np.empty(num_sensors*individual_measurement_size)
-    measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 6))
-
-    for sensor_index in np.arange(num_sensors):
-        sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
-        
-        measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)
-        measurement_jacobian[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor_jacobian(X, sensor_position)
-
-    return measurement, measurement_jacobian
-
 def costate_dynamics_equation(t, X, mu, umax, rho, process_noise_covariance):
 
     state = X[0:6]
@@ -111,23 +83,60 @@ def costate_measurement_equation(time_index, X, mu, sensor_position_vals, indivi
     return measurement, measurement_jacobian
 
 
-EKF_dynamics_args = (mu,)
-costate_dynamics_args = (mu, umax, filter_rho)
-EKF_measurement_args = (mu, sensor_position_vals, individual_measurement_size)
-costate_measurement_args = (mu, sensor_position_vals, individual_measurement_size)
+dynamics_args = (mu, umax, filter_rho)
+measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 
-output = run_dual_filter(initial_estimate, initial_covariance, 
-                         costate_dynamics_equation, costate_measurement_equation,
-                         EKF_dynamics_equation, EKF_measurement_equation, measurements,
-                         process_noise_covariance, filter_measurement_covariance,
-                         EKF_process_noise_covriance, filter_measurement_covariance,
-                         costate_dynamics_args, costate_measurement_args,
-                         EKF_dynamics_args, EKF_measurement_args,
-                         timeout_count, switching_count, filter_index)
+initial_costate_estimates = get_min_fuel_initial_costates(truth_vals[0:6, 0], truth_vals[9:12, 0], mu, umax, magnitudes, durations)
+num_kernels = np.size(initial_costate_estimates, 1)
+initial_estimates = np.empty((12, num_kernels))
+initial_covariances = np.empty((12, 12, num_kernels))
+for kernel_index in np.arange(num_kernels):
+    initial_estimates[:, kernel_index] = np.concatenate((truth_vals[0:6, 0], initial_costate_estimates[:, kernel_index]))
+    initial_covariances[:, :, kernel_index] = initial_kernel_covariance
+
+output = run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
+                    costate_dynamics_equation, costate_measurement_equation, measurements,
+                    process_noise_covariance, measurement_noise_covariance,
+                    dynamics_args, measurement_args)
 
 anterior_estimate_vals = output.anterior_estimate_vals
 posterior_estimate_vals = output.posterior_estimate_vals
 posterior_covariance_vals = output.posterior_covariance_vals
+weight_vals = output.weight_vals
+
+ax = plt.figure().add_subplot()
+for kernel_index in np.arange(num_kernels):
+    ax.plot(time_vals, weight_vals[kernel_index, :], alpha=0.25)
+
+fig = plt.figure()
+ax = fig.add_subplot(231)
+ax.plot(time_vals, truth_vals[6])
+for index in np.arange(num_kernels):
+    ax.plot(time_vals, posterior_estimate_vals[6, :, index], alpha=0.25)
+ax = fig.add_subplot(232)
+ax.plot(time_vals, truth_vals[7])
+for index in np.arange(num_kernels):
+    ax.plot(time_vals, posterior_estimate_vals[7, :, index], alpha=0.25)
+ax = fig.add_subplot(233)
+ax.plot(time_vals, truth_vals[8])
+for index in np.arange(num_kernels):
+    ax.plot(time_vals, posterior_estimate_vals[8, :, index], alpha=0.25)
+ax = fig.add_subplot(234)
+ax.plot(time_vals, truth_vals[9])
+for index in np.arange(num_kernels):
+    ax.plot(time_vals, posterior_estimate_vals[9, :, index], alpha=0.25)
+ax = fig.add_subplot(235)
+ax.plot(time_vals, truth_vals[10])
+for index in np.arange(num_kernels):
+    ax.plot(time_vals, posterior_estimate_vals[10, :, index], alpha=0.25)
+ax = fig.add_subplot(236)
+ax.plot(time_vals, truth_vals[11])
+for index in np.arange(num_kernels):
+    ax.plot(time_vals, posterior_estimate_vals[11, :, index], alpha=0.25)
+
+plt.show()
+
+quit()
 
 ax = plt.figure().add_subplot()
 ax.plot(measurements.t, measurements.measurements[0])

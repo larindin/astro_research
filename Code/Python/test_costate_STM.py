@@ -9,7 +9,6 @@ from CR3BP import *
 from CR3BP_pontryagin import *
 from EKF import *
 from dual_filter import *
-from dynamics_functions import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
@@ -102,14 +101,14 @@ for propagation in propagations:
     ax.plot(vals[0], vals[1], vals[2])
 ax.set_aspect("equal")
 
-truth_control = get_min_thrust_control(truth_vals[6:12, :], umax, truth_rho)
+truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 fake_control = np.empty((3, len(time_vals)))
 fake_control_vector = -initial_truth[9:12]/np.linalg.norm(initial_truth[9:12])
 for index in np.arange(len(time_vals)):
     fake_control[:, index] = fake_control_vector
 propagation_controls = []
 for index in np.arange(num_propagations):
-    propagation_control = get_min_thrust_control(propagations[index].y[6:12, :], umax, truth_rho)
+    propagation_control = get_min_fuel_control(propagations[index].y[6:12, :], umax, truth_rho)
     propagation_controls.append(propagation_control)
 fig = plt.figure()
 ax = fig.add_subplot(311)

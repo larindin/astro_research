@@ -2,7 +2,7 @@
 
 import numpy as np
 import scipy.integrate
-from dynamics_functions import *
+from helper_functions import *
 
 class FilterResults:
     def __init__(self, time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, innovations_vals):
@@ -12,16 +12,6 @@ class FilterResults:
         self.anterior_covariance_vals = anterior_covariance_vals
         self.posterior_covariance_vals = posterior_covariance_vals
         self.innovations_vals = innovations_vals
-
-def enforce_symmetry(covariance_matrix: np.ndarray):
-    fixed_matrix = (covariance_matrix + covariance_matrix.T) / 2
-    return fixed_matrix
-    
-def check_innovations(innovations):
-    for index, innovation in enumerate(innovations):
-        if abs(innovation) > np.pi:
-            innovations[index] = -np.sign(innovation)*(2*np.pi - abs(innovation))
-    return innovations
 
 def assess_measurement(measurement, individual_measurement_size):
 

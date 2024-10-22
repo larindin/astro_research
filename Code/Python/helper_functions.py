@@ -52,3 +52,16 @@ def generate_sensor_positions(sensor_dynamics_equation, sensor_initial_condition
         sensor_positions[sensor_index*3:(sensor_index + 1)*3] = scipy.integrate.solve_ivp(sensor_dynamics_equation, tspan, initial_conditions, args=args, t_eval=t_eval, atol=1e-12, rtol=1e-12).y[0:3, :]
     
     return sensor_positions
+
+def enforce_symmetry(covariance_matrix: np.ndarray):
+    fixed_matrix = (covariance_matrix + covariance_matrix.T) / 2
+    return fixed_matrix
+    
+def check_innovations(innovations):
+    for index, innovation in enumerate(innovations):
+        if abs(innovation) > np.pi:
+            innovations[index] = -np.sign(innovation)*(2*np.pi - abs(innovation))
+    return innovations
+
+def assess_measurement_probability(innovations, innovations_covariance):
+    return np.sqrt(np.linalg.det(2*np.pi*innovations_covariance)), -0.5 * innovations.T @ np.linalg.inv(innovations_covariance) @ innovations

@@ -35,7 +35,7 @@ while rho >= 1e-5:
 
     print("running with rho = ", rho)
 
-    attempt = scipy.optimize.root(min_thrust_shooting_function, initial_guess, args=(initial_state, target_state, mu, umax, rho), tol=1e-8)
+    attempt = scipy.optimize.root(min_fuel_shooting_function, initial_guess, args=(initial_state, target_state, mu, umax, rho), tol=1e-8)
 
     if attempt.success == True:
         solution = attempt
@@ -56,10 +56,10 @@ tf = solution.x[6]
 
 ICs = np.concatenate((initial_state, initial_costate))
 
-sol_integration = scipy.integrate.solve_ivp(minimum_thrust_ODE, np.array([0, tf]), ICs, args=(mu, umax, rho), atol=1e-12, rtol=1e-12)
+sol_integration = scipy.integrate.solve_ivp(minimum_fuel_ODE, np.array([0, tf]), ICs, args=(mu, umax, rho), atol=1e-12, rtol=1e-12)
 results = sol_integration.y
 time = sol_integration.t
-control = get_min_thrust_control(results[6:12], umax, rho)
+control = get_min_fuel_control(results[6:12], umax, rho)
 
 departure_integration = scipy.integrate.solve_ivp(CR3BP_ODE, np.array([0, initial_orbit_period]), initial_state, args=(mu,), atol=1e-12, rtol=1e-12)
 arrival_integration = scipy.integrate.solve_ivp(CR3BP_ODE, np.array([0, target_orbit_period]), target_state, args=(mu,), atol=1e-12, rtol=1e-12)
