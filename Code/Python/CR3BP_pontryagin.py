@@ -185,7 +185,7 @@ def get_min_fuel_initial_costates(initial_state, initial_lv, mu, umax, magnitude
     costate_index = 0
     for magnitude_index in np.arange(num_magnitudes):
 
-        estimated_initial_lv = magnitudes[magnitude_index] * initial_lv
+        estimated_initial_lv = -magnitudes[magnitude_index] * direction
 
         for duration_index in np.arange(num_durations):
 

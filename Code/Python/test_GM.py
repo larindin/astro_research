@@ -51,7 +51,7 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-# check_results[:, 100:] = 0
+check_results[:, 50:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -87,7 +87,6 @@ dynamics_args = (mu, umax, filter_rho)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 
 initial_costate_estimates = get_min_fuel_initial_costates(truth_vals[0:6, 0], truth_vals[9:12, 0], mu, umax, magnitudes, durations)
-num_kernels = np.size(initial_costate_estimates, 1)
 initial_estimates = np.empty((12, num_kernels))
 initial_covariances = np.empty((12, 12, num_kernels))
 for kernel_index in np.arange(num_kernels):
@@ -104,113 +103,59 @@ posterior_estimate_vals = output.posterior_estimate_vals
 posterior_covariance_vals = output.posterior_covariance_vals
 weight_vals = output.weight_vals
 
+ax = plt.figure().add_subplot(projection="3d")
+ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
+for kernel_index in np.arange(num_kernels):
+    ax.plot(posterior_estimate_vals[0, :, kernel_index], posterior_estimate_vals[1, :, kernel_index], posterior_estimate_vals[2, :, kernel_index], alpha=0.25)
+ax.set_aspect("equal")
+
 ax = plt.figure().add_subplot()
 for kernel_index in np.arange(num_kernels):
-    ax.plot(time_vals, weight_vals[kernel_index, :], alpha=0.25)
+    ax.step(time_vals, weight_vals[kernel_index, :], alpha=0.25)
 
 fig = plt.figure()
 ax = fig.add_subplot(231)
 ax.plot(time_vals, truth_vals[6])
 for index in np.arange(num_kernels):
-    ax.plot(time_vals, posterior_estimate_vals[6, :, index], alpha=0.25)
+    ax.step(time_vals, posterior_estimate_vals[6, :, index], alpha=0.25)
 ax = fig.add_subplot(232)
 ax.plot(time_vals, truth_vals[7])
 for index in np.arange(num_kernels):
-    ax.plot(time_vals, posterior_estimate_vals[7, :, index], alpha=0.25)
+    ax.step(time_vals, posterior_estimate_vals[7, :, index], alpha=0.25)
 ax = fig.add_subplot(233)
 ax.plot(time_vals, truth_vals[8])
 for index in np.arange(num_kernels):
-    ax.plot(time_vals, posterior_estimate_vals[8, :, index], alpha=0.25)
+    ax.step(time_vals, posterior_estimate_vals[8, :, index], alpha=0.25)
 ax = fig.add_subplot(234)
 ax.plot(time_vals, truth_vals[9])
 for index in np.arange(num_kernels):
-    ax.plot(time_vals, posterior_estimate_vals[9, :, index], alpha=0.25)
+    ax.step(time_vals, posterior_estimate_vals[9, :, index], alpha=0.25)
 ax = fig.add_subplot(235)
 ax.plot(time_vals, truth_vals[10])
 for index in np.arange(num_kernels):
-    ax.plot(time_vals, posterior_estimate_vals[10, :, index], alpha=0.25)
+    ax.step(time_vals, posterior_estimate_vals[10, :, index], alpha=0.25)
 ax = fig.add_subplot(236)
 ax.plot(time_vals, truth_vals[11])
 for index in np.arange(num_kernels):
-    ax.plot(time_vals, posterior_estimate_vals[11, :, index], alpha=0.25)
-
-plt.show()
-
-quit()
-
-ax = plt.figure().add_subplot()
-ax.plot(measurements.t, measurements.measurements[0])
-ax.plot(measurements.t, measurements.measurements[1])
-ax.plot(measurements.t, measurements.measurements[2])
-ax.plot(measurements.t, measurements.measurements[3])
-
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, check_results[0], alpha=0.25)
-ax.plot(time_vals, earth_results[0], alpha=0.25)
-ax.plot(time_vals, moon_results[0], alpha=0.25)
-ax.plot(time_vals, sun_results[0], alpha=0.25)
-
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, check_results[1], alpha=0.25)
-ax.plot(time_vals, earth_results[1], alpha=0.25)
-ax.plot(time_vals, moon_results[1], alpha=0.25)
-ax.plot(time_vals, sun_results[1], alpha=0.25)
-
-ax = plt.figure().add_subplot(projection="3d")
-ax.plot(sensor_position_vals[0], sensor_position_vals[1], sensor_position_vals[2])
-ax.plot(sensor_position_vals[3], sensor_position_vals[4], sensor_position_vals[5])
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.set_aspect("equal")
-
-ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
-ax.plot(anterior_estimate_vals[0], anterior_estimate_vals[1], anterior_estimate_vals[2])
-ax.set_aspect("equal")
-
-posterior_estimates = [posterior_estimate_vals]
-posterior_covariances = [posterior_covariance_vals]
-
-estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 12)
-three_sigmas = compute_3sigmas(posterior_covariances, 12)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.5, 0.5], 0.25)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6, [-5, 5], 0.25)
+    ax.step(time_vals, posterior_estimate_vals[11, :, index], alpha=0.25)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-posterior_control = get_min_fuel_control(posterior_estimate_vals[6:12, :], umax, filter_rho)
-ax = plt.figure().add_subplot()
-ax.step(time_vals, np.linalg.norm(truth_control, axis=0))
-ax.step(time_vals, np.linalg.norm(posterior_control, axis=0))
-
+estimated_controls = []
+for index in np.arange(num_kernels):
+    estimated_control = get_min_fuel_control(posterior_estimate_vals[6:12, :, index], umax, filter_rho)
+    estimated_controls.append(estimated_control)
 fig = plt.figure()
 ax = fig.add_subplot(311)
 ax.step(time_vals, truth_control[0])
-ax.step(time_vals, posterior_control[0])
+for index in np.arange(num_kernels):
+    ax.step(time_vals, estimated_controls[index][0], alpha=0.25)
 ax = fig.add_subplot(312)
 ax.step(time_vals, truth_control[1])
-ax.step(time_vals, posterior_control[1])
+for index in np.arange(num_kernels):
+    ax.step(time_vals, estimated_controls[index][1], alpha=0.25)
 ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
-ax.step(time_vals, posterior_control[2])
-
-fig = plt.figure()
-ax = fig.add_subplot(231)
-ax.plot(time_vals, truth_vals[6])
-ax.plot(time_vals, posterior_estimate_vals[6])
-ax = fig.add_subplot(232)
-ax.plot(time_vals, truth_vals[7])
-ax.plot(time_vals, posterior_estimate_vals[7])
-ax = fig.add_subplot(233)
-ax.plot(time_vals, truth_vals[8])
-ax.plot(time_vals, posterior_estimate_vals[8])
-ax = fig.add_subplot(234)
-ax.plot(time_vals, truth_vals[9])
-ax.plot(time_vals, posterior_estimate_vals[9])
-ax = fig.add_subplot(235)
-ax.plot(time_vals, truth_vals[10])
-ax.plot(time_vals, posterior_estimate_vals[10])
-ax = fig.add_subplot(236)
-ax.plot(time_vals, truth_vals[11])
-ax.plot(time_vals, posterior_estimate_vals[11])
+for index in np.arange(num_kernels):
+    ax.step(time_vals, estimated_controls[index][2], alpha=0.25)
 
 plt.show()

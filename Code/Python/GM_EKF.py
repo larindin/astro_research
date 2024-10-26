@@ -76,9 +76,6 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
     weight_vals[:, 0] = initial_weights
     posterior_estimate_vals[:, 0, :] = initial_estimates
     posterior_covariance_vals[:, :, 0, :] = initial_covariances
-    # for kernel_index in np.arange(num_kernels): 
-    #     posterior_estimate_vals[:, 0, kernel_index] = initial_estimates[:, kernel_index]
-    #     posterior_covariance_vals [:, :, 0, kernel_index] = initial_covariances[:, :, kernel_index]
 
     previous_time = 0
     previous_posterior_estimates = initial_estimates
@@ -89,10 +86,16 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
     exponents = np.empty(num_kernels)
 
     for time_index in np.arange(1, num_measurements + 1):
+        print(time_index)
 
         measurement = measurement_vals[:, time_index-1]
         current_time = time_vals[time_index-1]
         timespan = current_time - previous_time
+        
+        anterior_estimates = np.empty((state_size, num_kernels))
+        posterior_estimates = np.empty((state_size, num_kernels))
+        anterior_covariances = np.empty((state_size, state_size, num_kernels))
+        posterior_covariances = np.empty((state_size, state_size, num_kernels))
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
             for kernel_index in np.arange(num_kernels):
@@ -104,10 +107,10 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
                                     process_noise_covariance, timespan, dynamics_args, measurement_size)        
                 anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = propagate_EKF(*propagation_inputs)
 
-                anterior_estimate_vals[:, time_index-1, kernel_index] = anterior_estimate
-                posterior_estimate_vals[:, time_index, kernel_index] = posterior_estimate
-                anterior_covariance_vals[:, :, time_index-1, kernel_index] = anterior_covariance
-                posterior_covariance_vals[:, :, time_index, kernel_index] = posterior_covariance
+                anterior_estimates[:, kernel_index] = anterior_estimate
+                posterior_estimates[:, kernel_index] = posterior_estimate
+                anterior_covariances[:, :, kernel_index] = anterior_covariance
+                posterior_covariances[:, :, kernel_index] = posterior_covariance
                 # innovations_vals[:, time_index, kernel_index] = innovations
                 denominators[kernel_index] = 1
                 exponents[kernel_index] = 1
@@ -123,10 +126,10 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
                             measurement, timespan, dynamics_args, measurement_args)      
                 anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations, denominator, exponent = iterate_GM_kernel(*EKF_inputs)
 
-                anterior_estimate_vals[:, time_index-1, kernel_index] = anterior_estimate
-                posterior_estimate_vals[:, time_index, kernel_index] = posterior_estimate
-                anterior_covariance_vals[:, :, time_index-1, kernel_index] = anterior_covariance
-                posterior_covariance_vals[:, :, time_index, kernel_index] = posterior_covariance
+                anterior_estimates[:, kernel_index] = anterior_estimate
+                posterior_estimates[:, kernel_index] = posterior_estimate
+                anterior_covariances[:, :, kernel_index] = anterior_covariance
+                posterior_covariances[:, :, kernel_index] = posterior_covariance
                 # innovations_vals[:, time_index, kernel_index] = innovations
                 denominators[kernel_index] = denominator
                 exponents[kernel_index] = exponent
@@ -136,14 +139,17 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
         normalized_exponents = exponents - exponents.max()
         measurement_probabilities = 1 / normalized_denominators * np.exp(normalized_exponents)
         probability_sum = np.sum(previous_weights * measurement_probabilities)
-        for kernel_index in np.arange(num_kernels):
-            new_weights[kernel_index] = previous_weights[kernel_index]*measurement_probabilities[kernel_index]/probability_sum
+        new_weights = previous_weights*measurement_probabilities/probability_sum
         weight_vals[:, time_index] = new_weights
 
+        anterior_estimate_vals[:, time_index-1, :] = anterior_estimates
+        posterior_estimate_vals[:, time_index, :] = posterior_estimates
+        anterior_covariance_vals[:, :, time_index-1, :] = anterior_covariances
+        posterior_covariance_vals[:, :, time_index, :] = posterior_covariances
 
         previous_time = current_time
-        previous_posterior_estimate = posterior_estimate
-        previous_posterior_covariance = posterior_covariance
+        previous_posterior_estimates = posterior_estimates
+        previous_posterior_covariances = posterior_covariances
         previous_weights = new_weights
     
     return GM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, innovations_vals, weight_vals)
