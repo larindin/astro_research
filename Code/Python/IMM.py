@@ -4,7 +4,7 @@ from helper_functions import *
 from EKF import *
 from GM_EKF import *
 
-def IMM_filter(initial_estimate, initial_covariance, initial_mode_probabilities,
+def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
                dynamics_equations, measurement_equation, measurements,
                process_noise_covariance, measurement_noise_covariance,
                dynamics_args, measurement_args, mode_transition_matrix):
@@ -37,11 +37,7 @@ def IMM_filter(initial_estimate, initial_covariance, initial_mode_probabilities,
     previous_mode_probabilities = initial_mode_probabilities
     denominators = np.empty(num_modes)
     exponents = np.empty(num_modes)
-
-    individual_estimates = np.empty((state_size, num_modes))
-    individual_covariances = np.empty((state_size, state_size, num_modes))
     individual_total_conditional_probabilities = np.empty(num_modes)
-    
     raw_mode_probabilities = np.empty(num_modes)
     
     for time_index in np.arange(1, num_measurements+1):
@@ -58,8 +54,7 @@ def IMM_filter(initial_estimate, initial_covariance, initial_mode_probabilities,
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
             for mode_index in np.arange(num_modes):
 
-                raw_conditional_probabilities = mode_transition_matrix[:, mode_index] * previous_mode_probabilities
-                conditional_probabilities = raw_conditional_probabilities / np.sum(raw_conditional_probabilities)    
+                individual_total_conditional_probabilities[mode_index] = 1/num_modes
 
                 previous_posterior_estimate = previous_posterior_estimates[:, mode_index]
                 previous_posterior_covariance = previous_posterior_covariances[:, :, mode_index]
@@ -80,13 +75,23 @@ def IMM_filter(initial_estimate, initial_covariance, initial_mode_probabilities,
             for mode_index in np.arange(num_modes):
                 
                 raw_conditional_probabilities = mode_transition_matrix[:, mode_index] * previous_mode_probabilities
-                conditional_probabilities = raw_conditional_probabilities / np.sum(raw_conditional_probabilities)    
+                conditional_probabilities = raw_conditional_probabilities / np.sum(raw_conditional_probabilities)
+                individual_total_conditional_probabilities[mode_index] = np.sum(raw_conditional_probabilities)    
 
                 previous_posterior_estimate = previous_posterior_estimates[:, mode_index]
                 previous_posterior_covariance = previous_posterior_covariances[:, :, mode_index]
                 dynamics_equation = dynamics_equations[mode_index]
 
-                EKF_inputs = (time_index, previous_posterior_estimate, previous_posterior_covariance, 
+                mixed_initial_estimate = np.zeros(state_size)
+                mixed_initial_covariance = np.zeros((state_size, state_size))
+
+                for model_index in np.arange(num_modes):
+                    mixed_initial_estimate += conditional_probabilities[model_index] * previous_posterior_estimates[:, model_index]
+                for model_index in np.arange(num_modes):
+                    difference = np.reshape(previous_posterior_estimates[:, model_index] - mixed_initial_estimate, (state_size, 1))
+                    mixed_initial_covariance += conditional_probabilities[model_index] * (previous_posterior_covariances[:, :, model_index] + difference @ difference.T)
+
+                EKF_inputs = (time_index, mixed_initial_estimate, mixed_initial_covariance, 
                             dynamics_equation, measurement_equation, individual_measurement_size, 
                             process_noise_covariance, measurement_noise_covariance, 
                             measurement, timespan, dynamics_args, measurement_args)      
@@ -100,29 +105,23 @@ def IMM_filter(initial_estimate, initial_covariance, initial_mode_probabilities,
                 denominators[mode_index] = denominator
                 exponents[mode_index] = exponent
 
-        mode_probabilities = np.empty(num_modes)        
+        new_mode_probabilities = np.empty(num_modes)        
         normalized_denominators = denominators / denominators.min()
         normalized_exponents = exponents - exponents.max()
         
-        measurement_probabillities = 1 / normalized_denominators * np.exp(normalized_exponents)
-        
-        for model_index in range(number_modes):
-            raw_mode_probabilities[model_index] = normalized_likelihoods[model_index] * individual_total_conditional_probabilities[model_index]
-            
-        mode_probabilities = raw_mode_probabilities / np.sum(raw_mode_probabilities)
+        measurement_probabilities = 1 / normalized_denominators * np.exp(normalized_exponents)
+        raw_mode_probabilities[mode_index] = measurement_probabilities*individual_total_conditional_probabilities
+        new_mode_probabilities = raw_mode_probabilities / np.sum(raw_mode_probabilities)
+        mode_probability_vals[:, time_index] = new_mode_probabilities
 
-        posterior_estimate = np.zeros((number_states))
-        posterior_covariance = np.zeros((number_states, number_states))
+        anterior_estimate_vals[:, time_index-1, :] = anterior_estimates
+        posterior_estimate_vals[:, time_index, :] = posterior_estimates
+        anterior_covariance_vals[:, :, time_index-1, :] = anterior_covariances
+        posterior_covariance_vals[:, :, time_index, :] = posterior_covariances
 
-        for model_index in range(number_modes):
-            posterior_estimate += mode_probabilities[model_index] * individual_estimates[:, model_index]
-        
-        for model_index in range(number_modes):
-            reshaped_difference = np.reshape(individual_estimates[:, model_index] - posterior_estimate, (number_states, 1))
-            posterior_covariance += mode_probabilities[model_index] * (individual_covariances[:, :, model_index] + reshaped_difference @ reshaped_difference.T)
-        
-        posterior_estimate_vals[:, measurement_index] = posterior_estimate
-        posterior_covariance_vals[:, :, measurement_index] = enforce_symmetry(posterior_covariance)
-        mode_probability_vals[:, measurement_index] = mode_probabilities
+        previous_time = current_time
+        previous_posterior_estimates = posterior_estimates
+        previous_posterior_covariances = posterior_covariances
+        previous_mode_probabilities = new_mode_probabilities
 
-    return posterior_estimate_vals, posterior_covariance_vals, mode_probability_vals
+    return GM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, 0, mode_probability_vals)

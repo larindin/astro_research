@@ -138,8 +138,8 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
         normalized_denominators = denominators / denominators.min()
         normalized_exponents = exponents - exponents.max()
         measurement_probabilities = 1 / normalized_denominators * np.exp(normalized_exponents)
-        probability_sum = np.sum(previous_weights * measurement_probabilities)
-        new_weights = previous_weights*measurement_probabilities/probability_sum
+        raw_weights = previous_weights*measurement_probabilities
+        new_weights = raw_weights/np.sum(raw_weights)
         weight_vals[:, time_index] = new_weights
 
         anterior_estimate_vals[:, time_index-1, :] = anterior_estimates
