@@ -3,17 +3,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
-from configuration_costate import *
+from configuration_IMM_fuel import *
 from CR3BP import *
 from CR3BP_pontryagin import *
-from EKF import *
+from IMM import *
+from dual_filter import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
 
 time_vals = np.arange(0, final_time, dt)
 tspan = np.array([time_vals[0], time_vals[-1]])
-truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=(mu, umax), t_eval=time_vals, atol=1e-12, rtol=1e-12)
+truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=truth_dynamics_args, t_eval=time_vals, atol=1e-12, rtol=1e-12)
 truth_vals = truth_propagation.y
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
@@ -45,14 +46,16 @@ for sensor_index in np.arange(num_sensors):
 # check_results[0, :25] = 0
 # check_results[1, :25] = 1
 
+# check_results[:, 0:100] = 1
+# check_results[:, 100:] = 0
+
 check_results[:, :] = 1
+
+# check_results[:, 50:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
-dynamics_args = (mu, umax)
-measurement_args = (mu, sensor_position_vals, individual_measurement_size)
-
-def EKF_dynamics_equation(t, X, mu, umax, process_noise_covariance):
+def coasting_dynamics_equation(t, X, mu, umax, rho, process_noise_covariance):
 
     state = X[0:6]
     costate = X[6:12]
@@ -60,12 +63,26 @@ def EKF_dynamics_equation(t, X, mu, umax, process_noise_covariance):
 
     jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
 
-    ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
+    ddt_state = CR3BP_DEs(t, state, mu)
+    ddt_costate = np.zeros(6)
+    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+
+    return np.concatenate((ddt_state, ddt_costate, ddt_covariance.flatten()))
+
+def thrusting_dynamics_equation(t, X, mu, umax, rho, process_noise_covariance):
+
+    state = X[0:6]
+    costate = X[6:12]
+    covariance = X[12:156].reshape((12, 12))
+
+    jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
+
+    ddt_state = minimum_fuel_ODE(0, X[0:12], mu, umax, rho)
     ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
 
     return np.concatenate((ddt_state, ddt_covariance.flatten()))
     
-def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
+def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
     measurement = np.empty(num_sensors*individual_measurement_size)
@@ -80,72 +97,75 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
     return measurement, measurement_jacobian
 
 
-filter_output = run_EKF(initial_estimate, initial_covariance,
-                        EKF_dynamics_equation, EKF_measurement_equation,
-                        measurements, process_noise_covariance,
-                        filter_measurement_covariance, 
-                        dynamics_args, measurement_args)
+dynamics_args = (mu, umax, filter_rho)
+measurement_args = (mu, sensor_position_vals, individual_measurement_size)
+dynamics_equations = [coasting_dynamics_equation, thrusting_dynamics_equation]
+num_modes = len(dynamics_equations)
 
-filter_time = filter_output.t
-posterior_estimate_vals = filter_output.posterior_estimate_vals
-posterior_covariance_vals = filter_output.posterior_covariance_vals
-anterior_estimate_vals = filter_output.anterior_estimate_vals
-anterior_covariance_vals = filter_output.anterior_covariance_vals
-innovations = filter_output.innovations_vals
 
-ax = plt.figure().add_subplot()
-ax.plot(measurements.t, measurements.measurements[0])
-ax.plot(measurements.t, measurements.measurements[1])
-ax.plot(measurements.t, measurements.measurements[2])
-ax.plot(measurements.t, measurements.measurements[3])
+output = run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
+                    dynamics_equations, filter_measurement_equation, measurements,
+                    process_noise_covariances, filter_measurement_covariance,
+                    dynamics_args, measurement_args, mode_transition_matrix)
 
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, check_results[0], alpha=0.25)
-ax.plot(time_vals, earth_results[0], alpha=0.25)
-ax.plot(time_vals, moon_results[0], alpha=0.25)
-ax.plot(time_vals, sun_results[0], alpha=0.25)
-
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, check_results[1], alpha=0.25)
-ax.plot(time_vals, earth_results[1], alpha=0.25)
-ax.plot(time_vals, moon_results[1], alpha=0.25)
-ax.plot(time_vals, sun_results[1], alpha=0.25)
-
-ax = plt.figure().add_subplot(projection="3d")
-ax.set_aspect("equal")
-ax.plot(sensor_position_vals[0], sensor_position_vals[1], sensor_position_vals[2])
-ax.plot(sensor_position_vals[3], sensor_position_vals[4], sensor_position_vals[5])
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.set_aspect("equal")
+anterior_estimate_vals = output.anterior_estimate_vals
+posterior_estimate_vals = output.posterior_estimate_vals
+posterior_covariance_vals = output.posterior_covariance_vals
+weight_vals = output.weight_vals
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
+for mode_index in np.arange(num_modes):
+    ax.plot(posterior_estimate_vals[0, :, mode_index], posterior_estimate_vals[1, :, mode_index], posterior_estimate_vals[2, :, mode_index], alpha=0.25)
 ax.set_aspect("equal")
 
-posterior_estimates = [posterior_estimate_vals]
-posterior_covariances = [posterior_covariance_vals]
-
-estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 12)
-three_sigmas = compute_3sigmas(posterior_covariances, 12)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 1, 1, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 1, 1, 6)
-
-truth_control = get_min_energy_control(truth_vals[6:12, :], umax)
-posterior_control = get_min_energy_control(posterior_estimate_vals[6:12, :], umax)
 ax = plt.figure().add_subplot()
-ax.plot(time_vals, np.linalg.norm(truth_control, axis=0))
-ax.plot(time_vals, np.linalg.norm(posterior_control, axis=0))
+for mode_index in np.arange(num_modes):
+    ax.step(time_vals, weight_vals[mode_index, :], alpha=0.25)
 
 fig = plt.figure()
+ax = fig.add_subplot(231)
+ax.plot(time_vals, truth_vals[6])
+for index in np.arange(num_modes):
+    ax.step(time_vals, posterior_estimate_vals[6, :, index], alpha=0.25)
+ax = fig.add_subplot(232)
+ax.plot(time_vals, truth_vals[7])
+for index in np.arange(num_modes):
+    ax.step(time_vals, posterior_estimate_vals[7, :, index], alpha=0.25)
+ax = fig.add_subplot(233)
+ax.plot(time_vals, truth_vals[8])
+for index in np.arange(num_modes):
+    ax.step(time_vals, posterior_estimate_vals[8, :, index], alpha=0.25)
+ax = fig.add_subplot(234)
+ax.plot(time_vals, truth_vals[9])
+for index in np.arange(num_modes):
+    ax.step(time_vals, posterior_estimate_vals[9, :, index], alpha=0.25)
+ax = fig.add_subplot(235)
+ax.plot(time_vals, truth_vals[10])
+for index in np.arange(num_modes):
+    ax.step(time_vals, posterior_estimate_vals[10, :, index], alpha=0.25)
+ax = fig.add_subplot(236)
+ax.plot(time_vals, truth_vals[11])
+for index in np.arange(num_modes):
+    ax.step(time_vals, posterior_estimate_vals[11, :, index], alpha=0.25)
+
+truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
+estimated_controls = []
+for index in np.arange(num_modes):
+    estimated_control = get_min_fuel_control(posterior_estimate_vals[6:12, :, index], umax, filter_rho)
+    estimated_controls.append(estimated_control)
+fig = plt.figure()
 ax = fig.add_subplot(311)
-ax.plot(time_vals, truth_control[0])
-ax.plot(time_vals, posterior_control[0])
+ax.step(time_vals, truth_control[0])
+for index in np.arange(num_modes):
+    ax.step(time_vals, estimated_controls[index][0], alpha=0.25)
 ax = fig.add_subplot(312)
-ax.plot(time_vals, truth_control[1])
-ax.plot(time_vals, posterior_control[1])
+ax.step(time_vals, truth_control[1])
+for index in np.arange(num_modes):
+    ax.step(time_vals, estimated_controls[index][1], alpha=0.25)
 ax = fig.add_subplot(313)
-ax.plot(time_vals, truth_control[2])
-ax.plot(time_vals, posterior_control[2])
+ax.step(time_vals, truth_control[2])
+for index in np.arange(num_modes):
+    ax.step(time_vals, estimated_controls[index][2], alpha=0.25)
 
 plt.show()

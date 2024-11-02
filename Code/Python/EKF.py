@@ -45,13 +45,14 @@ def iterate_EKF(time_index, previous_posterior_estimate, previous_posterior_cova
                 dynamics_args, measurement_args):
 
     state_size = np.size(previous_posterior_estimate, 0)
-    initial_conditions = np.concatenate((previous_posterior_estimate, previous_posterior_covariance.flatten()))
-    args = dynamics_args + (process_noise_covariance,)
+    initial_conditions = np.concatenate((previous_posterior_estimate, np.eye(state_size).flatten()))
+    args = dynamics_args
     propagation = scipy.integrate.solve_ivp(dynamics_equation, np.array([0, timespan]), initial_conditions, args=args, atol=1e-12, rtol=1e-12)
 
     output = propagation.y
     anterior_estimate = output[0:state_size, -1]
-    anterior_covariance = output[state_size:(state_size+state_size**2), -1].reshape((state_size, state_size))
+    STM = output[state_size:(state_size+state_size**2), -1].reshape((state_size, state_size))
+    anterior_covariance = STM @ previous_posterior_covariance @ STM.T + process_noise_covariance
     anterior_covariance = enforce_symmetry(anterior_covariance)
 
     # fudge = np.sqrt(np.diag(np.array([1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05])))
@@ -84,13 +85,13 @@ def propagate_EKF(previous_posterior_estimate, previous_posterior_covariance,
                   dynamics_args, measurement_size):
     
     state_size = np.size(previous_posterior_estimate, 0)
-    initial_conditions = np.concatenate((previous_posterior_estimate, previous_posterior_covariance.flatten()))
-    args = dynamics_args + (process_noise_covariance,)
-    propagation = scipy.integrate.solve_ivp(dynamics_equation, np.array([0, timespan]), initial_conditions, args=args, atol=1e-12, rtol=1e-12)
+    initial_conditions = np.concatenate((previous_posterior_estimate, np.eye(state_size).flatten()))
+    propagation = scipy.integrate.solve_ivp(dynamics_equation, np.array([0, timespan]), initial_conditions, args=dynamics_args, atol=1e-12, rtol=1e-12)
 
     output = propagation.y
     anterior_estimate = output[0:state_size, -1]
-    anterior_covariance = output[state_size:(state_size + state_size**2), -1].reshape((state_size, state_size))
+    STM = output[state_size:(state_size+state_size**2), -1].reshape((state_size, state_size))
+    anterior_covariance = STM @ previous_posterior_covariance @ STM.T + process_noise_covariance
     anterior_covariance = enforce_symmetry(anterior_covariance)
 
     posterior_esimate = anterior_estimate
@@ -114,9 +115,9 @@ def run_EKF(initial_estimate, initial_covariance,
     num_measurements = np.size(measurement_vals, 1)
 
     anterior_estimate_vals = np.empty((state_size, num_measurements))
-    posterior_estimate_vals = np.empty((state_size, num_measurements+1))
+    posterior_estimate_vals = np.empty((state_size, num_measurements))
     anterior_covariance_vals = np.empty((state_size, state_size, num_measurements))
-    posterior_covariance_vals = np.empty((state_size, state_size, num_measurements+1))
+    posterior_covariance_vals = np.empty((state_size, state_size, num_measurements))
     innovations_vals = np.empty((measurement_size, num_measurements))
 
     posterior_estimate_vals[:, 0] = initial_estimate
@@ -126,10 +127,10 @@ def run_EKF(initial_estimate, initial_covariance,
     previous_posterior_estimate = initial_estimate
     previous_posterior_covariance = initial_covariance
 
-    for time_index in np.arange(1, num_measurements + 1):
+    for time_index in np.arange(1, num_measurements):
 
-        measurement = measurement_vals[:, time_index-1]
-        current_time = time_vals[time_index-1]
+        measurement = measurement_vals[:, time_index]
+        current_time = time_vals[time_index]
         timespan = current_time - previous_time
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
@@ -143,9 +144,9 @@ def run_EKF(initial_estimate, initial_covariance,
                         measurement, timespan, dynamics_args, measurement_args)      
             anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = iterate_EKF(*EKF_inputs)
         
-        anterior_estimate_vals[:, time_index-1] = anterior_estimate
+        anterior_estimate_vals[:, time_index] = anterior_estimate
         posterior_estimate_vals[:, time_index] = posterior_estimate
-        anterior_covariance_vals[:, :, time_index-1] = anterior_covariance
+        anterior_covariance_vals[:, :, time_index] = anterior_covariance
         posterior_covariance_vals[:, :, time_index] = posterior_covariance
         # innovations_vals[:, time_index] = innovations
 

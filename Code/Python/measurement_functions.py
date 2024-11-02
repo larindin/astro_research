@@ -216,7 +216,7 @@ def check_validity(time_vals: np.ndarray, target_pos_vals: np.ndarray, sensor_po
 
 def generate_measurements(time_vals: np.ndarray, truth_vals: np.ndarray, measurement_equation, measurement_size: int, noise_covariance, measurement_args, seed):
 
-    num_measurements = len(time_vals[1:])
+    num_measurements = len(time_vals)
     measurement_vals = np.zeros((measurement_size, num_measurements))
 
     generator = np.random.default_rng(seed)
@@ -224,14 +224,14 @@ def generate_measurements(time_vals: np.ndarray, truth_vals: np.ndarray, measure
     noise_vals = generator.multivariate_normal(noise_mean, noise_covariance, num_measurements)
 
     for time_index in np.arange(num_measurements):
-        args = (time_index + 1, truth_vals[:, time_index + 1],) + measurement_args
+        args = (time_index, truth_vals[:, time_index],) + measurement_args
         measurement_vals[:, time_index] = measurement_equation(*args) + noise_vals[time_index, :]
     
-    return Measurements(time_vals[1:], measurement_vals)
+    return Measurements(time_vals, measurement_vals)
 
 def generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, noise_covariance, sensor_position_vals, check_results, seed):
 
-    num_measurements = len(time_vals[1:])
+    num_measurements = len(time_vals)
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
     measurement_vals = np.zeros((individual_measurement_size*num_sensors, num_measurements))
 
@@ -241,14 +241,14 @@ def generate_sensor_measurements(time_vals, truth_vals, measurement_equation, in
         sensor_check_results = check_results[sensor_index, :]
         sensor_measurements = np.empty((individual_measurement_size, num_measurements))
         
-        for measurement_index in np.arange(1, num_measurements + 1):
+        for measurement_index in np.arange(0, num_measurements):
             
             if sensor_check_results[measurement_index] == 0:
-                sensor_measurements[:, measurement_index - 1] = np.nan
+                sensor_measurements[:, measurement_index] = np.nan
             else:
                 truth = truth_vals[:, measurement_index]
                 sensor_position = sensor_positions[:, measurement_index]
-                sensor_measurements[:, measurement_index - 1] = measurement_equation(truth, sensor_position)
+                sensor_measurements[:, measurement_index] = measurement_equation(truth, sensor_position)
         
         measurement_vals[sensor_index*individual_measurement_size:(sensor_index + 1)*individual_measurement_size, :] = sensor_measurements
 
@@ -259,4 +259,4 @@ def generate_sensor_measurements(time_vals, truth_vals, measurement_equation, in
         noise_vals = generator.multivariate_normal(noise_mean, noise_covariance, num_measurements)
         measurement_vals[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size, :] += noise_vals.T
 
-    return Measurements(time_vals[1:], measurement_vals, individual_measurement_size)
+    return Measurements(time_vals, measurement_vals, individual_measurement_size)
