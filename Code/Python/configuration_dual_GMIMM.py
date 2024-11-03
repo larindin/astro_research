@@ -41,7 +41,7 @@ generator = np.random.default_rng(seed)
 initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.zeros(3), np.ones(3)*1e-9))
 # initial_estimate = initial_truth
 filter_measurement_covariance = measurement_noise_covariance * (1.1)**2
-filter_rho = 1e-4
+filter_rho = 1e-2
 switching_cutoff = 5
 
 # IMM parameters

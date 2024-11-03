@@ -61,7 +61,7 @@ def coasting_dynamics_equation(t, X, mu, umax, rho):
     costate = X[6:12]
     STM = X[12:156].reshape((12, 12))
 
-    jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
+    jacobian = minimum_fuel_jacobian(state, costate, mu, umax, rho)
 
     ddt_state = CR3BP_DEs(t, state, mu)
     ddt_costate = np.zeros(6)
@@ -75,7 +75,7 @@ def thrusting_dynamics_equation(t, X, mu, umax, rho):
     costate = X[6:12]
     STM = X[12:156].reshape((12, 12))
 
-    jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
+    jacobian = minimum_fuel_jacobian(state, costate, mu, umax, rho)
 
     ddt_state = minimum_fuel_ODE(0, X[0:12], mu, umax, rho)
     ddt_STM = jacobian @ STM
@@ -112,6 +112,14 @@ IMM_t = IMM_output.t
 IMM_posterior_estimate_vals = IMM_output.posterior_estimate_vals
 IMM_posterior_covariance_vals = IMM_output.posterior_covariance_vals
 IMM_weights = IMM_output.weight_vals
+
+
+ax = plt.figure().add_subplot()
+ax.step(IMM_t, IMM_weights[0], alpha=0.5)
+ax.step(IMM_t, IMM_weights[1], alpha=0.5)
+
+plt.show()
+quit()
 
 thrusting_indices = get_thrusting_indices(IMM_output, switching_cutoff)
 start_index = thrusting_indices[0]
