@@ -41,7 +41,7 @@ generator = np.random.default_rng(seed)
 initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.zeros(3), np.ones(3)*1e-9))
 # initial_estimate = initial_truth
 filter_measurement_covariance = measurement_noise_covariance * (1.1)**2
-filter_rho = 1e-2
+filter_rho = 1e-4
 switching_cutoff = 5
 
 # IMM parameters
@@ -52,10 +52,12 @@ initial_mode_probabilities = np.array([1, 0])
 mode_transition_matrix = np.array([[0.99, 0.01], [0.2, 0.8]])
 
 # GMM parameters
+initial_kernel_state_covariance = scipy.linalg.block_diag(np.eye(3)*1e-6**2, np.eye(3)*1e-3**2)
 initial_kernel_costate_covariance = np.eye(6)*0.01**2
-initial_kernel_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_kernel_costate_covariance)
-kernel_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(0.01)**2)
-magnitudes = np.linspace(1.0, 1.20, 21)
+initial_kernel_covariance = scipy.linalg.block_diag(initial_kernel_state_covariance, initial_kernel_costate_covariance)
+kernel_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(0.02)**2)
+# magnitudes = np.linspace(1.1, 1.3, 21)
+magnitudes = np.linspace(1.0, 1.2, 21)
 # magnitudes = [1.05]
 num_kernels = len(magnitudes)
 initial_weights = np.ones(num_kernels)/num_kernels

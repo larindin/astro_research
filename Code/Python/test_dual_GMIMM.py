@@ -50,8 +50,9 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-# check_results[:, 200:] = 0
-# check_results[:, 300:] = 1
+check_results[:, 50:] = 0
+check_results[:, 100:] = 1
+check_results[:, 150:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -68,6 +69,19 @@ def coasting_dynamics_equation(t, X, mu, umax, rho):
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
+
+def min_energy_dynamics_equation(t, X, mu, umax, rho):
+    
+    state = X[0:6]
+    costate = X[6:12]
+    STM = X[12:156].reshape((12, 12))
+
+    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
+
+    ddt_state = minimum_fuel_ODE(0, X[0:12], mu, umax, rho)
+    ddt_STM = jacobian @ STM
+
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
 
 def thrusting_dynamics_equation(t, X, mu, umax, rho):
 
@@ -99,7 +113,7 @@ def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individ
 
 dynamics_args = (mu, umax, filter_rho)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
-dynamics_equations = [coasting_dynamics_equation, thrusting_dynamics_equation]
+dynamics_equations = [coasting_dynamics_equation, min_energy_dynamics_equation]
 num_modes = len(dynamics_equations)
 
 
@@ -112,14 +126,6 @@ IMM_t = IMM_output.t
 IMM_posterior_estimate_vals = IMM_output.posterior_estimate_vals
 IMM_posterior_covariance_vals = IMM_output.posterior_covariance_vals
 IMM_weights = IMM_output.weight_vals
-
-
-ax = plt.figure().add_subplot()
-ax.step(IMM_t, IMM_weights[0], alpha=0.5)
-ax.step(IMM_t, IMM_weights[1], alpha=0.5)
-
-plt.show()
-quit()
 
 thrusting_indices = get_thrusting_indices(IMM_output, switching_cutoff)
 start_index = thrusting_indices[0]
@@ -220,6 +226,7 @@ for kernel_index in np.arange(num_kernels):
     initial_estimates[:, kernel_index] = np.concatenate((initial_state, initial_costate_estimates[:, kernel_index]))
     initial_covariances[0:6, 0:6, kernel_index] = initial_covariance
     initial_covariances[6:12, 6:12, kernel_index] = initial_kernel_costate_covariance
+    initial_covariances[:, :, kernel_index] = initial_kernel_covariance
 
 # initial_estimates[:, 0] = truth_vals[:, end_index]
 # initial_covariances[:, :, 0] = np.eye(12)*0.001**2
@@ -256,6 +263,32 @@ ax = plt.figure().add_subplot()
 ax.plot([0, final_time], [0.5, 0.5], alpha=0.5)
 for mode_index in np.arange(num_kernels):
     ax.step(GM_time, weight_vals[mode_index, :], alpha=0.25)
+
+fig = plt.figure()
+ax = fig.add_subplot(231)
+ax.plot(time_vals, truth_vals[0])
+for index in np.arange(num_kernels):
+    ax.step(GM_time, posterior_estimate_vals[0, :, index], alpha=0.25)
+ax = fig.add_subplot(232)
+ax.plot(time_vals, truth_vals[1])
+for index in np.arange(num_kernels):
+    ax.step(GM_time, posterior_estimate_vals[1, :, index], alpha=0.25)
+ax = fig.add_subplot(233)
+ax.plot(time_vals, truth_vals[2])
+for index in np.arange(num_kernels):
+    ax.step(GM_time, posterior_estimate_vals[2, :, index], alpha=0.25)
+ax = fig.add_subplot(234)
+ax.plot(time_vals, truth_vals[3])
+for index in np.arange(num_kernels):
+    ax.step(GM_time, posterior_estimate_vals[3, :, index], alpha=0.25)
+ax = fig.add_subplot(235)
+ax.plot(time_vals, truth_vals[4])
+for index in np.arange(num_kernels):
+    ax.step(GM_time, posterior_estimate_vals[4, :, index], alpha=0.25)
+ax = fig.add_subplot(236)
+ax.plot(time_vals, truth_vals[5])
+for index in np.arange(num_kernels):
+    ax.step(GM_time, posterior_estimate_vals[5, :, index], alpha=0.25)
 
 fig = plt.figure()
 ax = fig.add_subplot(231)
@@ -301,5 +334,14 @@ ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
 for index in np.arange(num_kernels):
     ax.step(GM_time, estimated_controls[index][2], alpha=0.25)
+
+truth_norm_vals = np.linalg.norm(truth_vals[9:12], axis=0)
+norm_vals = np.empty((num_kernels, len(GM_time)))
+for index in np.arange(num_kernels):
+    norm_vals[index, :] = np.linalg.norm(posterior_estimate_vals[9:12, :, index], axis=0)
+ax = plt.figure().add_subplot()
+ax.plot(time_vals, truth_norm_vals)
+for index in np.arange(num_kernels):
+    ax.plot(GM_time, norm_vals[index], alpha=0.25)
 
 plt.show()

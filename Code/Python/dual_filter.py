@@ -23,11 +23,13 @@ def run_dual_filter(initial_estimate, initial_covariance,
     num_measurements = np.size(measurement_vals, 1)
 
     anterior_estimate_vals = np.empty((state_size, num_measurements))
-    posterior_estimate_vals = np.empty((state_size, num_measurements+1))
+    posterior_estimate_vals = np.empty((state_size, num_measurements))
     anterior_covariance_vals = np.empty((state_size, state_size, num_measurements))
-    posterior_covariance_vals = np.empty((state_size, state_size, num_measurements+1))
+    posterior_covariance_vals = np.empty((state_size, state_size, num_measurements))
     innovations_vals = np.empty((measurement_size, num_measurements))
 
+    anterior_estimate_vals[:, 0] = initial_estimate
+    anterior_covariance_vals[:, :, 0] = initial_covariance
     posterior_estimate_vals[:, 0] = initial_estimate
     posterior_covariance_vals[:, :, 0] = initial_covariance
 
@@ -40,10 +42,10 @@ def run_dual_filter(initial_estimate, initial_covariance,
 
     active_filter_index = filter_index
 
-    for time_index in np.arange(1, num_measurements + 1):
+    for time_index in np.arange(1, num_measurements):
 
-        measurement = measurement_vals[:, time_index-1]
-        current_time = time_vals[time_index-1]
+        measurement = measurement_vals[:, time_index]
+        current_time = time_vals[time_index]
         timespan = current_time - previous_time
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
@@ -97,9 +99,9 @@ def run_dual_filter(initial_estimate, initial_covariance,
 
             
         
-        anterior_estimate_vals[:, time_index-1] = anterior_estimate
+        anterior_estimate_vals[:, time_index] = anterior_estimate
         posterior_estimate_vals[:, time_index] = posterior_estimate
-        anterior_covariance_vals[:, :, time_index-1] = anterior_covariance
+        anterior_covariance_vals[:, :, time_index] = anterior_covariance
         posterior_covariance_vals[:, :, time_index] = posterior_covariance
         # innovations_vals[:, time_index] = innovations
 

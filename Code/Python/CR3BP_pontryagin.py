@@ -1,7 +1,7 @@
 
 
 import numpy as np
-import scipy.integrate
+import scipy
 from CR3BP import *
 
 
@@ -35,7 +35,8 @@ def minimum_fuel_ODE(t, X, mu, umax, rho):
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
 
     p = -B.T @ costate
-    control = umax/2 * (1 + np.tanh((np.linalg.norm(p) - 1)/rho)) * p/np.linalg.norm(p)
+    G = umax/2 * (1 + np.tanh((np.linalg.norm(p) - 1)/rho))
+    control = G * p/np.linalg.norm(p)
 
     ddt_state_kepler = CR3BP_DEs(t, state, mu)
     ddt_state = ddt_state_kepler + B @ control
@@ -140,8 +141,11 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
     dmag = np.linalg.norm(d)
     rmag = np.linalg.norm(r)
     lnorm = np.linalg.norm(np.array([l4, l5, l6]))
-
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+    p = -B.T @ costate
+    S = np.linalg.norm(p) - 1
+    G = umax/2 * (1 + np.tanh(S/rho))
+    my_invcosh = lambda x: 1/np.cosh(x) if abs(x) < 700 else 0
 
     dxdx = 1 - (1 - mu)/(dmag**3) - mu/(rmag**3) + 3*(1 - mu)*(x + mu)**2/(dmag**5) + 3*mu*(x - 1 + mu)**2/(rmag**5)
     dxdy = 3*(1 - mu)*(x + mu)*y/(dmag**5) + 3*mu*(x - 1 + mu)*y/(rmag**5)
@@ -172,20 +176,10 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
     dzdzdy = dydzdz
     dzdzdz = 3*(1 - mu)*z/dmag**5 + 3*mu*z/rmag**5 + 6*(1 - mu)*z/dmag**5 - 15*(1 - mu)*z**3/dmag**7 + 6*mu*z/rmag**5 - 15*mu*z**3/rmag**7
 
+    dGdl4 = umax/rho/2 * my_invcosh(S/rho)**2 * l4/lnorm
+    dGdl5 = umax/rho/2 * my_invcosh(S/rho)**2 * l5/lnorm
+    dGdl6 = umax/rho/2 * my_invcosh(S/rho)**2 * l6/lnorm
 
-    dXdX = np.array([[0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [dxdx, dxdy, dxdz, 0, 2, 0],
-                    [dydx, dydy, dydz, -2, 0, 0],
-                    [dzdx, dzdy, dzdz, 0, 0, 0]])
-    
-    p = -B.T @ costate
-    S = np.linalg.norm(p) - 1
-    G = umax/2 * (1 + np.tanh(S/rho))
-    dGdl4 = umax/2 * 1/rho/np.cosh(S/rho)**2 * l4/lnorm
-    dGdl5 = umax/2 * 1/rho/np.cosh(S/rho)**2 * l5/lnorm
-    dGdl6 = umax/2 * 1/rho/np.cosh(S/rho)**2 * l6/lnorm
     dxdl4 = (-1/lnorm + l4**2/lnorm**3)*G + (-l4/lnorm)*dGdl4
     dxdl5 = (l4*l5/lnorm**3)*G + (-l4/lnorm)*dGdl5
     dxdl6 = (l4*l6/lnorm**3)*G + (-l4/lnorm)*dGdl6
@@ -195,15 +189,23 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
     dzdl4 = (l6*l4/lnorm**3)*G + (-l6/lnorm)*dGdl4
     dzdl5 = (l6*l5/lnorm**3)*G + (-l6/lnorm)*dGdl5
     dzdl6 = (-1/lnorm + l6**2/lnorm**3)*G + (-l6/lnorm)*dGdl6
+    
+    dXdX = np.array([[0, 0, 0, 1, 0, 0],
+                    [0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 1],
+                    [dxdx, dxdy, dxdz, 0, 2, 0],
+                    [dydx, dydy, dydz, -2, 0, 0],
+                    [dzdx, dzdy, dzdz, 0, 0, 0]])
+    
     dXdL_small = np.array([[dxdl4, dxdl5, dxdl6],
                            [dydl4, dydl5, dydl6],
                            [dzdl4, dzdl5, dzdl6]])
-    dXdL = np.vstack((np.zeros((3, 6)), np.hstack((np.zeros((3, 3)), dXdL_small))))
+    dXdL = scipy.linalg.block_diag(np.zeros((3, 3)), dXdL_small)
 
     dLdX_small = -np.array([[l4*dxdxdx + l5*dxdydx + l6*dxdzdx, l4*dxdxdy + l5*dxdydy + l6*dxdzdy, l4*dxdxdz + l5*dxdydz + l6*dxdzdz],
                             [l4*dxdydx + l5*dydydx + l6*dydzdx, l4*dxdydy + l5*dydydy + l6*dydzdy, l4*dxdydz + l5*dydydz + l6*dydzdz],
                             [l4*dxdzdx + l5*dydzdx + l6*dzdzdx, l4*dxdzdy + l5*dydzdy + l6*dzdzdy, l4*dxdzdz + l5*dydzdz + l6*dzdzdz]])
-    dLdX = np.vstack((np.hstack((dLdX_small, np.zeros((3, 3)))), np.zeros((3, 6))))
+    dLdX = scipy.linalg.block_diag(dLdX_small, np.zeros((3, 3)))
     
     dLdL = -dXdX.T
 

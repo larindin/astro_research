@@ -49,7 +49,7 @@ def iterate_GM_kernel(time_index, previous_posterior_estimate, previous_posterio
     posterior_estimate = anterior_estimate + gain_matrix @ innovations
     posterior_covariance = anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T
     posterior_covariance = enforce_symmetry(posterior_covariance)
-    posterior_estimate[6:12] = anterior_estimate[6:12]
+    # posterior_estimate[6:12] = anterior_estimate[6:12]
 
     return anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations, denominator, exponent
 

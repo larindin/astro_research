@@ -60,13 +60,12 @@ measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_e
 def EKF_dynamics_equation(t, X, mu, process_noise_covariance):
 
     state = X[0:6]
-    covariance = X[6:42].reshape((6, 6))
+    STM = X[6:42].reshape((6, 6))
 
     jacobian = CR3BP_jacobian(state, mu)
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
-
+    ddt_covariance = jacobian @ STM
     return np.concatenate((ddt_state, ddt_covariance.flatten()))
     
 def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
@@ -83,16 +82,16 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 
     return measurement, measurement_jacobian
 
-def costate_dynamics_equation(t, X, mu, umax, rho, process_noise_covariance):
+def costate_dynamics_equation(t, X, mu, umax, rho):
 
     state = X[0:6]
     costate = X[6:12]
-    covariance = X[12:156].reshape((12, 12))
+    STM = X[12:156].reshape((12, 12))
 
-    jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
+    jacobian = minimum_fuel_jacobian(state, costate, mu, umax, rho)
 
     ddt_state = minimum_fuel_ODE(0, X[0:12], mu, umax, rho)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+    ddt_covariance = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_covariance.flatten()))
     
