@@ -58,7 +58,7 @@ def EKF_dynamics_equation(t, X, mu, umax, process_noise_covariance):
     costate = X[6:12]
     covariance = X[12:156].reshape((12, 12))
 
-    jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
+    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
 
     ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
     ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance

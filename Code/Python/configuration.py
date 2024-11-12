@@ -5,17 +5,17 @@ from CR3BP_pontryagin import *
 
 # Truth parameters
 # initial_truth = np.array([5.700765369968086027e-01, 0, 0, 0, 1.001309137115701908e+00, 0, 2.218985298179385168e+00, 5.173659581424284309e-03, 0, 1.045748103035356626e-02, 1.002278884441901052e+00, 0])
-initial_truth = np.array([1.023860, 0, -0.183349, 0, -0.107237, 0, 1.886804244746727921e+00, -5.756815826039763939e-01, 4.471842695737356377e-01, 8.068657163041901281e-01, 7.386444568749661599e-01, 5.395507048947811857e-01])
-# initial_truth = np.array([0.869093134528914, 0, 0, 0, 0.471129523484998, 0, 1.886994686356553652e+00, -1.834644038828200818e+00, -1.353616598123221770e+00, 6.170104458498792965e-01, 1.853008581517654740e-01, 7.634714087832630280e-01])
+# initial_truth = np.array([1.023860, 0, -0.183349, 0, -0.107237, 0, 1.886804244746727921e+00, -5.756815826039763939e-01, 4.471842695737356377e-01, 8.068657163041901281e-01, 7.386444568749661599e-01, 5.395507048947811857e-01])
+initial_truth = np.array([0.869093134528914, 0, 0, 0, 0.471129523484998, 0, 1.886994686356553652e+00, -1.834644038828200818e+00, -1.353616598123221770e+00, 6.170104458498792965e-01, 1.853008581517654740e-01, 7.634714087832630280e-01])
 # final_time = 6.235577707735169284
-final_time = 2.209568031669125077
-# final_time = 1.992457188219079134
+# final_time = 2.209568031669125077
+final_time = 1.992457188219079134
 # final_time = 1
 # dt = 30*60/3.751903e5
 dt = 0.01
 dynamics_equation = minimum_fuel_ODE
 # initial_truth[6:12] = np.array([0, 0, 0, 1e-12, 1e-12, 1e-12])
-truth_rho = 1e-4
+truth_rho = 1e-6
 umax = 1
 mu = 1.215059e-2
 truth_dynamics_args = (mu, umax, truth_rho)
@@ -38,4 +38,4 @@ seed = 0
 initial_covariance = scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
 initial_estimate = np.random.default_rng(seed).multivariate_normal(initial_truth[0:6], initial_covariance)
 process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*1e-6**2, np.eye(3)*0.01**2)
-filter_measurement_covariance = measurement_noise_covariance * (1.5)**2
+filter_measurement_covariance = measurement_noise_covariance * (1.1)**2

@@ -51,7 +51,7 @@ for sensor_index in np.arange(num_sensors):
 check_results[:, :] = 1
 
 check_results[:, 50:] = 0
-check_results[:, 100:] = 1
+check_results[:, 125:] = 1
 check_results[:, 150:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
@@ -126,6 +126,10 @@ IMM_t = IMM_output.t
 IMM_posterior_estimate_vals = IMM_output.posterior_estimate_vals
 IMM_posterior_covariance_vals = IMM_output.posterior_covariance_vals
 IMM_weights = IMM_output.weight_vals
+
+ax = plt.figure().add_subplot()
+ax.step(IMM_t, IMM_weights[0], alpha=0.5)
+ax.step(IMM_t, IMM_weights[1], alpha=0.5)
 
 thrusting_indices = get_thrusting_indices(IMM_output, switching_cutoff)
 start_index = thrusting_indices[0]
@@ -248,16 +252,25 @@ posterior_estimate_vals = GM_output.posterior_estimate_vals
 posterior_covariance_vals = GM_output.posterior_covariance_vals
 weight_vals = GM_output.weight_vals
 
+plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_vals, weight_vals, -1, resolution=51, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25])
+# plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_vals, weight_vals, -51, resolution=51, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25])
+plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_vals, weight_vals, -1, resolution=51, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], state_indices=[0, 2])
+# plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_vals, weight_vals, -100, resolution=51, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25])
 
-ax = plt.figure().add_subplot()
-ax.step(IMM_t, IMM_weights[0], alpha=0.5)
-ax.step(IMM_t, IMM_weights[1], alpha=0.5)
+total_estimate_vals, total_covariance_vals = compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, weight_vals)
+estimation_errors = compute_estimation_errors(truth_vals[:, start_index:], [total_estimate_vals], 12)
+three_sigmas = compute_3sigmas([total_covariance_vals], 12)
+plot_3sigma(GM_time, estimation_errors, three_sigmas, 6)
+plot_3sigma_costate(GM_time, estimation_errors, three_sigmas, 6)
+
+posterior_estimate_vals, posterior_covariance_vals = trim_zero_weights(posterior_estimate_vals, posterior_covariance_vals, weight_vals)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 for mode_index in np.arange(num_kernels):
     ax.plot(posterior_estimate_vals[0, :, mode_index], posterior_estimate_vals[1, :, mode_index], posterior_estimate_vals[2, :, mode_index], alpha=0.25)
 ax.set_aspect("equal")
+plot_moon(ax, mu)
 
 ax = plt.figure().add_subplot()
 ax.plot([0, final_time], [0.5, 0.5], alpha=0.5)
@@ -343,5 +356,6 @@ ax = plt.figure().add_subplot()
 ax.plot(time_vals, truth_norm_vals)
 for index in np.arange(num_kernels):
     ax.plot(GM_time, norm_vals[index], alpha=0.25)
+ax.plot([GM_time[0], GM_time[-1]], [1, 1], alpha=0.5)
 
 plt.show()

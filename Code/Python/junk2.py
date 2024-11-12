@@ -48,9 +48,9 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 50:] = 0
-check_results[:, 100:] = 1
-check_results[:, 150:] = 0
+# check_results[:, 50:] = 0
+# check_results[:, 100:] = 1
+# check_results[:, 150:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -98,10 +98,14 @@ anterior_covariance_vals = filter_output.anterior_covariance_vals
 innovations = filter_output.innovations_vals
 weight_vals = np.ones((1, len(filter_time)))
 
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51)
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51, state_indices=[0, 2])
-# plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -51, resolution=51)
-# plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -101, resolution=51)
+differences = posterior_estimate_vals - anterior_estimate_vals
+estimated_controls = differences[3:6, :]/dt
+
+print(differences)
+
+plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, resolution=51)
+plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -51, resolution=51)
+plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -101, resolution=51)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
@@ -127,9 +131,12 @@ truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 fig = plt.figure()
 ax = fig.add_subplot(311)
 ax.step(time_vals, truth_control[0])
+ax.step(time_vals, estimated_controls[0])
 ax = fig.add_subplot(312)
 ax.step(time_vals, truth_control[1])
+ax.step(time_vals, estimated_controls[1])
 ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
+ax.step(time_vals, estimated_controls[2])
 
 plt.show()
