@@ -62,6 +62,10 @@ def constant_thrust_ODE(t, X, mu, umax, rho):
 
     return np.concatenate((ddt_state, ddt_costate), 0)
 
+def reformulated_min_fuel_ODE(t, X, mu, umax, rho):
+
+    return 0
+
 def minimum_energy_jacobian(state, costate, mu, umax):
 
     l1, l2, l3, l4, l5, l6 = costate
@@ -212,6 +216,10 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
     jacobian = np.vstack((np.hstack((dXdX, dXdL)), np.hstack((dLdX, dLdL))))
 
     return jacobian
+
+def reforumlated_min_fuel_jacobian(state, costate, mu, umax, rho):
+
+    return 0
 
 def CR3BP_constant_thrust_jacobian(state, costate, mu, umax):
 
@@ -398,6 +406,8 @@ def get_min_fuel_costates(state, estimated_lv, mu, umax, duration, magnitudes, g
     STM_vr = STM[3:6, 0:3]
     STM_vv = STM[3:6, 3:6]
 
+    print(STM)
+    # quit()
 
     if given == "initial" and desired == "initial":
         for magnitude_index in np.arange(num_magnitudes):
@@ -426,6 +436,141 @@ def get_min_fuel_costates(state, estimated_lv, mu, umax, duration, magnitudes, g
             costate_estimates[:, magnitude_index] = np.concatenate((final_lr, final_lv))
 
 
+    return costate_estimates
+
+def get_min_fuel_costates_1(posterior_estimates, dt, mu, umax, duration, magnitudes, given, desired):
+
+    def constant_thrust_ODE(t, X, mu, umax, direction):
+
+        state = X[0:6]
+        STM = np.reshape(X[6:36+6], (6, 6))
+
+        B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+
+        control = direction * umax
+
+        ddt_state_kepler = CR3BP_DEs(t, state, mu)
+        ddt_state = ddt_state_kepler + B @ control
+
+        ddt_STM = -CR3BP_jacobian(state, mu).T @ STM
+        ddt_STM = ddt_STM.flatten()
+
+        return np.concatenate((ddt_state, ddt_STM))
+    
+    num_magnitudes = len(magnitudes)
+    num_STMs = np.size(posterior_estimates, 1) - 1
+
+    costate_estimates = np.empty((6, num_magnitudes))
+
+    if given == "initial":
+        tspan = np.array([0, duration])
+    elif given == "final":
+        tspan = np.array([duration, 0])
+
+    STM_vals = np.empty((6, 6, num_STMs))
+
+    for val_index in np.arange(num_STMs):
+
+        direction = -posterior_estimates[9:12, val_index]/np.linalg.norm(posterior_estimates[9:12, val_index])
+        state = posterior_estimates[0:6, val_index]
+        # direction = -estimated_lv/np.linalg.norm(estimated_lv)
+        
+        constant_thrust_ICs = np.concatenate((state, np.eye(6).flatten()))
+        constant_thrust_propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, np.array([0, dt]), constant_thrust_ICs, args=(mu, umax, direction), atol=1e-12, rtol=1e-12)
+        constant_thrust_vals = constant_thrust_propagation.y
+
+        STM_vals[:, :, val_index] = np.reshape(constant_thrust_vals[6:36+6, -1], (6, 6))
+
+    STM = np.eye(6)
+    for val_index in np.arange(num_STMs):
+        STM = STM @ STM_vals[:, :, val_index]
+    STM_rr = STM[0:3, 0:3]
+    STM_rv = STM[0:3, 3:6]
+    STM_vr = STM[3:6, 0:3]
+    STM_vv = STM[3:6, 3:6]
+
+    print(STM)
+    # quit()
+
+    final_lv = posterior_estimates[9:12, -1]/np.linalg.norm(posterior_estimates[9:12, -1])
+
+    if given == "initial" and desired == "initial":
+        for magnitude_index in np.arange(num_magnitudes):
+            magnitude = magnitudes[magnitude_index]
+            initial_lv = final_lv * magnitude
+            initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
+            costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
+    elif given == "initial" and desired == "final":
+        for magnitude_index in np.arange(num_magnitudes):
+            magnitude = magnitudes[magnitude_index]
+            initial_lv = final_lv * magnitude
+            initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
+            costate_estimates[:, magnitude_index] = np.concatenate((final_lr, final_lv))
+    elif given == "final" and desired == "initial":
+        for magnitude_index in np.arange(num_magnitudes):
+            magnitude = magnitudes[magnitude_index]
+            initial_lv = final_lv * magnitude
+            final_lr = np.linalg.inv(STM_vr) @ (initial_lv - STM_vv @ final_lv)
+            initial_lr = STM_rr @ final_lr + STM_rv @ final_lv
+            costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
+    elif given == "final" and desired == "final":
+        for magnitude_index in np.arange(num_magnitudes):
+            magnitude = magnitudes[magnitude_index]
+            initial_lv = final_lv * magnitude
+            final_lr = np.linalg.inv(STM_vr) @ (initial_lv - STM_vv @ final_lv)
+            costate_estimates[:, magnitude_index] = np.concatenate((final_lr, final_lv))
+
+
+    return costate_estimates
+
+def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
+
+    def constant_thrust_ODE(t, X, mu, umax, direction):
+
+        state = X[0:6]
+        STM = np.reshape(X[6:36+6], (6, 6))
+
+        B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+
+        control = direction * umax
+
+        ddt_state_kepler = CR3BP_DEs(t, state, mu)
+        ddt_state = ddt_state_kepler + B @ control
+
+        ddt_STM = -CR3BP_jacobian(state, mu).T @ STM
+        ddt_STM = ddt_STM.flatten()
+
+        return np.concatenate((ddt_state, ddt_STM))
+
+    num_magnitudes = len(magnitudes)
+    costate_estimates = np.empty((6, num_magnitudes))
+    final_lv = posterior_estimates[9:12, -1]/np.linalg.norm(posterior_estimates[9:12, -1])
+    initial_lv_hat = posterior_estimates[9:12, 0]/np.linalg.norm(posterior_estimates[9:12, 0])
+
+    num_timesteps = np.size(posterior_estimates, 1)
+    STM = np.eye(6)
+
+    for time_index in np.arange(num_timesteps-1):
+
+        direction = -posterior_estimates[9:12, time_index]/np.linalg.norm(posterior_estimates[9:12, time_index])
+        state = posterior_estimates[0:6, time_index]
+        ICs = np.concatenate((state, np.eye(6).flatten()))
+
+        propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, np.array([0, dt]), ICs, args=(mu, umax, direction), atol=1e-12, rtol=1e-12)
+
+        STM = np.reshape(propagation.y[6:42, -1], (6, 6)) @ STM
+
+    STM_rr = STM[0:3, 0:3]
+    STM_rv = STM[0:3, 3:6]
+    STM_vr = STM[3:6, 0:3]
+    STM_vv = STM[3:6, 3:6]
+
+    for magnitude_index in np.arange(num_magnitudes):
+        magnitude = magnitudes[magnitude_index]
+        initial_lv = final_lv * magnitude
+        initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
+        costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
+    
     return costate_estimates
 
 def get_min_fuel_initial_costates(initial_state, initial_lv, mu, umax, magnitudes, durations):

@@ -6,6 +6,7 @@ from configuration import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from EKF import *
+from EKF_smoothing import *
 from measurement_functions import *
 from plotting import *
 
@@ -98,25 +99,17 @@ anterior_covariance_vals = filter_output.anterior_covariance_vals
 innovations = filter_output.innovations_vals
 weight_vals = np.ones((1, len(filter_time)))
 
-differences = posterior_estimate_vals - anterior_estimate_vals
-estimated_controls = differences[3:6, :]/dt
+smoothed_results = run_EKF_smoothing(filter_output)
 
-print(differences)
-
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, resolution=51)
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -51, resolution=51)
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -101, resolution=51)
+plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51)
+plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51, state_indices=[0, 2])
+# plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -51, resolution=51)
+# plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -101, resolution=51)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2], alpha=0.25)
-ax.plot(anterior_estimate_vals[0], anterior_estimate_vals[1], anterior_estimate_vals[2], alpha=0.25)
-ax.set_aspect("equal")
-
-ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[3], truth_vals[4], truth_vals[5])
-ax.plot(posterior_estimate_vals[3], posterior_estimate_vals[4], posterior_estimate_vals[5], alpha=0.25)
-ax.plot(anterior_estimate_vals[3], anterior_estimate_vals[4], anterior_estimate_vals[5], alpha=0.25)
+ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
+ax.plot(smoothed_results[0, 1:], smoothed_results[1, 1:], smoothed_results[2, 1:])
 ax.set_aspect("equal")
 
 ax = plt.figure().add_subplot()
@@ -127,23 +120,20 @@ ax.plot(measurements.t, anterior_estimate_vals[0])
 ax.plot(measurements.t, anterior_estimate_vals[1])
 ax.plot(measurements.t, anterior_estimate_vals[2])
 
-posterior_estimates = [posterior_estimate_vals]
-posterior_covariances = [posterior_covariance_vals]
+posterior_estimates = [smoothed_results, posterior_estimate_vals]
+posterior_covariances = [posterior_covariance_vals, posterior_covariance_vals]
 
 estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 6)
 three_sigmas = compute_3sigmas(posterior_covariances, 6)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.5, 0.5], 0.25)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.25, 0.25], 0.5)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 fig = plt.figure()
 ax = fig.add_subplot(311)
 ax.step(time_vals, truth_control[0])
-ax.step(time_vals, estimated_controls[0])
 ax = fig.add_subplot(312)
 ax.step(time_vals, truth_control[1])
-ax.step(time_vals, estimated_controls[1])
 ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
-ax.step(time_vals, estimated_controls[2])
 
 plt.show()

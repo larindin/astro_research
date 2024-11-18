@@ -11,7 +11,7 @@ initial_truth = np.array([0.869093134528914, 0, 0, 0, 0.471129523484998, 0, 1.88
 # final_time = 2.209568031669125077
 final_time = 1.992457188219079134
 # final_time = 1
-# final_time = 1.8
+final_time = 0.5
 # dt = 30*60/3.751903e5
 dt = 0.01
 dynamics_equation = minimum_fuel_ODE
@@ -42,7 +42,7 @@ generator = np.random.default_rng(seed)
 initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.zeros(3), np.ones(3)*1e-9))
 # initial_estimate = initial_truth
 filter_measurement_covariance = measurement_noise_covariance * (1.1)**2
-filter_rho = 1e-4
+filter_rho = 1e-3
 switching_cutoff = 5
 
 # IMM parameters
@@ -58,7 +58,7 @@ initial_kernel_costate_covariance = np.eye(6)*0.01**2
 initial_kernel_covariance = scipy.linalg.block_diag(initial_kernel_state_covariance, initial_kernel_costate_covariance)
 kernel_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-2)**2)
 # magnitudes = np.linspace(1.1, 1.3, 11)
-magnitudes = np.linspace(1, 1.1, 20)
+magnitudes = np.linspace(1, 1.1, 6)
 # magnitudes = [1.05]
 num_kernels = len(magnitudes)
 initial_weights = np.ones(num_kernels)/num_kernels

@@ -121,7 +121,7 @@ posterior_covariances = [posterior_covariance_vals]
 
 estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 6)
 three_sigmas = compute_3sigmas(posterior_covariances, 6)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.5, 0.5], 0.25)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.25, 0.25], 0.75)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 fig = plt.figure()

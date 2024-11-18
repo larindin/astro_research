@@ -103,7 +103,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
 
                 propagation_inputs = (previous_posterior_estimate, previous_posterior_covariance, dynamics_equation,
                                     process_noise_covariance, timespan, dynamics_args, measurement_size)        
-                anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = propagate_EKF(*propagation_inputs)
+                anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, STM, innovations = propagate_EKF(*propagation_inputs)
 
                 anterior_estimates[:, mode_index] = anterior_estimate
                 posterior_estimates[:, mode_index] = posterior_estimate

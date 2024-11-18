@@ -52,7 +52,7 @@ check_results[:, :] = 1
 
 check_results[:, 50:] = 0
 check_results[:, 125:] = 1
-check_results[:, 150:] = 0
+check_results[:, 140:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -154,6 +154,8 @@ initial_truth_lv = truth_vals[9:12, start_index]
 final_truth_lv = truth_vals[9:12, end_index]
 
 initial_costate_estimates = get_min_fuel_costates(initial_state, initial_estimated_lv, mu, umax, duration, magnitudes, "initial", "initial")
+initial_costate_estimates = get_min_fuel_costates_1(IMM_posterior_estimate_vals[:, start_index:end_index+1, 1], dt, mu, umax, duration, magnitudes, "initial", "initial")
+initial_costate_estimates = get_min_fuel_costates_2(IMM_posterior_estimate_vals[:, start_index:end_index+1, 1], dt, mu, umax, magnitudes)
 
 if False:
     
