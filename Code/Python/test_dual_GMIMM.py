@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import scipy.integrate
 from configuration_dual_GMIMM import *
 from CR3BP import *
-from CR3BP_pontryagin import *
+from CR3BP_pontryagin_reformulated import *
 from IMM import *
 from helper_functions import *
 from measurement_functions import *
@@ -62,7 +62,7 @@ def coasting_dynamics_equation(t, X, mu, umax, rho):
     costate = X[6:12]
     STM = X[12:156].reshape((12, 12))
 
-    jacobian = minimum_fuel_jacobian(state, costate, mu, umax, rho)
+    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
 
     ddt_state = CR3BP_DEs(t, state, mu)
     ddt_costate = np.zeros(6)
@@ -78,7 +78,7 @@ def min_energy_dynamics_equation(t, X, mu, umax, rho):
 
     jacobian = minimum_energy_jacobian(state, costate, mu, umax)
 
-    ddt_state = minimum_fuel_ODE(0, X[0:12], mu, umax, rho)
+    ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_STM.flatten()))
@@ -156,7 +156,6 @@ final_truth_lv = truth_vals[9:12, end_index]
 initial_costate_estimates = get_min_fuel_costates(initial_state, initial_estimated_lv, mu, umax, duration, magnitudes, "initial", "initial")
 print(initial_costate_estimates)
 initial_costate_estimates = get_min_fuel_costates_2(IMM_posterior_estimate_vals[:, start_index:end_index+1, 1], dt, mu, umax, magnitudes)
-initial_costate_estimates = get_min_fuel_costates_2(truth_vals[:, start_index:end_index+1], dt, mu, umax, magnitudes)
 print(initial_costate_estimates)
 
 if False:
