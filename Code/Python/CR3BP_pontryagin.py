@@ -64,7 +64,29 @@ def constant_thrust_ODE(t, X, mu, umax, rho):
 
 def reformulated_min_fuel_ODE(t, X, mu, umax, rho):
 
-    return 0
+    state = X[0:6]
+    theta = X[9]
+    psi = X[10]
+    eta = X[11]
+    lambda_v = eta * np.array([np.cos(psi)*np.cos(theta), np.cos(psi)*np.sin(theta), np.sin(psi)])
+    costate = np.concatenate((X[6:9], lambda_v))
+
+    B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+
+    p = -B.T @ costate
+    G = umax/2 * (1 + np.tanh((np.linalg.norm(p) - 1)/rho))
+    control = G * p/np.linalg.norm(p)
+
+    ddt_state_kepler = CR3BP_DEs(t, state, mu)
+    ddt_state = ddt_state_kepler + B @ control
+
+    ddt_costate = CR3BP_costate_DEs(t, state, costate, mu)
+
+    ddt_theta = np.array([np.cos(theta)**2*(ddt_costate[4]/costate[3] - costate[4]*ddt_costate[3]/costate[3]**2)])
+    ddt_eta = np.array([-np.sum(costate[0:3] * lambda_v/eta)])
+    ddt_psi = np.array([-(costate[2] + ddt_eta*np.sin(psi))/eta/np.cos(psi)])
+
+    return np.concatenate((ddt_state, ddt_costate[0:3], ddt_theta, ddt_psi, ddt_eta), 0)
 
 def minimum_energy_jacobian(state, costate, mu, umax):
 
@@ -219,7 +241,115 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
 
 def reforumlated_min_fuel_jacobian(state, costate, mu, umax, rho):
 
-    return 0
+    l1, l2, l3, theta, psi, eta = costate
+    x, y, z, vx, vy, vz = state
+
+    l4, l5, l6 = eta*np.array([np.cos(psi)*np.cos(theta), np.cos(psi)*np.sin(theta), np.sin(psi)])
+    
+    d = np.array([x + mu, y, z])
+    r = np.array([x - 1 + mu, y, z])
+    dmag = np.linalg.norm(d)
+    rmag = np.linalg.norm(r)
+    B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+    p = -B.T @ costate
+    S = eta - 1
+    G = umax/2 * (1 + np.tanh(S/rho))
+    my_invcosh = lambda x: 1/np.cosh(x) if abs(x) < 700 else 0
+
+    dxdx = 1 - (1 - mu)/(dmag**3) - mu/(rmag**3) + 3*(1 - mu)*(x + mu)**2/(dmag**5) + 3*mu*(x - 1 + mu)**2/(rmag**5)
+    dxdy = 3*(1 - mu)*(x + mu)*y/(dmag**5) + 3*mu*(x - 1 + mu)*y/(rmag**5)
+    dxdz = 3*(1 - mu)*(x + mu)*z/(dmag**5) + 3*mu*(x - 1 + mu)*z/(rmag**5)
+    dydx = dxdy
+    dydy = 1 - (1 - mu)/(dmag**3) - mu/(rmag**3) + 3*(1 - mu)*y**2/(dmag**5) + 3*mu*y**2/(rmag**5)
+    dydz = 3*(1 - mu)*y*z/(dmag**5) + 3*mu*y*z/(rmag**5)
+    dzdx = dxdz
+    dzdy = dydz
+    dzdz = -(1 - mu)/(dmag**3) - mu/(rmag**3) + 3*(1 - mu)*z**2/(dmag**5) + 3*mu*z**2/(rmag**5)
+
+    dxdxdx = 3*(1 - mu)*(x + mu)/dmag**5 + 3*mu*(x - 1 + mu)/rmag**5 + 6*(1 - mu)*(x + mu)/dmag**5 - 15*(1 - mu)*(x + mu)**3/dmag**7 + 6*mu*(x - 1 + mu)/rmag**5 - 15*mu*(x - 1 + mu)**3/rmag**7
+    dxdxdy = 3*(1 - mu)*y/dmag**5 + 3*mu*y/rmag**5 - 15*(1 - mu)*(x + mu)**2*y/dmag**7 - 15*mu*(x - 1 + mu)**2*y/rmag**7
+    dxdxdz = 3*(1 - mu)*z/dmag**5 + 3*mu*z/rmag**5 - 15*(1 - mu)*(x + mu)**2*z/dmag**7 - 15*mu*(x - 1 + mu)**2*z/rmag**7
+    dxdydx = dxdxdy
+    dxdydy = 3*(1 - mu)*(x + mu)/dmag**5 - 15*(1 - mu)*(x + mu)*y**2/dmag**7 + 3*mu*(x - 1 + mu)/rmag**5 - 15*mu*(x - 1 + mu)*y**2/rmag**7
+    dxdydz = -15*(1 - mu)*(x + mu)*y*z/dmag**7 - 15*mu*(x - 1 + mu)*y*z/rmag**7
+    dxdzdx = dxdxdz
+    dxdzdy = dxdydz
+    dxdzdz = 3*(1 - mu)*(x + mu)/dmag**5 - 15*(1 - mu)*(x + mu)*z**2/dmag**7 + 3*mu*(x - 1 + mu)/rmag**5 - 15*mu*(x - 1 + mu)*z**2/rmag**7
+    dydydx = dxdydy
+    dydydy = 3*(1 - mu)*y/dmag**5 + 3*mu*y/rmag**5 + 6*(1 - mu)*y/dmag**5 - 15*(1 - mu)*y**3/dmag**7 + 6*mu*y/rmag**5 - 15*mu*y**3/rmag**7
+    dydydz = 3*(1 - mu)*z/dmag**5 + 3*mu*z/rmag**5 - 15*(1 - mu)*y**2*z/dmag**7 - 15*mu*y**2*z/rmag**7
+    dydzdx = dxdydz
+    dydzdy = dydydz
+    dydzdz = 3*(1 - mu)*y/dmag**5 - 15*(1 - mu)*y*z**2/dmag**7 + 3*mu*y/rmag**5 - 15*mu*y*z**2/rmag**7
+    dzdzdx = dxdzdz
+    dzdzdy = dydzdz
+    dzdzdz = 3*(1 - mu)*z/dmag**5 + 3*mu*z/rmag**5 + 6*(1 - mu)*z/dmag**5 - 15*(1 - mu)*z**3/dmag**7 + 6*mu*z/rmag**5 - 15*mu*z**3/rmag**7
+
+    dGdeta = umax/rho/2 * my_invcosh(S/rho)**2
+
+    dxdtheta = np.cos(psi)*np.sin(theta)*G
+    dxdpsi = np.sin(psi)*np.cos(theta)*G
+    dxdeta = -np.cos(psi)*np.cos(theta)*dGdeta
+    dydtheta = -np.cos(psi)*np.cos(theta)*G
+    dydpsi = np.sin(psi)*np.sin(theta)*G
+    dydeta = -np.cos(psi)*np.sin(theta)*dGdeta
+    dzdtheta = 0
+    dzdpsi = -np.cos(psi)*G
+    dzdeta = -np.sin(psi)*dGdeta
+
+    dl1dtheta = eta*(np.cos(psi)*np.sin(theta)*dxdx - np.cos(psi)*np.cos(theta)*dxdy)
+    dl1dpsi = eta*(np.sin(psi)*np.cos(theta)*dxdx + np.sin(psi)*np.sin(theta)*dxdy - np.cos(psi)*dxdz)
+    dl1deta = -np.cos(psi)*np.cos(theta)*dxdx - np.cos(psi)*np.sin(theta)*dxdy - np.sin(psi)*dxdz
+    dl2dtheta = eta*(np.cos(psi)*np.sin(theta)*dxdy - np.cos(psi)*np.cos(theta)*dydy)
+    dl2dpsi = eta*(np.sin(psi)*np.cos(theta)*dxdy + np.sin(psi)*np.sin(theta)*dydy - np.cos(psi)*dydz)
+    dl2deta = -np.cos(psi)*np.cos(theta)*dxdy - np.cos(psi)*np.sin(theta)*dydy - np.sin(psi)*dydz
+    dl3dtheta =eta*(np.cos(psi)*np.sin(theta)*dxdz - np.cos(psi)*np.cos(theta)*dydz)
+    dl3dpsi = eta*(np.sin(psi)*np.cos(theta)*dxdz + np.sin(psi)*np.sin(theta)*dydz - np.cos(psi)*dzdz)
+    dl3deta = -np.cos(psi)*np.cos(theta)*dxdz - np.cos(psi)*np.sin(theta)*dydz - np.sin(psi)*dzdz
+    dthetadl1 = np.sin(theta)/eta/np.cos(psi)
+    dthetadl2 = -np.cos(theta)/eta/np.cos(psi)
+    dthetadtheta = l1*np.cos(theta)/eta/np.cos(psi) + l2*np.sin(theta)/eta/np.cos(psi)
+    dthetadpsi = l1*np.sin(theta)*np.sin(psi)/eta/np.cos(psi)**2 - l2*np.cos(theta)*np.sin(psi)/eta/np.cos(psi)**2
+    dthetadeta = l2*np.cos(theta)/eta**2/np.cos(psi) - l1*np.sin(theta)/eta**2/np.cos(psi)
+    dpsidl1 = np.sin(psi)*np.cos(theta)/eta
+    dpsidl2 = np.sin(psi)*np.sin(theta)/eta
+    dpsidl3 = np.tan(psi)*np.sin(psi)/eta - 1/eta/np.cos(psi)
+    dpsidtheta = -l1*np.sin(psi)*np.sin(theta)/eta + l2*np.sin(psi)*np.cos(theta)/eta
+    dpsidpsi = -l3*np.sin(psi)/eta/np.cos(psi)**2 + l1*np.cos(psi)*np.cos(theta)/eta - l2*np.cos(psi)*np.sin(theta)/eta + l3*(np.tan(psi)*np.cos(psi) + np.tan(psi)/np.cos(psi))/eta
+    dpsideta = l3/eta**2/np.cos(psi) - l1*np.sin(psi)*np.cos(theta)/eta**2 - l2*np.sin(psi)*np.sin(theta)/eta**2 - l3*np.tan(psi)*np.sin(psi)/eta**2
+    detadl1 = -np.cos(psi)*np.cos(theta)
+    detadl2 = -np.cos(psi)*np.sin(theta)
+    detadl3 = -np.sin(psi)
+    detadtheta = l1*np.cos(psi)*np.sin(theta) - l2*np.cos(psi)*np.cos(theta)
+    detadpsi = l1*np.sin(psi)*np.cos(theta) + l2*np.sin(psi)*np.sin(theta) - l3*np.cos(psi)
+    
+    dXdX = np.array([[0, 0, 0, 1, 0, 0],
+                    [0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 1],
+                    [dxdx, dxdy, dxdz, 0, 2, 0],
+                    [dydx, dydy, dydz, -2, 0, 0],
+                    [dzdx, dzdy, dzdz, 0, 0, 0]])
+    
+    dXdL_small = np.array([[dxdtheta, dxdpsi, dxdeta],
+                           [dydtheta, dydpsi, dydeta],
+                           [dzdtheta, dzdpsi, dzdeta]])
+    dXdL = scipy.linalg.block_diag(np.zeros((3, 3)), dXdL_small)
+
+    dLdX_small = -np.array([[l4*dxdxdx + l5*dxdydx + l6*dxdzdx, l4*dxdxdy + l5*dxdydy + l6*dxdzdy, l4*dxdxdz + l5*dxdydz + l6*dxdzdz],
+                            [l4*dxdydx + l5*dydydx + l6*dydzdx, l4*dxdydy + l5*dydydy + l6*dydzdy, l4*dxdydz + l5*dydydz + l6*dydzdz],
+                            [l4*dxdzdx + l5*dydzdx + l6*dzdzdx, l4*dxdzdy + l5*dydzdy + l6*dzdzdy, l4*dxdzdz + l5*dydzdz + l6*dzdzdz]])
+    dLdX = scipy.linalg.block_diag(dLdX_small, np.zeros((3, 3)))
+    
+    dLdL = np.array([[0, 0, 0, dl1dtheta, dl1dpsi, dl1deta],
+                     [0, 0, 0, dl2dtheta, dl2dpsi, dl2deta],
+                     [0, 0, 0, dl3dtheta, dl3dpsi, dl3deta],
+                     [dthetadl1, dthetadl2, 0, dthetadtheta, dthetadpsi, dthetadeta],
+                     [dpsidl1, dpsidl2, dpsidl3, dpsidtheta, dpsidpsi, dpsideta],
+                     [detadl1, detadl2, detadl3, detadtheta, detadpsi, 0]])
+
+    jacobian = np.vstack((np.hstack((dXdX, dXdL)), np.hstack((dLdX, dLdL))))
+
+    return jacobian
 
 def CR3BP_constant_thrust_jacobian(state, costate, mu, umax):
 
@@ -406,93 +536,8 @@ def get_min_fuel_costates(state, estimated_lv, mu, umax, duration, magnitudes, g
     STM_vr = STM[3:6, 0:3]
     STM_vv = STM[3:6, 3:6]
 
-    print(STM)
+    # print(STM)
     # quit()
-
-    if given == "initial" and desired == "initial":
-        for magnitude_index in np.arange(num_magnitudes):
-            magnitude = magnitudes[magnitude_index]
-            initial_lv = final_lv * magnitude
-            initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
-            costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
-    elif given == "initial" and desired == "final":
-        for magnitude_index in np.arange(num_magnitudes):
-            magnitude = magnitudes[magnitude_index]
-            initial_lv = final_lv * magnitude
-            initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
-            costate_estimates[:, magnitude_index] = np.concatenate((final_lr, final_lv))
-    elif given == "final" and desired == "initial":
-        for magnitude_index in np.arange(num_magnitudes):
-            magnitude = magnitudes[magnitude_index]
-            initial_lv = final_lv * magnitude
-            final_lr = np.linalg.inv(STM_vr) @ (initial_lv - STM_vv @ final_lv)
-            initial_lr = STM_rr @ final_lr + STM_rv @ final_lv
-            costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
-    elif given == "final" and desired == "final":
-        for magnitude_index in np.arange(num_magnitudes):
-            magnitude = magnitudes[magnitude_index]
-            initial_lv = final_lv * magnitude
-            final_lr = np.linalg.inv(STM_vr) @ (initial_lv - STM_vv @ final_lv)
-            costate_estimates[:, magnitude_index] = np.concatenate((final_lr, final_lv))
-
-
-    return costate_estimates
-
-def get_min_fuel_costates_1(posterior_estimates, dt, mu, umax, duration, magnitudes, given, desired):
-
-    def constant_thrust_ODE(t, X, mu, umax, direction):
-
-        state = X[0:6]
-        STM = np.reshape(X[6:36+6], (6, 6))
-
-        B = np.vstack((np.zeros((3, 3)), np.eye(3)))
-
-        control = direction * umax
-
-        ddt_state_kepler = CR3BP_DEs(t, state, mu)
-        ddt_state = ddt_state_kepler + B @ control
-
-        ddt_STM = -CR3BP_jacobian(state, mu).T @ STM
-        ddt_STM = ddt_STM.flatten()
-
-        return np.concatenate((ddt_state, ddt_STM))
-    
-    num_magnitudes = len(magnitudes)
-    num_STMs = np.size(posterior_estimates, 1) - 1
-
-    costate_estimates = np.empty((6, num_magnitudes))
-
-    if given == "initial":
-        tspan = np.array([0, duration])
-    elif given == "final":
-        tspan = np.array([duration, 0])
-
-    STM_vals = np.empty((6, 6, num_STMs))
-
-    for val_index in np.arange(num_STMs):
-
-        direction = -posterior_estimates[9:12, val_index]/np.linalg.norm(posterior_estimates[9:12, val_index])
-        state = posterior_estimates[0:6, val_index]
-        # direction = -estimated_lv/np.linalg.norm(estimated_lv)
-        
-        constant_thrust_ICs = np.concatenate((state, np.eye(6).flatten()))
-        constant_thrust_propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, np.array([0, dt]), constant_thrust_ICs, args=(mu, umax, direction), atol=1e-12, rtol=1e-12)
-        constant_thrust_vals = constant_thrust_propagation.y
-
-        STM_vals[:, :, val_index] = np.reshape(constant_thrust_vals[6:36+6, -1], (6, 6))
-
-    STM = np.eye(6)
-    for val_index in np.arange(num_STMs):
-        STM = STM @ STM_vals[:, :, val_index]
-    STM_rr = STM[0:3, 0:3]
-    STM_rv = STM[0:3, 3:6]
-    STM_vr = STM[3:6, 0:3]
-    STM_vv = STM[3:6, 3:6]
-
-    print(STM)
-    # quit()
-
-    final_lv = posterior_estimates[9:12, -1]/np.linalg.norm(posterior_estimates[9:12, -1])
 
     if given == "initial" and desired == "initial":
         for magnitude_index in np.arange(num_magnitudes):
@@ -544,21 +589,25 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
 
     num_magnitudes = len(magnitudes)
     costate_estimates = np.empty((6, num_magnitudes))
-    final_lv = posterior_estimates[9:12, -1]/np.linalg.norm(posterior_estimates[9:12, -1])
+    final_lv = posterior_estimates[9:12, -2]/np.linalg.norm(posterior_estimates[9:12, -2])
     initial_lv_hat = posterior_estimates[9:12, 0]/np.linalg.norm(posterior_estimates[9:12, 0])
+    # final_lv = initial_lv_hat
 
     num_timesteps = np.size(posterior_estimates, 1)
     STM = np.eye(6)
+    direction = -posterior_estimates[9:12, 0]/np.linalg.norm(posterior_estimates[9:12, 0])
 
     for time_index in np.arange(num_timesteps-1):
-
-        direction = -posterior_estimates[9:12, time_index]/np.linalg.norm(posterior_estimates[9:12, time_index])
+        
         state = posterior_estimates[0:6, time_index]
         ICs = np.concatenate((state, np.eye(6).flatten()))
 
-        propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, np.array([0, dt]), ICs, args=(mu, umax, direction), atol=1e-12, rtol=1e-12)
+        propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, np.array([0, dt]), ICs, args=(mu, umax, direction), atol=1e-12, rtol=1e-12).y
 
-        STM = np.reshape(propagation.y[6:42, -1], (6, 6)) @ STM
+        STM = np.reshape(propagation[6:42, -1], (6, 6)) @ STM
+
+    # print(STM)
+    # quit()
 
     STM_rr = STM[0:3, 0:3]
     STM_rv = STM[0:3, 3:6]
@@ -567,59 +616,8 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
 
     for magnitude_index in np.arange(num_magnitudes):
         magnitude = magnitudes[magnitude_index]
-        initial_lv = final_lv * magnitude
+        initial_lv = initial_lv_hat * magnitude
         initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
         costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
     
-    return costate_estimates
-
-def get_min_fuel_initial_costates(initial_state, initial_lv, mu, umax, magnitudes, durations):
-
-    def constant_thrust_ODE(t, X, mu, umax, direction):
-
-        state = X[0:6]
-        STM = np.reshape(X[6:36+6], (6, 6))
-
-        B = np.vstack((np.zeros((3, 3)), np.eye(3)))
-
-        control = direction * umax
-
-        ddt_state_kepler = CR3BP_DEs(t, state, mu)
-        ddt_state = ddt_state_kepler + B @ control
-
-        ddt_STM = -CR3BP_jacobian(state, mu).T @ STM
-        ddt_STM = ddt_STM.flatten()
-
-        return np.concatenate((ddt_state, ddt_STM))
-
-    tf = durations[-1]
-    tspan = np.array([0, tf])
-    num_magnitudes = len(magnitudes)
-    num_durations = len(durations)
-    num_costates = num_magnitudes * num_durations
-    costate_estimates = np.empty((6, num_costates))
-
-    direction = -initial_lv/np.linalg.norm(initial_lv)
-    final_lv = -direction
-
-    constant_thrust_ICs = np.concatenate((initial_state, np.eye(6).flatten()))
-    constant_thrust_propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, tspan, constant_thrust_ICs, args=(mu, umax, direction), t_eval=durations, atol=1e-12, rtol=1e-12)
-    constant_thrust_vals = constant_thrust_propagation.y
-
-    costate_index = 0
-    for magnitude_index in np.arange(num_magnitudes):
-
-        estimated_initial_lv = -magnitudes[magnitude_index] * direction
-
-        for duration_index in np.arange(num_durations):
-
-            STM = np.reshape(constant_thrust_vals[6:36+6, duration_index], (6, 6))
-            STM_vr = STM[3:6, 0:3]
-            STM_vv = STM[3:6, 3:6]
-            initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
-
-            costate_estimates[:, costate_index] = np.concatenate((initial_lr, estimated_initial_lv))
-
-            costate_index += 1
-
     return costate_estimates

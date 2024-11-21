@@ -52,7 +52,7 @@ check_results[:, :] = 1
 
 check_results[:, 50:] = 0
 check_results[:, 125:] = 1
-check_results[:, 140:] = 0
+check_results[:, 150:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -133,7 +133,7 @@ ax.step(IMM_t, IMM_weights[1], alpha=0.5)
 
 thrusting_indices = get_thrusting_indices(IMM_output, switching_cutoff)
 start_index = thrusting_indices[0]
-end_index = thrusting_indices[1]
+end_index = thrusting_indices[1] - 1
 duration = time_vals[end_index] - time_vals[start_index]
 
 print(start_index)
@@ -154,8 +154,10 @@ initial_truth_lv = truth_vals[9:12, start_index]
 final_truth_lv = truth_vals[9:12, end_index]
 
 initial_costate_estimates = get_min_fuel_costates(initial_state, initial_estimated_lv, mu, umax, duration, magnitudes, "initial", "initial")
-initial_costate_estimates = get_min_fuel_costates_1(IMM_posterior_estimate_vals[:, start_index:end_index+1, 1], dt, mu, umax, duration, magnitudes, "initial", "initial")
+print(initial_costate_estimates)
 initial_costate_estimates = get_min_fuel_costates_2(IMM_posterior_estimate_vals[:, start_index:end_index+1, 1], dt, mu, umax, magnitudes)
+initial_costate_estimates = get_min_fuel_costates_2(truth_vals[:, start_index:end_index+1], dt, mu, umax, magnitudes)
+print(initial_costate_estimates)
 
 if False:
     
