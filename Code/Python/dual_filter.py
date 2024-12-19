@@ -57,7 +57,7 @@ def run_dual_filter(initial_estimate, initial_covariance,
 
             propagation_inputs = (previous_posterior_estimate, previous_posterior_covariance, first_dynamics_equation,
                                   first_process_noise_covariance, timespan, first_dynamics_args, measurement_size)        
-            anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = propagate_EKF(*propagation_inputs)
+            anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, STM, innovations = propagate_EKF(*propagation_inputs)
         else:
             observable_count += 1 * (observable_count < switching_count)
             unobservable_count -= 1 * (unobservable_count > 0)
@@ -77,7 +77,7 @@ def run_dual_filter(initial_estimate, initial_covariance,
                         dynamics_equation, measurement_equation, individual_measurement_size, 
                         process_noise_covariance, measurement_noise_covariance, 
                         measurement, timespan, dynamics_args, measurement_args)      
-                anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = iterate_EKF(*EKF_inputs)
+                anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, STM, innovations = iterate_EKF(*EKF_inputs)
             else:
                 dynamics_equation = second_dynamics_equation
                 dynamics_args = second_dynamics_args
@@ -90,7 +90,7 @@ def run_dual_filter(initial_estimate, initial_covariance,
                         dynamics_equation, measurement_equation, individual_measurement_size, 
                         process_noise_covariance, measurement_noise_covariance, 
                         measurement, timespan, dynamics_args, measurement_args)      
-                anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, innovations = iterate_EKF(*EKF_inputs)
+                anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, STM, innovations = iterate_EKF(*EKF_inputs)
                 
                 anterior_estimate = np.concatenate((anterior_estimate, previous_posterior_estimate[6:12]))
                 anterior_covariance = scipy.linalg.block_diag(anterior_covariance, previous_posterior_covariance[6:12, 6:12])
@@ -109,4 +109,4 @@ def run_dual_filter(initial_estimate, initial_covariance,
         previous_posterior_estimate = posterior_estimate
         previous_posterior_covariance = posterior_covariance
 
-    return FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, innovations_vals)
+    return FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, 0, innovations_vals)

@@ -8,7 +8,6 @@ from CR3BP import *
 from CR3BP_pontryagin import *
 from EKF import *
 from dual_filter import *
-from dynamics_functions import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
@@ -52,21 +51,21 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 50:125] = 0
+check_results[:, 100:150] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
-def EKF_dynamics_equation(t, X, mu, process_noise_covariance):
+def EKF_dynamics_equation(t, X, mu):
 
     state = X[0:6]
-    covariance = X[6:42].reshape((6, 6))
+    STM = X[6:42].reshape((6, 6))
 
     jacobian = CR3BP_jacobian(state, mu)
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+    ddt_STM = jacobian @ STM
 
-    return np.concatenate((ddt_state, ddt_covariance.flatten()))
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
     
 def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 
@@ -82,18 +81,18 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 
     return measurement, measurement_jacobian
 
-def costate_dynamics_equation(t, X, mu, umax, process_noise_covariance):
+def costate_dynamics_equation(t, X, mu, umax):
 
     state = X[0:6]
     costate = X[6:12]
-    covariance = X[12:156].reshape((12, 12))
+    STM = X[12:156].reshape((12, 12))
 
-    jacobian = CR3BP_costate_jacobian(state, costate, mu, umax)
+    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
 
     ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+    ddt_STM = jacobian @ STM
 
-    return np.concatenate((ddt_state, ddt_covariance.flatten()))
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
     
 def costate_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 

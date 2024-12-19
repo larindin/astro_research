@@ -51,7 +51,7 @@ check_results[:, :] = 1
 
 # check_results[:, 50:] = 0
 # check_results[:, 125:] = 1
-# check_results[:, 150:] = 0
+# check_results[:, 155:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -110,6 +110,7 @@ results = run_EKF(initial_estimate, initial_kernel_covariance,
 
 t = results.t
 anterior_estimate_vals = results.anterior_estimate_vals
+anterior_covariance_vals = results.anterior_covariance_vals
 posterior_estimate_vals = results.posterior_estimate_vals
 posterior_covariance_vals = results.posterior_covariance_vals
 
@@ -148,16 +149,17 @@ fig = plt.figure()
 for ax_index in np.arange(3):
     thing = int("31" + str(ax_index + 1))
     ax = fig.add_subplot(thing)
-    ax.plot(time_vals, truth_control[ax_index])
-    ax.plot(time_vals, estimated_control[ax_index])
-    ax.plot(time_vals, original_control[ax_index])
+    ax.plot(time_vals, truth_control[ax_index], alpha=0.4)
+    ax.plot(time_vals, estimated_control[ax_index], alpha=0.4)
+    ax.plot(time_vals, original_control[ax_index], alpha=0.4)
 
 fig = plt.figure()
 for ax_index in np.arange(6):
     thing = int("23" + str(ax_index+1))
     ax = fig.add_subplot(thing)
-    ax.plot(time_vals, truth_vals[6+ax_index])
-    ax.plot(time_vals, posterior_estimate_vals[6+ax_index])
-    ax.plot(time_vals, converted_posterior_vals[6+ax_index])
+    ax.plot(time_vals, truth_vals[6+ax_index], alpha=0.4)
+    ax.plot(time_vals, posterior_estimate_vals[6+ax_index], alpha=0.4)
+    ax.plot(time_vals, converted_posterior_vals[6+ax_index], alpha=0.4)
+
 
 plt.show()

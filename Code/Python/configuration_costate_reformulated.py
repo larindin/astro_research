@@ -34,7 +34,7 @@ sensor_dynamics_equation = CR3BP_DEs
 earth_exclusion_angle = np.deg2rad(5)
 moon_additional_angle = np.deg2rad(5)
 sun_exclusion_angle = np.deg2rad(20)
-seed = 0
+seed = 1
 
 # Filter parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
@@ -54,15 +54,15 @@ initial_mode_probabilities = np.array([0.8, 0.2])
 mode_transition_matrix = np.array([[0.8, 0.2], [0.2, 0.8]])
 
 # GMM parameters
-initial_kernel_state_covariance = scipy.linalg.block_diag(np.eye(3)*1e-6**2, np.eye(3)*1e-3**2)
+initial_kernel_state_covariance = scipy.linalg.block_diag(np.eye(3)*1e-6**2, np.eye(3)*1e-6**2)
 initial_kernel_costate_covariance = np.eye(6)*1e-2**2
-initial_kernel_covariance = scipy.linalg.block_diag(initial_kernel_state_covariance, initial_kernel_costate_covariance)
-kernel_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(3)*(1e-2)**2, np.eye(2)*(3e-2)**2, np.eye(1)*1e-3**2)
-original_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(3)*(1e-2)**2, np.eye(3)*(3e-2)**2)
-magnitudes = np.linspace(1.15, 1.25, 11)
-# magnitudes = np.linspace(1, 1.05, 11)
+initial_kernel_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_kernel_costate_covariance)
+original_initial_covariance = scipy.linalg.block_diag(initial_state_covariance, np.eye(6)*1e-2**2)
+kernel_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(3)*(1e-3)**2, np.eye(2)*(1e-2)**2, np.eye(1)*1e-6**2)
+original_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(3)*(1e-3)**2, np.eye(3)*(1e-2)**2)
+# magnitudes = np.linspace(1.15, 1.25, 11)
+magnitudes = np.linspace(1, 1.05, 11)
 # magnitudes = [1.05]
 num_kernels = len(magnitudes)
 initial_weights = np.ones(num_kernels)/num_kernels
-
 

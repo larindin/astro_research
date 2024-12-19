@@ -451,7 +451,7 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
 
     num_magnitudes = len(magnitudes)
     costate_estimates = np.empty((6, num_magnitudes))
-    final_lv = posterior_estimates[9:12, -2]/np.linalg.norm(posterior_estimates[9:12, -2])
+    final_lv = posterior_estimates[9:12, -1]/np.linalg.norm(posterior_estimates[9:12, -1])
     initial_lv_hat = posterior_estimates[9:12, 0]/np.linalg.norm(posterior_estimates[9:12, 0])
     # final_lv = initial_lv_hat
 
@@ -463,6 +463,7 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
         
         state = posterior_estimates[0:6, time_index]
         ICs = np.concatenate((state, np.eye(6).flatten()))
+        direction = -posterior_estimates[9:12, time_index]/np.linalg.norm(posterior_estimates[9:12, time_index])
 
         propagation = scipy.integrate.solve_ivp(constant_thrust_ODE, np.array([0, dt]), ICs, args=(mu, umax, direction), atol=1e-12, rtol=1e-12).y
 

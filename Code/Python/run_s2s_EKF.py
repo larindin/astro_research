@@ -4,18 +4,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
 from joblib import Parallel, delayed
-from configuration_EKF import *
+from configuration import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from EKF import *
-from dynamics_functions import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
 
 time_vals = np.arange(0, final_time, dt)
 tspan = np.array([time_vals[0], time_vals[-1]])
-truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=(mu, umax), t_eval=time_vals, atol=1e-12, rtol=1e-12)
+truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=(mu, umax, truth_rho), t_eval=time_vals, atol=1e-12, rtol=1e-12)
 truth_vals = truth_propagation.y
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
@@ -49,8 +48,9 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 50:125] = 0
-check_results[:, 150:] = 0
+# check_results[:, 50:125] = 0
+# check_results[:, 165:] = 0
+# check_results[:, 50:] = 0
 
 # check_results[:, 100:300] = 0
 # check_results[:, 325:] = 0
@@ -58,15 +58,15 @@ check_results[:, 150:] = 0
 dynamics_args = (mu,)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 
-def EKF_dynamics_equation(t, X, mu, process_noise_covariance):
+def EKF_dynamics_equation(t, X, mu):
 
     state = X[0:6]
-    covariance = X[6:42].reshape((6, 6))
+    STM = X[6:42].reshape((6, 6))
 
     jacobian = CR3BP_jacobian(state, mu)
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_covariance = jacobian @ covariance + covariance @ jacobian.T + process_noise_covariance
+    ddt_covariance = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_covariance.flatten()))
     
@@ -86,6 +86,8 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
 
 def big_function(seed):
 
+    print(seed)
+
     initial_estimate = np.random.default_rng(seed).multivariate_normal(initial_truth[0:6], initial_covariance)
 
     measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
@@ -98,7 +100,7 @@ def big_function(seed):
 
     return filter_output
 
-results = Parallel(n_jobs=6)(delayed(big_function)(seed) for seed in range(50))
+results = Parallel(n_jobs=8)(delayed(big_function)(seed) for seed in range(25))
 
 posterior_estimates = []
 posterior_covariances = []

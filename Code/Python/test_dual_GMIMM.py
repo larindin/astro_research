@@ -157,6 +157,7 @@ initial_costate_estimates = get_min_fuel_costates(initial_state, initial_estimat
 print(initial_costate_estimates)
 initial_costate_estimates = get_min_fuel_costates_2(IMM_posterior_estimate_vals[:, start_index:end_index+1, 1], dt, mu, umax, magnitudes)
 print(initial_costate_estimates)
+initial_costate_estimates = get_min_fuel_costates_2(truth_vals[:, start_index:end_index+1], dt, mu, umax, magnitudes)
 
 if False:
     
@@ -266,12 +267,18 @@ three_sigmas = compute_3sigmas([total_covariance_vals], 12)
 plot_3sigma(GM_time, estimation_errors, three_sigmas, 6)
 plot_3sigma_costate(GM_time, estimation_errors, three_sigmas, 6)
 
+kernel_estimates = [posterior_estimate_vals[:, :, kernel_index] for kernel_index in np.arange(num_kernels)]
+kernel_estimation_errors = compute_estimation_errors(truth_vals[:, start_index:], kernel_estimates, 12)
+
 posterior_estimate_vals, posterior_covariance_vals = trim_zero_weights(posterior_estimate_vals, posterior_covariance_vals, weight_vals)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 for mode_index in np.arange(num_kernels):
     ax.plot(posterior_estimate_vals[0, :, mode_index], posterior_estimate_vals[1, :, mode_index], posterior_estimate_vals[2, :, mode_index], alpha=0.25)
+ax.set_xlabel("X [LU]")
+ax.set_ylabel("Y [LU]")
+ax.set_zlabel("Z [LU]")
 ax.set_aspect("equal")
 plot_moon(ax, mu)
 
@@ -279,6 +286,7 @@ ax = plt.figure().add_subplot()
 ax.plot([0, final_time], [0.5, 0.5], alpha=0.5)
 for mode_index in np.arange(num_kernels):
     ax.step(GM_time, weight_vals[mode_index, :], alpha=0.25)
+ax.set_title("Particle Probabilities")
 
 fig = plt.figure()
 ax = fig.add_subplot(231)
@@ -331,6 +339,15 @@ ax = fig.add_subplot(236)
 ax.plot(time_vals, truth_vals[11])
 for index in np.arange(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[11, :, index], alpha=0.25)
+
+fig = plt.figure()
+fig.suptitle("Kernel Costate Errors")
+for variable_index in np.arange(6):
+    thing = int("23" + str(variable_index+1))
+    ax = fig.add_subplot(thing)
+    ax.plot(GM_time, kernel_estimation_errors[0][variable_index+6], alpha=0.001)
+    for kernel_index in np.arange(num_kernels):
+        ax.plot(GM_time, kernel_estimation_errors[kernel_index][variable_index+6], alpha=0.4)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_controls = []

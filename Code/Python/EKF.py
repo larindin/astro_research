@@ -56,10 +56,6 @@ def iterate_EKF(time_index, previous_posterior_estimate, previous_posterior_cova
     anterior_covariance = STM @ previous_posterior_covariance @ STM.T + process_noise_covariance
     anterior_covariance = enforce_symmetry(anterior_covariance)
 
-    # fudge = np.sqrt(np.diag(np.array([1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05])))
-    # anterior_covariance = fudge @ anterior_covariance @ fudge
-    # anterior_covariance = enforce_symmetry(anterior_covariance)
-
     measurement, valid_indices = assess_measurement(measurement, individual_measurement_size)
 
     predicted_measurement, measurement_jacobian = measurement_equation(time_index, anterior_estimate, *measurement_args)
@@ -74,11 +70,9 @@ def iterate_EKF(time_index, previous_posterior_estimate, previous_posterior_cova
     innovations = measurement - predicted_measurement
     innovations = check_innovations(innovations)
 
-    # posterior_estimate = anterior_estimate + gain_matrix @ innovations * np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     posterior_estimate = anterior_estimate + gain_matrix @ innovations
     posterior_covariance = anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T
     posterior_covariance = enforce_symmetry(posterior_covariance)
-    # posterior_estimate[11] = anterior_estimate[11]
 
     return anterior_estimate, anterior_covariance, posterior_estimate, posterior_covariance, STM, innovations
 
