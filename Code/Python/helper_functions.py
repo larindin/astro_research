@@ -6,6 +6,7 @@ import scipy
 NONDIM_LENGTH = 3.844e5 # kilometers
 NONDIM_TIME = 3.751903e5 # seconds
 NONDIM_TIME_HR = 1.042195278e2 # hours
+mu = 1.215059e-2 # Earth-Moon system
 
 def generate_sun_vectors(time_vals, phase):
 
