@@ -1,7 +1,8 @@
 
 
 import numpy as np
-import scipy
+import scipy.optimize
+import scipy.integrate
 from configuration_forback_shooting import *
 from CR3BP import *
 from CR3BP_pontryagin import *
@@ -58,18 +59,19 @@ for guess_index in np.arange(num_guesses):
     print(guess_index)
 
     initial_costate_guess = generator.uniform(*costate_guess_distribution, 12)
-    
+        
     boundary_conditions = np.concatenate((initial_state, final_state))
     solver_args = (boundary_conditions, tf, patching_time_factor, mu, umax, truth_rho, 1e-9, 1e-9)
     solution = scipy.optimize.root(forback_shooting_function, initial_costate_guess, solver_args, jac=True, tol=1e-6)
 
     sol = solution.x
+    fev = solution.fun
     success = solution.success
     status = solution.status
 
     print(success)
-    print(status)
-    if success:
+    print(solution)
+    if success and np.linalg.norm(fev) < 1:
         print(solution)
-        np.savetxt("shooting_solution.csv", sol, delimiter=",")
+        np.savetxt(filename, sol, delimiter=",")
         quit()

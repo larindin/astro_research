@@ -2,7 +2,7 @@
 
 import numpy as np
 import scipy
-from configuration_thrust_homotopy import *
+from configuration_rho_homotopy import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from helper_functions import *
@@ -55,28 +55,40 @@ solutions = []
 
 boundary_conditions = np.concatenate((initial_state, final_state))
 
-for umax in umax_vals:
+rho = truth_rho
+scaling_factor = gamma
 
-    print(umax)
+while rho >= 1e-4:
+
+    print(rho)
     
-    solver_args = (boundary_conditions, tf, patching_time_factor, mu, umax, truth_rho, 1e-9, 1e-9)
+    solver_args = (boundary_conditions, tf, patching_time_factor, mu, umax, rho, 1e-9, 1e-9)
     solution = scipy.optimize.root(forback_shooting_function, initial_costate_guess, solver_args, jac=True, tol=1e-6)
 
     sol = solution.x
+    fev = solution.fun
     success = solution.success
     status = solution.status
 
     print(success)
     print(status)
-    if success:
-        solutions.append(np.array([sol]))
+    if success and np.linalg.norm(fev) < 1:
+        to_be_printed = np.concatenate((np.array([[rho]]), np.array([sol])), 1)
+        solutions.append(to_be_printed)
+
+        if rho == 1e-4:
+            break
         initial_costate_guess = sol
+        scaling_factor = gamma
+        rho = scaling_factor * rho
+        if rho < 1e-4:
+            rho = 1e-4
     else:
+        rho = rho / scaling_factor
+        scaling_factor = np.sqrt(scaling_factor)
+        rho = rho * scaling_factor
+
         num_solutions = len(solutions)
-        if num_solutions == 1:
-            np.savetxt("LT_transfers/solution_02_1_25.csv", solutions[0], delimiter=",")
-        else:
-            solution_array = solutions[0]
-            for solution in solutions[1:]:
-                solution_array = np.concatenate((solution_array, solution), axis=0)
-            np.savetxt("LT_transfers/solution_02_1_25.csv", solution_array, delimiter=",")
+
+solution_array = solutions[-1]
+np.savetxt(filename, solution_array, delimiter=",")
