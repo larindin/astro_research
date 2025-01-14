@@ -6,8 +6,7 @@ from configuration_forback_shooting import *
 from CR3BP_pontryagin import *
 from plotting import *
 
-initial_costate = np.loadtxt("LT_transfers/solution_30_06_1_27.csv", delimiter=",")
-initial_costate = np.loadtxt("LT_transfers/solution_" + str(orbit1) + str(orbit2) + "_e4_25.csv", delimiter=",")[1:]
+initial_costate = np.loadtxt("LT_transfers/solution_" + str(orbit1) + str(orbit2) + "_06_e4_25.csv", delimiter=",")
 
 initial_conditions = np.concatenate((initial_state, initial_costate[0:6]))
 final_conditions = np.concatenate((final_state, initial_costate[6:12]))

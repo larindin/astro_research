@@ -76,3 +76,4 @@ def trim_zero_weights(posterior_estimate_vals, posterior_covariance_vals, weight
         posterior_covariance_vals[:, :, weight_vals[kernel_index, :]==0, kernel_index] = np.nan
     
     return posterior_estimate_vals, posterior_covariance_vals
+    

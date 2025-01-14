@@ -51,7 +51,7 @@ for type_index in np.arange(4):
     color = colors[type_index]
     for orbit_index in np.arange(num_orbits):
         tbp = type_propagations[orbit_index]
-        ax.plot(tbp[0], tbp[1], tbp[2], alpha=0.3, c=color)
+        ax.plot(tbp[0], tbp[1], tbp[2], alpha=0.5, c=color)
         ax.scatter(tbp[0, 0], tbp[1, 0], tbp[2, 0], c=color)
 plot_moon(ax, mu)
 ax.set_aspect("equal")

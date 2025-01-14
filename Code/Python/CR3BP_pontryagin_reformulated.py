@@ -149,7 +149,7 @@ def standard2reformulated(costate):
     l4, l5, l6 = costate[3:6]
     eta = np.linalg.norm(costate[3:6])
     psi = np.arcsin(l6/eta)
-    theta = np.arcsin(l5/eta/np.cos(psi))
+    theta = np.arctan2(l5, l4)
     costate[3:6] = np.array([theta, psi, eta])
     return costate
 
