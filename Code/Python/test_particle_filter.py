@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
+import time
 from configuration_particle_filter import *
 from CR3BP import *
 from CR3BP_pontryagin_reformulated import *
@@ -45,6 +46,8 @@ def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individ
 
     return measurement, measurement_jacobian
 
+start_time = time.time()
+
 time_vals = np.arange(0, final_time, dt)
 tspan = np.array([time_vals[0], time_vals[-1]])
 initial_truth = np.concatenate((initial_truth, np.eye(6).flatten()))
@@ -85,9 +88,9 @@ for sensor_index in np.arange(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 50:] = 0
+check_results[:, 100:] = 0
 check_results[:, 125:] = 1
-check_results[:, 150:] = 0
+check_results[:, 250:] = 0
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -100,7 +103,6 @@ initial_costate = standard2reformulated(initial_costate_original)
 final_costate_original = truth_vals[6:12, final_thrust_timestep].copy()
 final_costate = standard2reformulated(final_costate_original)
 
-num_particles = 5
 costate_angle_covariance = np.eye(2)*np.deg2rad(1)**2
 magnitude_error_std = 1
 generator = np.random.default_rng(seed)
@@ -112,7 +114,7 @@ final_magnitude_errors = generator.normal(0, magnitude_error_std/5, num_particle
 # initial_costate_angle_errors *= 0
 # final_costate_angle_errors *= 0
 # initial_magnitude_errors *= 0
-final_magnitude_errors *= 0
+# final_magnitude_errors *= 0
 
 STM_rr = total_STM[0:3, 0:3]
 STM_rv = total_STM[0:3, 3:6]
@@ -143,9 +145,11 @@ initial_weights = np.ones(num_particles*num_kernels)/(num_particles*num_kernels)
 
 dynamics_args = (mu, umax, truth_rho)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
+resampling_args = (roughening_cov,)
+
 particle_filter_results = run_particle_filter(initial_estimates, initial_weights, minimum_fuel_ODE,
-                                              filter_measurement_equation, measurements, measurement_noise_covariance,
-                                              dynamics_args, measurement_args)
+                                              filter_measurement_equation, measurements, filter_measurement_covariance,
+                                              dynamics_args, measurement_args, resampling_args)
 
 estimate_vals = particle_filter_results.estimate_vals
 weight_vals = particle_filter_results.weight_vals
@@ -157,29 +161,49 @@ ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
 for run_index in np.arange(num_particles*num_kernels):
     propagation = estimate_vals[:, :, run_index]
-    ax.plot(propagation[0], propagation[1], propagation[2], alpha=0.35)
+    ax.scatter(propagation[0], propagation[1], propagation[2], alpha=0.35)
 ax.set_xlabel("X [LU]")
 ax.set_ylabel("Y [LU]")
 ax.set_zlabel("Z [LU]")
-ax.set_aspect("equal")
 plot_moon(ax, mu)
+ax.set_aspect("equal")
 
-truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-estimated_controls = []
-for index in np.arange(num_particles*num_kernels):
-    estimated_control = get_min_fuel_control(estimate_vals[6:12, :, index], umax, filter_rho)
-    estimated_controls.append(estimated_control)
-fig = plt.figure()
-for ax_index in np.arange(3):
-    thing = int("31" + str(ax_index+1))
-    ax = fig.add_subplot(thing)
-    ax.plot(time_vals, truth_control[ax_index], alpha=0.75)
-    for index in np.arange(num_particles*num_kernels):
-        ax.plot(time_vals, estimated_controls[index][ax_index], alpha=0.35)
+ax = plt.figure().add_subplot(projection="3d")
+ax.plot(truth_vals[6], truth_vals[7], truth_vals[8], alpha=0.75)
+for run_index in np.arange(num_particles*num_kernels):
+    propagation = estimate_vals[:, :, run_index]
+    ax.scatter(propagation[6], propagation[7], propagation[8], alpha=0.35)
+ax.set_xlabel("l1")
+ax.set_ylabel("l2")
+ax.set_zlabel("l3")
+ax.set_aspect("equal")
+
+ax = plt.figure().add_subplot(projection="3d")
+ax.plot(truth_vals[9], truth_vals[10], truth_vals[11], alpha=0.75)
+for run_index in np.arange(num_particles*num_kernels):
+    propagation = estimate_vals[:, :, run_index]
+    ax.scatter(propagation[9], propagation[10], propagation[11], alpha=0.35)
+ax.set_xlabel("l4")
+ax.set_ylabel("l5")
+ax.set_zlabel("l6")
+ax.set_aspect("equal")
+
+# truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
+# estimated_controls = []
+# for index in np.arange(num_particles*num_kernels):
+#     estimated_control = get_min_fuel_control(estimate_vals[6:12, :, index], umax, filter_rho)
+#     estimated_controls.append(estimated_control)
+# fig = plt.figure()
+# for ax_index in np.arange(3):
+#     thing = int("31" + str(ax_index+1))
+#     ax = fig.add_subplot(thing)
+#     ax.plot(time_vals, truth_control[ax_index], alpha=0.75)
+#     for index in np.arange(num_particles*num_kernels):
+#         ax.plot(time_vals, estimated_controls[index][ax_index], alpha=0.35)
 
 ax = plt.figure().add_subplot()
 for index in np.arange(num_kernels*num_particles):
-    ax.plot(time_vals, weight_vals[index], alpha=0.2)
+    ax.scatter(time_vals, weight_vals[index], alpha=0.2)
 ax.set_ylim(-0.03, 1.03)
 
 # fig = plt.figure()
@@ -187,5 +211,8 @@ ax.set_ylim(-0.03, 1.03)
 #     thing = int("61" + str(ax_index+1))
 #     ax = fig.add_subplot(thing)
 #     ax.plot(time_vals, truth_vals[ax_index+6])
+
+end_time = time.time()
+print(end_time - start_time)
 
 plt.show()

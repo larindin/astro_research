@@ -12,6 +12,8 @@ initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
 final_time = 25*24 / NONDIM_TIME_HR
+# final_time = 15*24 / NONDIM_TIME_HR
+# final_time = 1
 # dt = 30*60/NONDIM_TIME
 dt = 0.01
 dynamics_equation = minimum_fuel_ODE
@@ -43,24 +45,14 @@ initial_covariance = scipy.linalg.block_diag(initial_state_covariance, np.eye(6)
 generator = np.random.default_rng(seed)
 initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.zeros(3), np.ones(3)*1e-9))
 # initial_estimate = initial_truth
-filter_measurement_covariance = measurement_noise_covariance * (1.1)**2
+filter_measurement_covariance = measurement_noise_covariance * (100)**2
 filter_rho = 1e-4
-switching_cutoff = 5
-
-# IMM parameters
-coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-12)**2)
-thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(0.5)**2)
-process_noise_covariances = np.stack((coasting_process_noise_covariance, thrusting_process_noise_covariance), 2)
-initial_mode_probabilities = np.array([0.8, 0.2])
-mode_transition_matrix = np.array([[0.8, 0.2], [0.2, 0.8]])
-
-# GMM parameters
-initial_kernel_state_covariance = scipy.linalg.block_diag(np.eye(3)*1e-6**2, np.eye(3)*1e-3**2)
-initial_kernel_costate_covariance = np.eye(6)*0.01**2
-initial_kernel_covariance = scipy.linalg.block_diag(initial_kernel_state_covariance, initial_kernel_costate_covariance)
-kernel_process_noise = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(3)*(1e-2)**2, np.eye(3)*(3e-2)**2)
 # magnitudes = np.linspace(1.15, 1.25, 11)
 magnitudes = np.linspace(1.01, 1.05, 2)
 magnitudes = [np.linalg.norm(initial_truth[9:12])]
 num_kernels = len(magnitudes)
 initial_weights = np.ones(num_kernels)/num_kernels
+state_roughening_cov = np.eye(6)*1e-6
+costate_roughening_cov = np.eye(6)*1e-6
+roughening_cov = scipy.linalg.block_diag(state_roughening_cov, costate_roughening_cov)
+num_particles = 10

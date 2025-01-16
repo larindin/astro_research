@@ -12,8 +12,8 @@ L1_halo_N = np.array([0.82338697, 0, -0.02282543, 0, 0.13455489, 0, 2.74650039])
 
 boundary_states = [L2_halo_S, L1_lyapunov, DRO, L1_halo_N]
 
-orbit1 = 3
-orbit2 = 2
+orbit1 = 1
+orbit2 = 0
 
 initial_state = boundary_states[orbit1][0:6]
 final_state = boundary_states[orbit2][0:6]
