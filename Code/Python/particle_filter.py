@@ -166,3 +166,6 @@ def resample_N_eff(weights, estimates, roughening_cov):
     
     else:
         return weights, estimates
+
+def calculate_N_eff_vals(weight_vals):
+    return np.array([1 / np.sum(weight_vals[:, time_index]**2) for time_index in np.arange(np.size(weight_vals, 1))])

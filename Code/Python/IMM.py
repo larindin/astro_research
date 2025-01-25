@@ -168,6 +168,22 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
 
     return GM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, 0, mode_probability_vals)
 
+def compute_IMM_output(mode_estimate_vals, mode_covariance_vals, weight_vals):
+
+    num_modes = np.size(mode_estimate_vals, 2)
+    num_timesteps = np.size(mode_estimate_vals, 1)
+
+    posterior_estimate_vals = np.zeros(np.shape(mode_estimate_vals[:, :, 0]))
+    posterior_covariance_vals = np.zeros(np.shape(mode_covariance_vals[:, :, :, 0]))
+    
+    for time_index in np.arange(num_timesteps):
+        for mode_index in np.arange(num_modes):
+            posterior_estimate_vals[:, time_index] += weight_vals[mode_index, time_index] * mode_estimate_vals[:, time_index, mode_index]
+        for mode_index in np.arange(num_modes):
+            difference = mode_estimate_vals[:, time_index, mode_index] - posterior_estimate_vals[:, time_index]
+            posterior_covariance_vals[:, :, time_index] += weight_vals[mode_index, time_index] * (mode_covariance_vals[:, :, time_index, mode_index] + difference[:, None] @ difference[:, None].T)
+
+    return posterior_estimate_vals, posterior_covariance_vals
 
 def get_thrusting_indices(results, switching_cutoff):
 

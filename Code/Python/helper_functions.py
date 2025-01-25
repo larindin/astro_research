@@ -76,4 +76,10 @@ def trim_zero_weights(posterior_estimate_vals, posterior_covariance_vals, weight
         posterior_covariance_vals[:, :, weight_vals[kernel_index, :]==0, kernel_index] = np.nan
     
     return posterior_estimate_vals, posterior_covariance_vals
-    
+
+def compute_primer_vectors(lambda_v_vals):
+    norms = np.linalg.norm(lambda_v_vals, axis=0)
+    p1 = (-lambda_v_vals[0]/norms)[None, :]
+    p2 = (-lambda_v_vals[1]/norms)[None, :]
+    p3 = (-lambda_v_vals[2]/norms)[None, :]
+    return np.vstack((p1, p2, p3))

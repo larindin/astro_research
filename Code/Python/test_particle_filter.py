@@ -111,8 +111,8 @@ final_costate_angle_errors = generator.multivariate_normal(np.zeros(2), costate_
 initial_magnitude_errors = np.abs(generator.normal(0, magnitude_error_std, num_particles))
 final_magnitude_errors = generator.normal(0, magnitude_error_std/5, num_particles)
 
-# initial_costate_angle_errors *= 0
-# final_costate_angle_errors *= 0
+initial_costate_angle_errors *= 0
+final_costate_angle_errors *= 0
 # initial_magnitude_errors *= 0
 # final_magnitude_errors *= 0
 
@@ -157,6 +157,8 @@ covariance_vals = np.zeros((12, 12, len(time_vals), num_kernels*num_particles))
 
 estimate_vals, blanks = trim_zero_weights(estimate_vals, covariance_vals, weight_vals)
 
+N_eff_vals = calculate_N_eff_vals(weight_vals)
+
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
 for run_index in np.arange(num_particles*num_kernels):
@@ -187,6 +189,9 @@ ax.set_xlabel("l4")
 ax.set_ylabel("l5")
 ax.set_zlabel("l6")
 ax.set_aspect("equal")
+
+ax = plt.figure().add_subplot()
+ax.plot(time_vals, N_eff_vals)
 
 # truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 # estimated_controls = []
