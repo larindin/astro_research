@@ -103,13 +103,13 @@ initial_costate = standard2reformulated(initial_costate_original)
 final_costate_original = truth_vals[6:12, final_thrust_timestep].copy()
 final_costate = standard2reformulated(final_costate_original)
 
-costate_angle_covariance = np.eye(2)*np.deg2rad(1)**2
-magnitude_error_std = 1
+costate_angle_covariance = np.eye(2)*np.deg2rad(1e-1)**2
+magnitude_error_std = 1e-2
 generator = np.random.default_rng(seed)
 initial_costate_angle_errors = generator.multivariate_normal(np.zeros(2), costate_angle_covariance, num_particles)
 final_costate_angle_errors = generator.multivariate_normal(np.zeros(2), costate_angle_covariance, num_particles)
 initial_magnitude_errors = np.abs(generator.normal(0, magnitude_error_std, num_particles))
-final_magnitude_errors = generator.normal(0, magnitude_error_std/5, num_particles)
+final_magnitude_errors = generator.normal(0, magnitude_error_std, num_particles)
 
 initial_costate_angle_errors *= 0
 final_costate_angle_errors *= 0

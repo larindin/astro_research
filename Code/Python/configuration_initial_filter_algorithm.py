@@ -7,22 +7,21 @@ from catalogue import *
 from helper_functions import *
 
 # Truth parameters
-initial_orbit_index = 3
-final_orbit_index = 1
+initial_orbit_index = 2
+final_orbit_index = 0
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
-initial_costate = standard2reformulated(initial_costate)
 initial_truth = np.concatenate((initial_state, initial_costate))
 final_time = 25*24 / NONDIM_TIME_HR
-final_time *= 0.8
+# final_time *= 0.8
 # final_time = 2
-backprop_time = 0.25
+backprop_time = 3
 # final_time = 0.5
 # final_time = 15*24 / NONDIM_TIME_HR
 # final_time = 1
 # dt = 30*60/NONDIM_TIME
 dt = 0.01
-dynamics_equation = reformulated_min_fuel_ODE
+dynamics_equation = minimum_fuel_ODE
 # initial_truth[6:12] = np.array([0, 0, 0, 1e-12, 1e-12, 1e-12])
 truth_rho = 1e-4
 mass = 1500 # kg
@@ -49,28 +48,14 @@ sun_exclusion_angle = np.deg2rad(20)
 seed = 0
 
 # IMM parameters
-# initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
-# initial_covariance = scipy.linalg.block_diag(initial_state_covariance, np.eye(6)*1e2**2)
-# generator = np.random.default_rng(seed)
-# initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.ones(6)*1e-12))
-# # initial_estimate = initial_truth
-# filter_measurement_covariance = measurement_noise_covariance * (1.5)**2
-# coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-12)**2)
-# thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1)**2)
-# process_noise_covariances = np.stack((coasting_process_noise_covariance, thrusting_process_noise_covariance), 2)
-# initial_mode_probabilities = np.array([0.9, 0.1])
-# mode_transition_matrix = np.array([[0.95, 0.05],
-#                                    [0.05, 0.95]])
-
-# IMM parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
-initial_covariance = scipy.linalg.block_diag(initial_state_covariance, np.eye(3)*1e2**2, np.eye(2)*1e-1**2, np.eye(1)*1e0**2)
+initial_covariance = scipy.linalg.block_diag(initial_state_covariance, np.eye(6)*1e1**2)
 generator = np.random.default_rng(seed)
 initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.ones(6)*1e-12))
-initial_estimate = initial_truth
+# initial_estimate = initial_truth
 filter_measurement_covariance = measurement_noise_covariance * (1.5)**2
-coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-12)**2)
-thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(3)*1e0**2, np.eye(2)*1e-2**2, np.eye(1)*1e1*2)
+coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-1)**2)
+thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1)**2)
 process_noise_covariances = np.stack((coasting_process_noise_covariance, thrusting_process_noise_covariance), 2)
 initial_mode_probabilities = np.array([0.9, 0.1])
 mode_transition_matrix = np.array([[0.95, 0.05],
