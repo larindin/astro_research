@@ -272,16 +272,18 @@ def reformulated_min_energy_jacobian(state, costate, mu, umax):
 
 def reformulated2standard(costate):
     theta, psi, eta = costate[3:6]
-    costate[3:6] = eta * np.array([np.cos(psi)*np.cos(theta), np.cos(psi)*np.sin(theta), np.sin(psi)])
-    return costate
+    new_costate = costate.copy()
+    new_costate[3:6] = eta * np.array([np.cos(psi)*np.cos(theta), np.cos(psi)*np.sin(theta), np.sin(psi)])
+    return new_costate
 
 def standard2reformulated(costate):
     l4, l5, l6 = costate[3:6]
     eta = np.linalg.norm(costate[3:6])
     psi = np.arcsin(l6/eta)
     theta = np.arctan2(l5, l4)
-    costate[3:6] = np.array([theta, psi, eta])
-    return costate
+    new_costate = costate.copy()
+    new_costate[3:6] = np.array([theta, psi, eta])
+    return new_costate
 
 def get_reformulated_min_fuel_control(costate_output, umax, rho):
 

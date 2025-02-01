@@ -15,6 +15,7 @@ final_time = 25*24 / NONDIM_TIME_HR
 # final_time = 2.5
 # final_time = 15*24 / NONDIM_TIME_HR
 # final_time = 1
+backprop_time = 0.5
 # dt = 30*60/NONDIM_TIME
 dt = 0.01
 dynamics_equation = minimum_fuel_ODE
@@ -34,6 +35,9 @@ measurement_dimension = 2
 individual_measurement_size = 2
 sensor_initial_conditions = np.array([[9.251388163276373922e-01,0,2.188093146262887201e-01,0,1.215781574069972060e-01,0],
                                       [1.082273752962558566e+00,0,-2.023390302053850731e-01,0,-2.003138750012137537e-01,0]])
+sensor_initial_conditions = np.array([[212171.440, 224189.013, 0, 0.1618*NONDIM_TIME, 0.5780*NONDIM_TIME, 0],
+                                      [267266.589, 291378.691, 0, 0.4596*NONDIM_TIME, 0.1991*NONDIM_TIME, 0],
+                                      [361478.978, 291915.604, 0, 0.5970*NONDIM_TIME, -0.1946*NONDIM_TIME, 0]])/NONDIM_LENGTH
 sensor_dynamics_equation = CR3BP_DEs
 earth_exclusion_angle = np.deg2rad(5)
 moon_additional_angle = np.deg2rad(5)
