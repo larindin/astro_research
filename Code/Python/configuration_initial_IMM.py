@@ -6,8 +6,8 @@ from catalogue import *
 from helper_functions import *
 
 # Truth parameters
-initial_orbit_index = 3
-final_orbit_index = 2
+initial_orbit_index = 2
+final_orbit_index = 0
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
@@ -52,8 +52,8 @@ initial_estimate = generator.multivariate_normal(initial_truth[0:6], initial_sta
 # initial_estimate = initial_truth
 filter_measurement_covariance = measurement_noise_covariance * (1.5)**2
 coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*1e-9**2, np.eye(3)*1e-9**2)*dt
-maneuvering_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*1e-9**2, np.eye(3)*5e-3**2)*dt
+maneuvering_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*1e-9**2, np.eye(3)*1e-2**2)*dt
 process_noise_covariances = np.stack((coasting_process_noise_covariance, maneuvering_process_noise_covariance), 2)
-initial_mode_probabilities = np.array([0.9, 0.1])
+initial_mode_probabilities = np.array([0.95, 0.05])
 mode_transition_matrix = np.array([[0.95, 0.05],
                                    [0.05, 0.95]])

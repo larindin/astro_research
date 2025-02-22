@@ -15,7 +15,7 @@ initial_truth = np.concatenate((initial_state, initial_costate))
 final_time = 25*24 / NONDIM_TIME_HR
 # final_time *= 0.8
 # final_time = 2
-backprop_time = 0.3
+backprop_time = 0.5
 # final_time = 0.5
 # final_time = 15*24 / NONDIM_TIME_HR
 # final_time = 1
@@ -45,7 +45,7 @@ sensor_dynamics_equation = CR3BP_DEs
 earth_exclusion_angle = np.deg2rad(5)
 moon_additional_angle = np.deg2rad(5)
 sun_exclusion_angle = np.deg2rad(20)
-seed = 0
+seed = 1
 
 # IMM parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
@@ -60,6 +60,7 @@ process_noise_covariances = np.stack((coasting_process_noise_covariance, thrusti
 initial_mode_probabilities = np.array([0.95, 0.05])
 mode_transition_matrix = np.array([[0.95, 0.05],
                                    [0.05, 0.95]])
-thrusting_duration_cutoff = 5
+thrusting_duration_cutoff = 5 
 thrusting_cutoff_offset = 10
 additional_measurements = 5
+num_particles = 1000

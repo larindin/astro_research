@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
+from joblib import Parallel, delayed
 from configuration_initial_filter_algorithm import *
 from CR3BP import *
 from CR3BP_pontryagin import *
@@ -90,9 +91,9 @@ def coasting_dynamics_equation(t, X, mu, umax):
     jacobian = minimum_energy_jacobian(state, costate, mu, umax)
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
-    # K = np.diag(np.ones(6)*10)
-    # ddt_costate = -K @ costate
+    # ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
+    K = np.diag(np.ones(6)*1e1)
+    ddt_costate = -K @ costate
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
@@ -157,6 +158,44 @@ three_sigmas = compute_3sigmas([output_covariance_vals], 12)
 
 thrusting_bool = mode_probabilities[1] > 0.5
 
+ax = plt.figure().add_subplot(projection="3d")
+ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
+ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
+plot_moon(ax, mu)
+ax.set_aspect("equal")
+
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
+plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6)
+
+ax = plt.figure().add_subplot()
+ax.plot(time_vals, mode_probabilities[0])
+ax.plot(time_vals, mode_probabilities[1])
+ax.plot(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
+# ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)
+ax.set_xlabel("Time [TU]")
+ax.set_ylabel("Mode Probability")
+ax.legend(["Coasting", "Thrusting"])
+
+control_fig = plt.figure()
+control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
+for ax_index in np.arange(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = control_fig.add_subplot(thing)
+    ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
+    # ax.plot(time_vals[:-1], estimated_control[ax_index, :, 0], alpha=0.5)
+    # ax.plot(time_vals, first_order[ax_index, :, 0], alpha=0.5)
+    ax.plot(time_vals, posterior_control[ax_index], alpha=0.5)
+    ax.set_ylabel(control_ax_labels[ax_index])
+ax.set_xlabel("Time [TU]")
+control_fig.legend(["Truth", "Estimated"])
+
+primer_vector_fig = plt.figure()
+for ax_index in np.arange(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = primer_vector_fig.add_subplot(thing)
+    ax.plot(time_vals, truth_primer_vectors[ax_index], alpha=0.5)
+    ax.plot(time_vals, estimated_primer_vectors[ax_index], alpha=0.5)
+
 
 def get_costate_STM(time_vals, state_vals, mu):
 
@@ -196,7 +235,7 @@ thrusting_states = output_estimate_vals[:, start_index:end_index].copy()
 thrusting_covariances = output_covariance_vals[:, :, start_index:end_index].copy()
 thrusting_truth_vals = truth_vals[:, start_index:end_index].copy()
 
-observation_times = time_vals[start_index:observation_end_index]
+observation_times = time_vals[start_index:observation_end_index].copy()
 observation_times -= observation_times[0]
 obs_positions = sensor_position_vals[:, start_index:observation_end_index].copy()
 observation_states = output_estimate_vals[:, start_index:observation_end_index].copy()
@@ -207,17 +246,22 @@ observation_truth_vals = truth_vals[:, start_index:observation_end_index].copy()
 
 truth_converted = np.concatenate((observation_truth_vals[0:6, 0], standard2reformulated(observation_truth_vals[6:12, 0])))
 # truth_cost = state_cost_function(truth_converted[0:11], truth_converted[11], observation_times, observation_states, observation_covariances, truth_dynamics_args)
-truth_cost = measurement_cost_reformulated(truth_converted[0:11], truth_converted[11], observation_times, observation_measurements, filter_measurement_covariance,
-                                       obs_positions, observation_check_results, truth_dynamics_args)
-print(truth_cost)
+# truth_residuals = measurement_lstsqr_reformulated(truth_converted[0:11], truth_converted[11], observation_times, observation_measurements, measurement_noise_covariance,
+#                                        obs_positions, observation_check_results, truth_dynamics_args)
+truth_residuals = measurement_lstsqr_standard(observation_truth_vals[:, 0], observation_times, observation_measurements, measurement_noise_covariance,
+                                       obs_positions, observation_check_results, truth_dynamics_args )
+print(np.sum(truth_residuals**2))
 
-magnitudes = np.linalg.norm(observation_truth_vals[9:12, 0]) * np.array([1.0, 1.4, 1.8])
-# magnitudes = np.linalg.norm(observation_truth_vals[9:12, 0]) * np.array([1])
+# magnitudes = np.linalg.norm(observation_truth_vals[9:12, 0]) * np.array([1.0, 1.1, 1.2])
+magnitudes = np.linalg.norm(observation_truth_vals[9:12, 0]) * np.array([1.2])
+# magnitudes = np.array([1.1, 1.2, 1.3])
+# magnitudes = np.array([1.1])
 
 initial_state_guess = thrusting_states[0:6, 0].copy()
 initial_lambdav_hat_guess = thrusting_states[9:12, 0].copy()
 initial_lambdav_hat_guess /= np.linalg.norm(initial_lambdav_hat_guess)
 initial_theta, initial_psi = standard2reformulated(np.concatenate((np.zeros(3), initial_lambdav_hat_guess)))[3:5]
+# initial_theta, initial_psi = truth_converted[9:11]
 final_lambdav_guess = thrusting_states[9:12, -1].copy()
 final_lambdav_guess /= np.linalg.norm(final_lambdav_guess)
 
@@ -227,7 +271,9 @@ STM_vr = STM[3:6, 0:3]
 STM_vv = STM[3:6, 3:6]
 
 num_guesses = len(magnitudes)
-solutions = np.empty((11, num_guesses))
+# solutions = np.empty((11, num_guesses))
+solutions = np.empty((12, num_guesses))
+jacobians = []
 for guess_index in np.arange(num_guesses):
 
     print(guess_index)
@@ -235,49 +281,198 @@ for guess_index in np.arange(num_guesses):
     initial_lambdav_guess = initial_lambdav_hat_guess * magnitudes[guess_index]
 
     # cost_func_args = (magnitudes[guess_index], observation_times, observation_states, observation_covariances, truth_dynamics_args)
-    cost_func_args = (magnitudes[guess_index], observation_times, observation_measurements, measurement_noise_covariance, obs_positions, observation_check_results, truth_dynamics_args)
+    cost_func_args = (observation_times, observation_measurements, measurement_noise_covariance, obs_positions, observation_check_results, truth_dynamics_args)
+    # cost_func_args = (magnitudes[guess_index], observation_times, observation_measurements, measurement_noise_covariance, obs_positions, observation_check_results, truth_dynamics_args)
+    # cost_func_args = (observation_states[0:6, 0], magnitudes[guess_index], observation_times, observation_measurements, measurement_noise_covariance, obs_positions, observation_check_results, truth_dynamics_args)
 
     initial_lambdar_guess = np.linalg.inv(STM_vr) @ (final_lambdav_guess - STM_vv @ initial_lambdav_guess)
-    initial_guess = np.concatenate((initial_state_guess, initial_lambdar_guess, np.array([initial_theta, initial_psi])))
+    # initial_guess = np.concatenate((initial_state_guess, initial_lambdar_guess, initial_lambdav_guess))
+    # initial_guess = np.concatenate((initial_state_guess, initial_lambdar_guess, np.array([initial_theta, initial_psi])))
+    initial_guess = np.concatenate((initial_state_guess, initial_lambdar_guess, np.array([initial_theta, initial_psi, magnitudes[guess_index]])))
+    # initial_guess = np.concatenate((initial_lambdar_guess, np.array([initial_theta, initial_psi])))
+    # initial_guess = observation_truth_vals[:, 0]
+    # initial_guess = truth_converted[0:11].copy()
 
-    # solution = scipy.optimize.minimize(state_cost_function, initial_guess, cost_func_args, method="BFGS")
-    solution = scipy.optimize.minimize(measurement_cost_reformulated, initial_guess, cost_func_args, method="BFGS")
+    # # solution = scipy.optimize.minimize(state_cost_function, initial_guess, cost_func_args, method="BFGS")
+    # # solution = scipy.optimize.minimize(measurement_cost_costate, initial_guess, cost_func_args, method="BFGS")
+    # # solution = scipy.optimize.least_squares(measurement_lstsqr_standard, initial_guess, args=cost_func_args, method="lm", verbose=2)
+    # # solution = scipy.optimize.least_squares(measurement_lstsqr_reformulated, initial_guess, args=cost_func_args, method="lm", verbose=2)
+    # solution = scipy.optimize.least_squares(measurement_lstsqr_reformulated_mag, initial_guess, args=cost_func_args, method="lm", verbose=2)
+    # # solution = scipy.optimize.least_squares(measurement_lstsqr_costate, initial_guess, args=cost_func_args, method="lm", verbose=2)
 
-    solutions[:, guess_index] = solution.x
-    print(solution.x)
-    print(solution.success)
-    print(solution.fun)
+    # solutions[:, guess_index] = solution.x
+    # jacobians.append(solution.jac)
+    # print(solution.x)
+    # print(solution.success)
+    # print(solution.message)
+    # # print(np.sum(measurement_lstsqr_standard(solution.x, *cost_func_args)**2))
+    # # print(np.sum(measurement_lstsqr_reformulated(solution.x, *cost_func_args)**2))
+    # print(np.sum(measurement_lstsqr_reformulated_mag(solution.x, *cost_func_args)**2))
 
-teval = np.arange(observation_times[0], observation_times[-1]+1.5, dt)
+
+proptime = 2.0
+# proptime = observation_times[-1] - observation_times[0]
+teval = np.arange(observation_times[0], observation_times[-1]+proptime, dt)
 tspan = np.array([teval[0], teval[-1]])
 
 truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, thrusting_truth_vals[:, 0], args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
 
-ICs = np.concatenate((initial_guess, np.array([1])))
-initial_guess_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+# ICs = np.concatenate((initial_guess, np.array([magnitudes[0]])))
+# initial_guess_propagation = scipy.integrate.solve_ivp(minimum_fuel_ODE, tspan, initial_guess, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+# initial_guess_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+initial_guess_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, initial_guess, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
 
 truth_propagation_control = get_min_fuel_control(truth_propagation[6:12, :], umax, truth_rho)
 initial_guess_control = get_reformulated_min_fuel_control(initial_guess_propagation[6:12, :], umax, truth_rho)
+# initial_guess_control = get_min_fuel_control(initial_guess_propagation[6:12, :], umax, truth_rho)
 
 test_propagations = []
 test_controls = []
+test_errors = []
 
 for guess_index in np.arange(num_guesses):
-    ICs = np.concatenate((solutions[:, guess_index], np.array([magnitudes[guess_index]])))
+    # ICs = np.concatenate((observation_states[0:6, 0], solutions[:, guess_index], np.array([magnitudes[guess_index]])))
+    # ICs = np.concatenate((solutions[:, guess_index], np.array([magnitudes[guess_index]])))
+    ICs = solutions[:, guess_index]
+    # new_propagation = scipy.integrate.solve_ivp(minimum_fuel_ODE, tspan, ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
     new_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
     test_propagations.append(new_propagation)
+    # test_controls.append(get_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
     test_controls.append(get_reformulated_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
+    test_errors.append(new_propagation - truth_propagation)
+
+inputs = np.load("sol_jac.npz")
+solutions[:, 0] = inputs["solution"]
+jacobians.append(inputs["jac"])
+
+def min_fuel_STM_ode(t, X, mu, umax, rho):
+
+    state = X[0:6]
+    costate = X[6:12]
+    STM = np.reshape(X[12:36+12], (6, 6))
+
+    ddt_state = reformulated_min_fuel_ODE(0, X[0:12], mu, umax, rho)
+
+    ddt_STM = -CR3BP_jacobian(state, mu).T @ STM
+    ddt_STM = ddt_STM.flatten()
+
+    return np.concatenate((ddt_state, ddt_STM))
+
+teval = np.linspace(0, 0.15, 16)
+
+truth_STM_ICs = np.concatenate((truth_converted, np.eye(6).flatten()))
+truth_STM_propagation = scipy.integrate.solve_ivp(min_fuel_STM_ode, np.array([teval[0], teval[-1]]), truth_STM_ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+
+solution_STM_ICs = np.concatenate((solutions[:, 0], np.eye(6).flatten()))
+solution_STM_propagation = scipy.integrate.solve_ivp(min_fuel_STM_ode, np.array([teval[0], teval[-1]]), solution_STM_ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+
+truth_control = get_reformulated_min_fuel_control(truth_STM_propagation[6:12, :], umax, truth_rho)
+solution_control = get_reformulated_min_fuel_control(solution_STM_propagation[6:12, :], umax, truth_rho)
+
+np.set_printoptions(suppress=True, precision=9, linewidth=500)
+
+print(truth_STM_propagation[12:36+12, -1].reshape((6, 6)))
+print(solution_STM_propagation[12:36+12, -1].reshape((6, 6)))
+print(STM)
+print(solution_STM_propagation[12:36+12, -1].reshape((6, 6)) - truth_STM_propagation[12:36+12, -1].reshape((6, 6)))
+print(STM - truth_STM_propagation[12:36+12, -1].reshape((6, 6)))
+
+test_control_fig = plt.figure()
+for ax_index in np.arange(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = test_control_fig.add_subplot(thing)
+    ax.plot(teval, truth_control[ax_index], alpha=0.5)
+    ax.plot(teval, solution_control[ax_index], alpha=0.5)
+    # for guess_index in np.arange(num_guesses):
+    #     ax.plot(teval, test_controls[guess_index][ax_index], alpha=0.5)
+    # for particle_index in np.arange(num_particles):
+    #     ax.plot(teval, particle_controls[particle_index][ax_index], alpha=0.15)
+
+plt.show()
+quit()
+
+particle_propagations = []
+particle_controls = []
+particle_costs = []
+
+solution_mean = solutions[:, 0]
+jacobian = jacobians[0]
+sampling_covariance = np.linalg.inv(jacobians[guess_index].T @ jacobians[guess_index])
+
+def get_costs(value):
+    return np.sum(measurement_lstsqr_reformulated_mag(value, *cost_func_args)**2)
+
+def get_propagations(value): 
+    return scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, value, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+
+def get_controls(propagation):
+    return get_reformulated_min_fuel_control(propagation[6:12, :], umax, truth_rho)
+
+particle_ICs = generator.multivariate_normal(solution_mean, sampling_covariance, num_particles).T
+
+# chi2_cutoff = get_chi2_cutoff(6*(thrusting_cutoff_offset+additional_measurements)-12, 0.003)
+# print(chi2_cutoff)
+# remaining_particles = num_particles
+# particle_ICs = np.empty((12, num_particles))
+# while remaining_particles > 0:
+    
+#     print(remaining_particles)
+
+#     ICs = generator.multivariate_normal(solution_mean, sampling_covariance, remaining_particles)
+#     particle_costs = Parallel(n_jobs=8)(delayed(big_function)(ICs[particle_index, :]) for particle_index in range(remaining_particles))
+
+#     for particle_index in np.arange(remaining_particles):
+#         if particle_costs[particle_index] < chi2_cutoff:
+#             particle_ICs[:, remaining_particles-1] = ICs[particle_index, :]
+#             remaining_particles -= 1
+
+print("getting costs")
+particle_costs = Parallel(n_jobs=8)(delayed(get_costs)(particle_ICs[:, particle_index]) for particle_index in range(num_particles))
+print("getting propagations")
+particle_propagations = Parallel(n_jobs=8)(delayed(get_propagations)(particle_ICs[:, particle_index]) for particle_index in range(num_particles))
+print("getting controls")
+particle_controls = Parallel(n_jobs=8)(delayed(get_controls)(particle_propagations[particle_index]) for particle_index in range(num_particles))
+
+# for particle_index in np.arange(num_particles):
+#     print(particle_index)
+#     # new_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs[particle_index, :], args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+#     # particle_propagations.append(new_propagation)
+#     # particle_controls.append(get_reformulated_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
+#     particle_costs.append(np.sum(measurement_lstsqr_reformulated_mag(ICs[particle_index, :], *cost_func_args)**2))
+
+ax = plt.figure().add_subplot()
+# ax.hist(np.array(particle_costs), bins=(60, 70, 80, 90, 100, 110, 120))
+ax.hist(np.array(particle_costs), bins=(50, 100, 150, 200, 250, 1000, 10000, 100000))
+ax.set_xscale("log")
 
 np.set_printoptions(suppress=True, precision=5, linewidth=500)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_propagation[0], truth_propagation[1], truth_propagation[2], alpha=0.5)
 ax.plot(initial_guess_propagation[0], initial_guess_propagation[1], initial_guess_propagation[2], alpha=0.5)
-print(np.concatenate((thrusting_truth_vals[0:6, 0], standard2reformulated(thrusting_truth_vals[6:12, 0]))))
-for guess_index in np.arange(num_guesses):
-    ax.plot(test_propagations[guess_index][0], test_propagations[guess_index][1], test_propagations[guess_index][2], alpha=0.5)
-    print(np.concatenate((solutions[:, guess_index], np.array([magnitudes[guess_index]]))))
+# # print(observation_truth_vals[:, 0])
+# print(np.concatenate((observation_truth_vals[0:6, 0], standard2reformulated(observation_truth_vals[6:12, 0]))))
+# for guess_index in np.arange(num_guesses):
+#     ax.plot(test_propagations[guess_index][0], test_propagations[guess_index][1], test_propagations[guess_index][2], alpha=0.5)
+#     print(solutions[:, guess_index])
+#     # print(np.concatenate((solutions[:, guess_index], np.array([magnitudes[guess_index]]))))
+#     print(np.sqrt(np.diag(np.linalg.inv(jacobians[guess_index].T @ jacobians[guess_index]))))
+for particle_index in np.arange(num_particles):
+    ax.plot(particle_propagations[particle_index][0], particle_propagations[particle_index][1], particle_propagations[particle_index][2], alpha=0.15)
 ax.set_aspect("equal")
+plot_moon(ax, mu)
+
+test_errors_fig = plt.figure()
+test_errors_ax_nums = [231, 232, 233, 234, 235, 236]
+test_errors_ax_labels = ["X", "Y", "Z", "Vx", "Vy", "Vz"]
+for ax_index in np.arange(6):
+    thing = test_errors_ax_nums[ax_index]
+    ax = test_errors_fig.add_subplot(thing)
+    ax.plot(teval, truth_propagation[ax_index])
+    for guess_index in np.arange(num_guesses):
+        ax.plot(teval, test_propagations[guess_index][ax_index])
+    ax.set_ylabel(test_errors_ax_labels[ax_index])
+    ax.grid(True)
 
 test_control_fig = plt.figure()
 for ax_index in np.arange(3):
@@ -285,42 +480,9 @@ for ax_index in np.arange(3):
     ax = test_control_fig.add_subplot(thing)
     ax.plot(teval, truth_propagation_control[ax_index], alpha=0.5)
     ax.plot(teval, initial_guess_control[ax_index], alpha=0.5)
-    for guess_index in np.arange(num_guesses):
-        ax.plot(teval, test_controls[guess_index][ax_index], alpha=0.5)
-
-plt.show()
-
-quit()
-
-ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
-plot_moon(ax, mu)
-ax.set_aspect("equal")
-
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6)
-
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, mode_probabilities[0])
-ax.plot(time_vals, mode_probabilities[1])
-ax.plot(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
-ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)
-
-control_fig = plt.figure()
-for ax_index in np.arange(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = control_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
-    # ax.plot(time_vals[:-1], estimated_control[ax_index, :, 0], alpha=0.5)
-    # ax.plot(time_vals, first_order[ax_index, :, 0], alpha=0.5)
-    ax.plot(time_vals, posterior_control[ax_index], alpha=0.5)
-
-primer_vector_fig = plt.figure()
-for ax_index in np.arange(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = primer_vector_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_primer_vectors[ax_index], alpha=0.5)
-    ax.plot(time_vals, estimated_primer_vectors[ax_index], alpha=0.5)
+    # for guess_index in np.arange(num_guesses):
+    #     ax.plot(teval, test_controls[guess_index][ax_index], alpha=0.5)
+    for particle_index in np.arange(num_particles):
+        ax.plot(teval, particle_controls[particle_index][ax_index], alpha=0.15)
 
 plt.show()

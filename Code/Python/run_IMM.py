@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
+from joblib import Parallel, delayed
 from configuration_initial_filter_algorithm import *
 from CR3BP import *
 from CR3BP_pontryagin import *
@@ -24,8 +25,6 @@ back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
 truth_vals = np.concatenate((back_propagation, forward_propagation), axis=1)
 time_vals = np.arange(0, final_time+backprop_time, dt)
-
-initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(6)))
 
 
 # ax = plt.figure().add_subplot(projection="3d")
@@ -79,7 +78,6 @@ check_results[:, :] = 1
 # check_results[:, 125:] = 1
 # check_results[:, 150:] = 0
 
-measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
 def coasting_dynamics_equation(t, X, mu, umax):
 
@@ -88,11 +86,12 @@ def coasting_dynamics_equation(t, X, mu, umax):
     STM = X[12:156].reshape((12, 12))
 
     jacobian = minimum_energy_jacobian(state, costate, mu, umax)
+    jacobian[0:6, 6:12] = 0
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
-    # K = np.diag(np.ones(6)*1)
-    # ddt_costate = -K @ costate
+    # ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
+    K = np.diag(np.ones(6)*1e1)
+    ddt_costate = -K @ costate
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
@@ -130,62 +129,77 @@ measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 dynamics_equations = [coasting_dynamics_equation, maneuvering_dynamics_equation]
 num_modes = len(dynamics_equations)
 
+def big_function(seed):
 
-filter_output = run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
-                    dynamics_equations, filter_measurement_equation, measurements,
-                    process_noise_covariances, filter_measurement_covariance,
-                    dynamics_args, measurement_args, mode_transition_matrix)
+    print(seed)
 
-filter_time = filter_output.t
-posterior_estimate_vals = filter_output.posterior_estimate_vals
-posterior_covariance_vals = filter_output.posterior_covariance_vals
-anterior_estimate_vals = filter_output.anterior_estimate_vals
-mode_probabilities = filter_output.weight_vals
+    initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(6)))
 
-output_estimate_vals, output_covariance_vals = compute_IMM_output(posterior_estimate_vals, posterior_covariance_vals, mode_probabilities)
+    measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
+
+    filter_output = run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
+                            dynamics_equations, filter_measurement_equation, measurements,
+                            process_noise_covariances, filter_measurement_covariance,
+                            dynamics_args, measurement_args, mode_transition_matrix)
+
+    return filter_output
+
+num_runs = 50
+results = Parallel(n_jobs=8)(delayed(big_function)(seed) for seed in range(num_runs))
+
+posterior_estimates = []
+posterior_covariances = []
+posterior_controls = []
+posterior_primer_vectors = []
+
+for result in results:
+    new_estimate_vals, new_covariance_vals = compute_IMM_output(result.posterior_estimate_vals, result.posterior_covariance_vals, result.weight_vals)
+    posterior_estimates.append(new_estimate_vals)
+    posterior_covariances.append(new_covariance_vals)
+    posterior_controls.append(get_min_energy_control(new_estimate_vals[6:12, :], umax))
+    posterior_primer_vectors.append(compute_primer_vectors(new_estimate_vals[9:12, :]))
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-first_order = (posterior_estimate_vals[3:6, :] - anterior_estimate_vals[3:6, :])/dt
-estimated_control = (posterior_estimate_vals[3:6, :-1] - anterior_estimate_vals[3:6, :-1])/2/dt + (posterior_estimate_vals[3:6, 1:] - anterior_estimate_vals[3:6, 1:])/2/dt
-posterior_control = get_min_energy_control(output_estimate_vals[6:12, :], umax)
-
 truth_primer_vectors = compute_primer_vectors(truth_vals[9:12])
-estimated_primer_vectors = compute_primer_vectors(output_estimate_vals[9:12])
 
-estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals], 12)
-three_sigmas = compute_3sigmas([output_covariance_vals], 12)
+estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 12)
+three_sigmas = compute_3sigmas(posterior_covariances, 12)
 
-thrusting_bool = mode_probabilities[1] > 0.5
+true_thrusting_bool = np.linalg.norm(truth_control, axis=0)
+# thrusting_bool = mode_probabilities[1] > 0.5
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
+for run_index in np.arange(num_runs):
+    ax.plot(posterior_estimates[run_index][0], posterior_estimates[run_index][1], posterior_estimates[run_index][2], alpha=0.25)
 plot_moon(ax, mu)
 ax.set_aspect("equal")
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, alpha=0.25)
+plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6, alpha=0.25)
 
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, mode_probabilities[0])
-ax.plot(time_vals, mode_probabilities[1])
-ax.plot(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
-ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)
+# ax = plt.figure().add_subplot()
+# ax.plot(time_vals, mode_probabilities[0])
+# ax.plot(time_vals, mode_probabilities[1])
+# ax.plot(time_vals, true_thrusting_bool, alpha=0.5)
+# ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)
 
 control_fig = plt.figure()
 for ax_index in np.arange(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
-    # ax.plot(time_vals[:-1], estimated_control[ax_index, :, 0], alpha=0.5)
-    # ax.plot(time_vals, first_order[ax_index, :, 0], alpha=0.5)
-    ax.plot(time_vals, posterior_control[ax_index], alpha=0.5)
+    ax.plot(time_vals, truth_control[ax_index], alpha=0.75)
+    ax.plot(time_vals, true_thrusting_bool, alpha=0.5)
+    for run_index in np.arange(num_runs):
+        ax.plot(time_vals, posterior_controls[run_index][ax_index], alpha=0.25)
 
 primer_vector_fig = plt.figure()
 for ax_index in np.arange(3):
     thing = int("31" + str(ax_index + 1))
     ax = primer_vector_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_primer_vectors[ax_index], alpha=0.5)
-    ax.plot(time_vals, estimated_primer_vectors[ax_index], alpha=0.5)
-
+    ax.plot(time_vals, truth_primer_vectors[ax_index], alpha=0.75)
+    ax.plot(time_vals, true_thrusting_bool, alpha=0.5)
+    for run_index in np.arange(num_runs):
+        ax.plot(time_vals, posterior_primer_vectors[run_index][ax_index], alpha=0.25)
+    
 plt.show()
