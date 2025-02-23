@@ -2,18 +2,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
-from configuration import *
+from configuration_OCBE import *
 from CR3BP import *
 from CR3BP_pontryagin import *
-from EKF import *
+from OCBE import *
 from smoothing import *
 from measurement_functions import *
 from plotting import *
 
-time_vals = np.arange(0, final_time, dt)
-tspan = np.array([time_vals[0], time_vals[-1]])
-truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=truth_dynamics_args, t_eval=time_vals, atol=1e-12, rtol=1e-12)
-truth_vals = truth_propagation.y
+backprop_time_vals = -np.arange(0, backprop_time, dt)
+forprop_time_vals = np.arange(0, final_time, dt)
+backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
+forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
+back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
+back_propagation = np.vstack((back_propagation, np.ones(np.shape(back_propagation))*1e-9))
+back_propagation = np.flip(back_propagation, axis=1)
+forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
+# truth_vals = np.concatenate((back_propagation, forward_propagation), axis=1)
+# time_vals = np.arange(0, final_time+backprop_time, dt)
+truth_vals = forward_propagation
+time_vals = forprop_time_vals
+
+initial_estimate = generator.multivariate_normal(truth_vals[0:6, 0], initial_covariance)
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
 
@@ -55,22 +65,25 @@ check_results[:, :] = 1
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
-dynamics_args = (mu, )
+dynamics_args = (mu, control_noise_covariance)
 measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 
-def EKF_dynamics_equation(t, X, mu):
+def OCBE_dynamics_equation(t, X, mu, control_noise_covariance):
 
     state = X[0:6]
-    STM = X[6:42].reshape((6, 6))
+    STM = X[6:150].reshape((12, 12))
+
+    B = np.vstack((np.zeros((3, 3)), np.eye(3)))
 
     jacobian = CR3BP_jacobian(state, mu)
+    big_A = np.block([[jacobian, -B@control_noise_covariance@B.T], [np.zeros((6, 6)), -jacobian.T]])
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    ddt_covariance = jacobian @ STM
+    ddt_STM = big_A @ STM
 
-    return np.concatenate((ddt_state, ddt_covariance.flatten()))
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
     
-def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
+def OCBE_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
     measurement = np.empty(num_sensors*individual_measurement_size)
@@ -85,11 +98,13 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
     return measurement, measurement_jacobian
 
 
-filter_output = run_EKF(initial_estimate, initial_covariance,
-                        EKF_dynamics_equation, EKF_measurement_equation,
-                        measurements, process_noise_covariance,
+filter_output = run_OCBE(initial_estimate, initial_covariance,
+                        OCBE_dynamics_equation, OCBE_measurement_equation,
+                        measurements, control_noise_covariance,
                         measurement_noise_covariance, 
                         dynamics_args, measurement_args)
+
+smoothed_estimates, smoothed_covariance, smoothed_costate, smoothed_control = run_OCBE_smoothing(filter_output, control_noise_covariance)
 
 filter_time = filter_output.t
 posterior_estimate_vals = filter_output.posterior_estimate_vals
@@ -97,43 +112,58 @@ posterior_covariance_vals = filter_output.posterior_covariance_vals
 anterior_estimate_vals = filter_output.anterior_estimate_vals
 anterior_covariance_vals = filter_output.anterior_covariance_vals
 innovations = filter_output.innovations_vals
-weight_vals = np.ones((1, len(filter_time)))
+STM_vals = filter_output.STM_vals
+control_vals = filter_output.control_vals
+costate_vals = filter_output.costate_vals
+# weight_vals = np.ones((1, len(filter_time)))
 
-smoothed_results = run_EKF_smoothing(filter_output)
-
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51)
-plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51, state_indices=[0, 2])
+# plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51)
+# plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -1, xbounds=[0.75, 1.25], ybounds=[-0.25, 0.25], resolution=51, state_indices=[0, 2])
 # plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -51, resolution=51)
 # plot_GM_heatmap(truth_vals, posterior_estimate_vals[:, :, np.newaxis], posterior_covariance_vals[:, :, :, np.newaxis], weight_vals, -101, resolution=51)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
-ax.plot(smoothed_results[0, 1:], smoothed_results[1, 1:], smoothed_results[2, 1:])
 ax.set_aspect("equal")
 
-ax = plt.figure().add_subplot()
-ax.plot(time_vals, 3*np.sqrt(posterior_covariance_vals[0, 0]))
-
-ax = plt.figure().add_subplot()
-ax.plot(measurements.t, anterior_estimate_vals[0])
-ax.plot(measurements.t, anterior_estimate_vals[1])
-ax.plot(measurements.t, anterior_estimate_vals[2])
-
-posterior_estimates = [smoothed_results, posterior_estimate_vals]
-posterior_covariances = [posterior_covariance_vals, posterior_covariance_vals]
+posterior_estimates = [posterior_estimate_vals]
+posterior_covariances = [posterior_covariance_vals]
 
 estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 6)
 three_sigmas = compute_3sigmas(posterior_covariances, 6)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, [-0.25, 0.25], 0.5)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6, alpha=0.75)
+
+smoothed_estimation_errors = compute_estimation_errors(truth_vals, [smoothed_estimates], 6)
+smoothed_three_sigmas = compute_3sigmas([smoothed_covariance], 6)
+plot_3sigma(time_vals, smoothed_estimation_errors, smoothed_three_sigmas, 6, alpha=0.75)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-fig = plt.figure()
-ax = fig.add_subplot(311)
-ax.step(time_vals, truth_control[0])
-ax = fig.add_subplot(312)
-ax.step(time_vals, truth_control[1])
-ax = fig.add_subplot(313)
-ax.step(time_vals, truth_control[2])
+control_vals[:, 0] = 0
+# control_vals = np.cumsum(control_vals, axis=1)
+control_fig = plt.figure()
+for ax_index in np.arange(3):
+    thing = int("31" + str(ax_index+1))
+    ax = control_fig.add_subplot(thing)
+    # ax.plot(time_vals, truth_control[ax_index])
+    ax.plot(time_vals, control_vals[ax_index])
+    ax.plot(time_vals, smoothed_control[ax_index])
+
+control_fig = plt.figure()
+for ax_index in np.arange(3):
+    thing = int("31" + str(ax_index+1))
+    ax = control_fig.add_subplot(thing)
+    ax.plot(time_vals, truth_control[ax_index])
+    # ax.plot(time_vals, control_vals[ax_index])
+
+costate_fig = plt.figure()
+costate_vals[:, 0] = 0
+# costate_vals = np.cumsum(costate_vals, axis=1)
+for ax_index in np.arange(6):
+    thing = int("61" + str(ax_index+1))
+    ax = costate_fig.add_subplot(thing)
+    # ax.plot(time_vals, truth_control[ax_index])
+    ax.plot(time_vals, costate_vals[ax_index])
+    ax.plot(time_vals, smoothed_costate[ax_index])
 
 plt.show()
