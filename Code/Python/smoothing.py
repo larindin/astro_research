@@ -23,7 +23,7 @@ def run_EKF_smoothing(results):
 
     smoothed_estimate_vals[:, -1] = posterior_estimate_vals[:, -1]
 
-    for val_index in np.arange(num_vals-2, 0, -1):
+    for val_index in range(num_vals-2, 0, -1):
 
         STM = STM_vals[:, :, val_index+1]
 
@@ -56,7 +56,7 @@ def run_OCBE_smoothing(results, control_noise_covariance):
     smoothed_costate_vals[:, -1] = costate_vals[:, -1]
     smoothed_control_vals[:, -1] = control_vals[:, -1]
 
-    for val_index in np.arange(num_vals-2, 0, -1):
+    for val_index in range(num_vals-2, 0, -1):
 
         STM_xx = STM_vals[:, :, val_index+1][0:state_size, 0:state_size]
         STM_ll = STM_vals[:, :, val_index][state_size:2*state_size, state_size:2*state_size]

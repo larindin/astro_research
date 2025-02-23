@@ -30,10 +30,10 @@ for data in data_list:
     periods = data[:, 6]
     num_orbits = len(periods)
 
-    propagations.append(Parallel(n_jobs=8)(delayed(generate_propagation)(ICs[orbit_index], periods[orbit_index]) for orbit_index in np.arange(0, num_orbits, 4)))
+    propagations.append(Parallel(n_jobs=8)(delayed(generate_propagation)(ICs[orbit_index], periods[orbit_index]) for orbit_index in range(0, num_orbits, 4)))
 
 # propagations = []
-# for orbit_index in np.arange(num_orbits):
+# for orbit_index in range(num_orbits):
 #     print(orbit_index)
 #     x0 = ICs[orbit_index]
 #     period = periods[orbit_index]
@@ -45,11 +45,11 @@ for data in data_list:
 
 colors = ["blue", "red", "green", "orange"]
 ax = plt.figure().add_subplot(projection="3d")
-for type_index in np.arange(4):
+for type_index in range(4):
     type_propagations = propagations[type_index]
     num_orbits = len(type_propagations)
     color = colors[type_index]
-    for orbit_index in np.arange(num_orbits):
+    for orbit_index in range(num_orbits):
         tbp = type_propagations[orbit_index]
         ax.plot(tbp[0], tbp[1], tbp[2], alpha=0.5, c=color)
         ax.scatter(tbp[0, 0], tbp[1, 0], tbp[2, 0], c=color)

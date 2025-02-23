@@ -21,7 +21,7 @@ def assess_measurement(measurement, individual_measurement_size):
     new_measurement = np.array([])
     valid_indices = []
 
-    for checking_index in np.arange(num_measurements):
+    for checking_index in range(num_measurements):
         
         to_be_checked = measurement[checking_index*individual_measurement_size:(checking_index + 1)*individual_measurement_size]
         
@@ -127,7 +127,7 @@ def run_EKF(initial_estimate, initial_covariance,
     previous_posterior_estimate = initial_estimate
     previous_posterior_covariance = initial_covariance
 
-    for time_index in np.arange(1, num_measurements):
+    for time_index in range(1, num_measurements):
 
         measurement = measurement_vals[:, time_index]
         current_time = time_vals[time_index]

@@ -20,13 +20,13 @@ forprop_time_vals = np.arange(0, final_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
-back_propagation = np.vstack((back_propagation, np.zeros(np.shape(back_propagation))))
+back_propagation = np.vstack((back_propagation, np.ones(np.shape(back_propagation))*1e-9))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
 truth_vals = np.concatenate((back_propagation, forward_propagation), axis=1)
 time_vals = np.arange(0, final_time+backprop_time, dt)
 
-initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(6)))
+initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e-6))
 
 
 # ax = plt.figure().add_subplot(projection="3d")
@@ -48,7 +48,7 @@ num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
 moon_vectors = np.empty((3*num_sensors, len(time_vals)))
 sun_vectors = np.empty((3*num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
     moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
@@ -58,7 +58,7 @@ earth_results = np.empty((num_sensors, len(time_vals)))
 moon_results = np.empty((num_sensors, len(time_vals)))
 sun_results = np.empty((num_sensors, len(time_vals)))
 check_results = np.empty((num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
     moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion_dynamic, (9.0400624349e-3, moon_additional_angle))
@@ -117,7 +117,7 @@ def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individ
     measurement = np.empty(num_sensors*individual_measurement_size)
     measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 12))
 
-    for sensor_index in np.arange(num_sensors):
+    for sensor_index in range(num_sensors):
         sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
         
         measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)
@@ -178,7 +178,7 @@ ax.legend(["Coasting", "Thrusting"])
 
 control_fig = plt.figure()
 control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
     ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
@@ -190,11 +190,17 @@ ax.set_xlabel("Time [TU]")
 control_fig.legend(["Truth", "Estimated"])
 
 primer_vector_fig = plt.figure()
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = primer_vector_fig.add_subplot(thing)
     ax.plot(time_vals, truth_primer_vectors[ax_index], alpha=0.5)
     ax.plot(time_vals, estimated_primer_vectors[ax_index], alpha=0.5)
+
+costate_fig = plt.figure()
+for ax_index in range(6):
+    thing = int("61" + str(ax_index+1))
+    ax = costate_fig.add_subplot(thing)
+    ax.plot(time_vals, output_estimate_vals[ax_index+6])
 
 
 def get_costate_STM(time_vals, state_vals, mu):
@@ -274,7 +280,7 @@ num_guesses = len(magnitudes)
 # solutions = np.empty((11, num_guesses))
 solutions = np.empty((12, num_guesses))
 jacobians = []
-for guess_index in np.arange(num_guesses):
+for guess_index in range(num_guesses):
 
     print(guess_index)
 
@@ -330,7 +336,7 @@ test_propagations = []
 test_controls = []
 test_errors = []
 
-for guess_index in np.arange(num_guesses):
+for guess_index in range(num_guesses):
     # ICs = np.concatenate((observation_states[0:6, 0], solutions[:, guess_index], np.array([magnitudes[guess_index]])))
     # ICs = np.concatenate((solutions[:, guess_index], np.array([magnitudes[guess_index]])))
     ICs = solutions[:, guess_index]
@@ -358,35 +364,21 @@ def min_fuel_STM_ode(t, X, mu, umax, rho):
 
     return np.concatenate((ddt_state, ddt_STM))
 
-teval = np.linspace(0, 0.15, 16)
+def magnitude_event(t, X, mu, umax, rho):
+    return X[11] - 1 
 
-truth_STM_ICs = np.concatenate((truth_converted, np.eye(6).flatten()))
-truth_STM_propagation = scipy.integrate.solve_ivp(min_fuel_STM_ode, np.array([teval[0], teval[-1]]), truth_STM_ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+magnitude_event.terminal = True
 
+solution_tspan = np.array([0, (thrusting_cutoff_offset+additional_measurements)*dt])
 solution_STM_ICs = np.concatenate((solutions[:, 0], np.eye(6).flatten()))
-solution_STM_propagation = scipy.integrate.solve_ivp(min_fuel_STM_ode, np.array([teval[0], teval[-1]]), solution_STM_ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+solution_STM_propagation = scipy.integrate.solve_ivp(min_fuel_STM_ode, solution_tspan, solution_STM_ICs, events=magnitude_event, args=truth_dynamics_args, atol=1e-12, rtol=1e-12)
 
-truth_control = get_reformulated_min_fuel_control(truth_STM_propagation[6:12, :], umax, truth_rho)
-solution_control = get_reformulated_min_fuel_control(solution_STM_propagation[6:12, :], umax, truth_rho)
+solution_STM_vals = solution_STM_propagation.y
 
-np.set_printoptions(suppress=True, precision=9, linewidth=500)
-
-print(truth_STM_propagation[12:36+12, -1].reshape((6, 6)))
-print(solution_STM_propagation[12:36+12, -1].reshape((6, 6)))
-print(STM)
-print(solution_STM_propagation[12:36+12, -1].reshape((6, 6)) - truth_STM_propagation[12:36+12, -1].reshape((6, 6)))
-print(STM - truth_STM_propagation[12:36+12, -1].reshape((6, 6)))
-
-test_control_fig = plt.figure()
-for ax_index in np.arange(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = test_control_fig.add_subplot(thing)
-    ax.plot(teval, truth_control[ax_index], alpha=0.5)
-    ax.plot(teval, solution_control[ax_index], alpha=0.5)
-    # for guess_index in np.arange(num_guesses):
-    #     ax.plot(teval, test_controls[guess_index][ax_index], alpha=0.5)
-    # for particle_index in np.arange(num_particles):
-    #     ax.plot(teval, particle_controls[particle_index][ax_index], alpha=0.15)
+solution_STM = solution_STM_vals[12:36+12, -1].reshape((6, 6))
+initial_lambdav_hat_solution = solution_STM_vals[9:12, 0]
+initial_lambdav_hat_solution /= np.linalg.norm(initial_lambdav_hat_solution)
+final_lambdav_hat_solution = solution_STM_vals[9:12, -1] 
 
 plt.show()
 quit()
@@ -408,8 +400,7 @@ def get_propagations(value):
 def get_controls(propagation):
     return get_reformulated_min_fuel_control(propagation[6:12, :], umax, truth_rho)
 
-particle_ICs = generator.multivariate_normal(solution_mean, sampling_covariance, num_particles).T
-
+# particle_ICs = generator.multivariate_normal(solution_mean, sampling_covariance, num_particles).T
 # chi2_cutoff = get_chi2_cutoff(6*(thrusting_cutoff_offset+additional_measurements)-12, 0.003)
 # print(chi2_cutoff)
 # remaining_particles = num_particles
@@ -421,7 +412,7 @@ particle_ICs = generator.multivariate_normal(solution_mean, sampling_covariance,
 #     ICs = generator.multivariate_normal(solution_mean, sampling_covariance, remaining_particles)
 #     particle_costs = Parallel(n_jobs=8)(delayed(big_function)(ICs[particle_index, :]) for particle_index in range(remaining_particles))
 
-#     for particle_index in np.arange(remaining_particles):
+#     for particle_index in range(remaining_particles):
 #         if particle_costs[particle_index] < chi2_cutoff:
 #             particle_ICs[:, remaining_particles-1] = ICs[particle_index, :]
 #             remaining_particles -= 1
@@ -432,13 +423,6 @@ print("getting propagations")
 particle_propagations = Parallel(n_jobs=8)(delayed(get_propagations)(particle_ICs[:, particle_index]) for particle_index in range(num_particles))
 print("getting controls")
 particle_controls = Parallel(n_jobs=8)(delayed(get_controls)(particle_propagations[particle_index]) for particle_index in range(num_particles))
-
-# for particle_index in np.arange(num_particles):
-#     print(particle_index)
-#     # new_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs[particle_index, :], args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
-#     # particle_propagations.append(new_propagation)
-#     # particle_controls.append(get_reformulated_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
-#     particle_costs.append(np.sum(measurement_lstsqr_reformulated_mag(ICs[particle_index, :], *cost_func_args)**2))
 
 ax = plt.figure().add_subplot()
 # ax.hist(np.array(particle_costs), bins=(60, 70, 80, 90, 100, 110, 120))
@@ -452,12 +436,12 @@ ax.plot(truth_propagation[0], truth_propagation[1], truth_propagation[2], alpha=
 ax.plot(initial_guess_propagation[0], initial_guess_propagation[1], initial_guess_propagation[2], alpha=0.5)
 # # print(observation_truth_vals[:, 0])
 # print(np.concatenate((observation_truth_vals[0:6, 0], standard2reformulated(observation_truth_vals[6:12, 0]))))
-# for guess_index in np.arange(num_guesses):
+# for guess_index in range(num_guesses):
 #     ax.plot(test_propagations[guess_index][0], test_propagations[guess_index][1], test_propagations[guess_index][2], alpha=0.5)
 #     print(solutions[:, guess_index])
 #     # print(np.concatenate((solutions[:, guess_index], np.array([magnitudes[guess_index]]))))
 #     print(np.sqrt(np.diag(np.linalg.inv(jacobians[guess_index].T @ jacobians[guess_index]))))
-for particle_index in np.arange(num_particles):
+for particle_index in range(num_particles):
     ax.plot(particle_propagations[particle_index][0], particle_propagations[particle_index][1], particle_propagations[particle_index][2], alpha=0.15)
 ax.set_aspect("equal")
 plot_moon(ax, mu)
@@ -465,24 +449,24 @@ plot_moon(ax, mu)
 test_errors_fig = plt.figure()
 test_errors_ax_nums = [231, 232, 233, 234, 235, 236]
 test_errors_ax_labels = ["X", "Y", "Z", "Vx", "Vy", "Vz"]
-for ax_index in np.arange(6):
+for ax_index in range(6):
     thing = test_errors_ax_nums[ax_index]
     ax = test_errors_fig.add_subplot(thing)
     ax.plot(teval, truth_propagation[ax_index])
-    for guess_index in np.arange(num_guesses):
+    for guess_index in range(num_guesses):
         ax.plot(teval, test_propagations[guess_index][ax_index])
     ax.set_ylabel(test_errors_ax_labels[ax_index])
     ax.grid(True)
 
 test_control_fig = plt.figure()
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = test_control_fig.add_subplot(thing)
     ax.plot(teval, truth_propagation_control[ax_index], alpha=0.5)
     ax.plot(teval, initial_guess_control[ax_index], alpha=0.5)
-    # for guess_index in np.arange(num_guesses):
+    # for guess_index in range(num_guesses):
     #     ax.plot(teval, test_controls[guess_index][ax_index], alpha=0.5)
-    for particle_index in np.arange(num_particles):
+    for particle_index in range(num_particles):
         ax.plot(teval, particle_controls[particle_index][ax_index], alpha=0.15)
 
 plt.show()

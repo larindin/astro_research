@@ -42,7 +42,7 @@ def run_dual_filter(initial_estimate, initial_covariance,
 
     active_filter_index = filter_index
 
-    for time_index in np.arange(1, num_measurements):
+    for time_index in range(1, num_measurements):
 
         measurement = measurement_vals[:, time_index]
         current_time = time_vals[time_index]

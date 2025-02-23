@@ -28,7 +28,7 @@ final_indices = [0, 2, 3, 0, 1, 1, 2]
 num_transfers = len(initial_costates)
 
 
-# for transfer_index in np.arange(num_transfers):
+# for transfer_index in range(num_transfers):
 
 #     initial_costate = initial_costates[transfer_index]
 #     initial_index = initial_indices[transfer_index]
@@ -107,7 +107,7 @@ ax.set_zlabel("Z [LU]")
 
 labels = ["$u_1$", "$u_2$", "$u_3$"]
 fig = plt.figure()
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("41" + str(ax_index + 1))
     ax = fig.add_subplot(thing)
     ax.plot(time, control[ax_index])

@@ -68,13 +68,13 @@ STM_vv = total_STM[3:6, 3:6]
 costate_estimates = np.empty((6, num_particles*num_kernels))
 
 total_index = 0
-for particle_index in np.arange(num_particles):
+for particle_index in range(num_particles):
     initial_lv = reformulated2standard(initial_costate + np.concatenate((np.zeros(3), initial_costate_angle_errors[particle_index], np.zeros(1))))[3:6]
     initial_lv_hat = initial_lv/np.linalg.norm(initial_lv)
     final_lv_error = np.concatenate((final_costate_angle_errors[particle_index], np.array([final_magnitude_errors[particle_index]])))
     final_lv = reformulated2standard(final_costate + np.concatenate((np.zeros(3), final_lv_error)))[3:6]
     
-    for magnitude_index in np.arange(num_kernels):
+    for magnitude_index in range(num_kernels):
         magnitude = magnitudes[magnitude_index] + initial_magnitude_errors[particle_index]
         initial_lv = initial_lv_hat * magnitude
         initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
@@ -82,7 +82,7 @@ for particle_index in np.arange(num_particles):
         total_index += 1
 
 propagations = []
-for run_index in np.arange(num_particles*num_kernels):
+for run_index in range(num_particles*num_kernels):
     print(run_index)
     propagation_initial_conditions = np.concatenate((initial_truth[0:6], costate_estimates[:, run_index]))
     new_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, propagation_initial_conditions, args=(mu, umax, truth_rho), t_eval=time_vals, atol=1e-12, rtol=1e-12)
@@ -90,7 +90,7 @@ for run_index in np.arange(num_particles*num_kernels):
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
-for run_index in np.arange(num_particles*num_kernels):
+for run_index in range(num_particles*num_kernels):
     propagation = propagations[run_index]
     ax.plot(propagation[0], propagation[1], propagation[2], alpha=0.35)
 ax.set_xlabel("X [LU]")
@@ -101,19 +101,19 @@ plot_moon(ax, mu)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_controls = []
-for index in np.arange(num_particles*num_kernels):
+for index in range(num_particles*num_kernels):
     estimated_control = get_min_fuel_control(propagations[index][6:12, :], umax, filter_rho)
     estimated_controls.append(estimated_control)
 fig = plt.figure()
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("31" + str(ax_index+1))
     ax = fig.add_subplot(thing)
     ax.plot(time_vals, truth_control[ax_index], alpha=0.75)
-    for index in np.arange(num_particles*num_kernels):
+    for index in range(num_particles*num_kernels):
         ax.plot(time_vals, estimated_controls[index][ax_index], alpha=0.35)
 
 # fig = plt.figure()
-# for ax_index in np.arange(6):
+# for ax_index in range(6):
 #     thing = int("61" + str(ax_index+1))
 #     ax = fig.add_subplot(thing)
 #     ax.plot(time_vals, truth_vals[ax_index+6])

@@ -76,7 +76,7 @@ def run_particle_filter(initial_estimates, initial_weights,
     denominators = np.empty(num_particles)
     exponents = np.empty(num_particles)
 
-    for time_index in np.arange(1, num_measurements):
+    for time_index in range(1, num_measurements):
         print(time_index)
 
         measurement = measurement_vals[:, time_index]
@@ -87,14 +87,14 @@ def run_particle_filter(initial_estimates, initial_weights,
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
             propagation_input_list = []
-            for particle_index in np.arange(num_particles):
+            for particle_index in range(num_particles):
                 previous_estimate = previous_estimates[:, particle_index]
 
                 propagation_input_list.append((previous_estimate, dynamics_equation, timespan, dynamics_args, measurement_size))
 
             particle_propagations = Parallel(n_jobs=8)(delayed(propagate_particle)(*propagation_inputs) for propagation_inputs in propagation_input_list)
 
-            for particle_index in np.arange(num_particles):
+            for particle_index in range(num_particles):
                 estimates[:, particle_index] = particle_propagations[particle_index][0]
                 innovations_vals[:, time_index, particle_index] = particle_propagations[particle_index][1]
 
@@ -108,7 +108,7 @@ def run_particle_filter(initial_estimates, initial_weights,
         
         else:
             iteration_input_list = []
-            for particle_index in np.arange(num_particles):
+            for particle_index in range(num_particles):
                 
                 previous_estimate = previous_estimates[:, particle_index]
                 iteration_input_list.append((time_index, previous_estimate, 
@@ -118,7 +118,7 @@ def run_particle_filter(initial_estimates, initial_weights,
                 
             particle_iterations = Parallel(n_jobs=8)(delayed(iterate_particle)(*iteration_inputs) for iteration_inputs in iteration_input_list)
             
-            for particle_index in np.arange(num_particles):
+            for particle_index in range(num_particles):
                 estimates[:, particle_index] = particle_iterations[particle_index][0]
                 innovations_vals[:, time_index, particle_index] = particle_iterations[particle_index][1]
                 denominators[particle_index] = particle_iterations[particle_index][2]
@@ -157,7 +157,7 @@ def resample_N_eff(weights, estimates, roughening_cov):
         new_estimates = np.copy(estimates)*0
 
         roughening_noise = generator.multivariate_normal(np.zeros(12), roughening_cov, num_particles)
-        for index in np.arange(num_particles):
+        for index in range(num_particles):
             new_estimates[:, index] = estimates[:, new_indices[index]] + roughening_noise[index]
         
         new_weights = np.ones(num_particles) / num_particles
@@ -168,4 +168,4 @@ def resample_N_eff(weights, estimates, roughening_cov):
         return weights, estimates
 
 def calculate_N_eff_vals(weight_vals):
-    return np.array([1 / np.sum(weight_vals[:, time_index]**2) for time_index in np.arange(np.size(weight_vals, 1))])
+    return np.array([1 / np.sum(weight_vals[:, time_index]**2) for time_index in range(np.size(weight_vals, 1))])

@@ -22,7 +22,7 @@ num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
 moon_vectors = np.empty((3*num_sensors, len(time_vals)))
 sun_vectors = np.empty((3*num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
     moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
@@ -32,7 +32,7 @@ earth_results = np.empty((num_sensors, len(time_vals)))
 moon_results = np.empty((num_sensors, len(time_vals)))
 sun_results = np.empty((num_sensors, len(time_vals)))
 check_results = np.empty((num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
     moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion_dynamic, (9.0400624349e-3, moon_additional_angle))
@@ -102,7 +102,7 @@ def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individ
     measurement = np.empty(num_sensors*individual_measurement_size)
     measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 12))
 
-    for sensor_index in np.arange(num_sensors):
+    for sensor_index in range(num_sensors):
         sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
         
         measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)
@@ -166,7 +166,7 @@ if False:
     new_time_vals = measurements.t
     tspan = np.array([time_vals[0], time_vals[-1]])
     propagations = []
-    for kernel_index in np.arange(num_kernels):
+    for kernel_index in range(num_kernels):
         print(kernel_index)
         propagation_initial_conditions = np.concatenate((initial_state, initial_costate_estimates[:, kernel_index]))
         new_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, propagation_initial_conditions, args=(mu, umax, truth_rho), t_eval=new_time_vals, atol=1e-12, rtol=1e-12)
@@ -181,47 +181,47 @@ if False:
 
     truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
     propagation_controls = []
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         propagation_control = get_min_fuel_control(propagations[index].y[6:12, :], umax, truth_rho)
         propagation_controls.append(propagation_control)
     fig = plt.figure()
     ax = fig.add_subplot(311)
     ax.step(time_vals, truth_control[0])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.step(new_time_vals, propagation_controls[index][0], alpha=0.25)
     ax = fig.add_subplot(312)
     ax.step(time_vals, truth_control[1])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.step(new_time_vals, propagation_controls[index][1], alpha=0.25)
     ax = fig.add_subplot(313)
     ax.step(time_vals, truth_control[2])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.step(new_time_vals, propagation_controls[index][2], alpha=0.25)
 
     fig = plt.figure()
     ax = fig.add_subplot(231)
     ax.plot(time_vals, truth_vals[6])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.plot(new_time_vals, propagations[index].y[6], alpha=0.25)
     ax = fig.add_subplot(232)
     ax.plot(time_vals, truth_vals[7])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.plot(new_time_vals, propagations[index].y[7], alpha=0.25)
     ax = fig.add_subplot(233)
     ax.plot(time_vals, truth_vals[8])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.plot(new_time_vals, propagations[index].y[8], alpha=0.25)
     ax = fig.add_subplot(234)
     ax.plot(time_vals, truth_vals[9])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.plot(new_time_vals, propagations[index].y[9], alpha=0.25)
     ax = fig.add_subplot(235)
     ax.plot(time_vals, truth_vals[10])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.plot(new_time_vals, propagations[index].y[10], alpha=0.25)
     ax = fig.add_subplot(236)
     ax.plot(time_vals, truth_vals[11])
-    for index in np.arange(num_kernels):
+    for index in range(num_kernels):
         ax.plot(new_time_vals, propagations[index].y[11], alpha=0.25)
 
     plt.show()
@@ -230,7 +230,7 @@ if False:
 
 initial_estimates = np.empty((12, num_kernels))
 initial_covariances = np.empty((12, 12, num_kernels))
-for kernel_index in np.arange(num_kernels):
+for kernel_index in range(num_kernels):
     initial_estimates[:, kernel_index] = np.concatenate((initial_state, initial_costate_estimates[:, kernel_index]))
     initial_covariances[0:6, 0:6, kernel_index] = initial_covariance
     initial_covariances[6:12, 6:12, kernel_index] = initial_kernel_costate_covariance
@@ -267,14 +267,14 @@ three_sigmas = compute_3sigmas([total_covariance_vals], 12)
 plot_3sigma(GM_time, estimation_errors, three_sigmas, 6)
 plot_3sigma_costate(GM_time, estimation_errors, three_sigmas, 6)
 
-kernel_estimates = [posterior_estimate_vals[:, :, kernel_index] for kernel_index in np.arange(num_kernels)]
+kernel_estimates = [posterior_estimate_vals[:, :, kernel_index] for kernel_index in range(num_kernels)]
 kernel_estimation_errors = compute_estimation_errors(truth_vals[:, start_index:], kernel_estimates, 12)
 
 posterior_estimate_vals, posterior_covariance_vals = trim_zero_weights(posterior_estimate_vals, posterior_covariance_vals, weight_vals)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-for mode_index in np.arange(num_kernels):
+for mode_index in range(num_kernels):
     ax.plot(posterior_estimate_vals[0, :, mode_index], posterior_estimate_vals[1, :, mode_index], posterior_estimate_vals[2, :, mode_index], alpha=0.25)
 ax.set_xlabel("X [LU]")
 ax.set_ylabel("Y [LU]")
@@ -284,97 +284,97 @@ plot_moon(ax, mu)
 
 ax = plt.figure().add_subplot()
 ax.plot([0, final_time], [0.5, 0.5], alpha=0.5)
-for mode_index in np.arange(num_kernels):
+for mode_index in range(num_kernels):
     ax.step(GM_time, weight_vals[mode_index, :], alpha=0.25)
 ax.set_title("Particle Probabilities")
 
 fig = plt.figure()
 ax = fig.add_subplot(231)
 ax.plot(time_vals, truth_vals[0])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[0, :, index], alpha=0.25)
 ax = fig.add_subplot(232)
 ax.plot(time_vals, truth_vals[1])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[1, :, index], alpha=0.25)
 ax = fig.add_subplot(233)
 ax.plot(time_vals, truth_vals[2])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[2, :, index], alpha=0.25)
 ax = fig.add_subplot(234)
 ax.plot(time_vals, truth_vals[3])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[3, :, index], alpha=0.25)
 ax = fig.add_subplot(235)
 ax.plot(time_vals, truth_vals[4])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[4, :, index], alpha=0.25)
 ax = fig.add_subplot(236)
 ax.plot(time_vals, truth_vals[5])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[5, :, index], alpha=0.25)
 
 fig = plt.figure()
 ax = fig.add_subplot(231)
 ax.plot(time_vals, truth_vals[6])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[6, :, index], alpha=0.25)
 ax = fig.add_subplot(232)
 ax.plot(time_vals, truth_vals[7])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[7, :, index], alpha=0.25)
 ax = fig.add_subplot(233)
 ax.plot(time_vals, truth_vals[8])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[8, :, index], alpha=0.25)
 ax = fig.add_subplot(234)
 ax.plot(time_vals, truth_vals[9])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[9, :, index], alpha=0.25)
 ax = fig.add_subplot(235)
 ax.plot(time_vals, truth_vals[10])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[10, :, index], alpha=0.25)
 ax = fig.add_subplot(236)
 ax.plot(time_vals, truth_vals[11])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, posterior_estimate_vals[11, :, index], alpha=0.25)
 
 fig = plt.figure()
 fig.suptitle("Kernel Costate Errors")
-for variable_index in np.arange(6):
+for variable_index in range(6):
     thing = int("23" + str(variable_index+1))
     ax = fig.add_subplot(thing)
     ax.plot(GM_time, kernel_estimation_errors[0][variable_index+6], alpha=0.001)
-    for kernel_index in np.arange(num_kernels):
+    for kernel_index in range(num_kernels):
         ax.plot(GM_time, kernel_estimation_errors[kernel_index][variable_index+6], alpha=0.4)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_controls = []
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     estimated_control = get_min_fuel_control(posterior_estimate_vals[6:12, :, index], umax, filter_rho)
     estimated_controls.append(estimated_control)
 fig = plt.figure()
 ax = fig.add_subplot(311)
 ax.step(time_vals, truth_control[0])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, estimated_controls[index][0], alpha=0.25)
 ax = fig.add_subplot(312)
 ax.step(time_vals, truth_control[1])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, estimated_controls[index][1], alpha=0.25)
 ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.step(GM_time, estimated_controls[index][2], alpha=0.25)
 
 truth_norm_vals = np.linalg.norm(truth_vals[9:12], axis=0)
 norm_vals = np.empty((num_kernels, len(GM_time)))
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     norm_vals[index, :] = np.linalg.norm(posterior_estimate_vals[9:12, :, index], axis=0)
 ax = plt.figure().add_subplot()
 ax.plot(time_vals, truth_norm_vals)
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(GM_time, norm_vals[index], alpha=0.25)
 ax.plot([GM_time[0], GM_time[-1]], [1, 1], alpha=0.5)
 

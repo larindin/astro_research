@@ -25,7 +25,7 @@ num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
 moon_vectors = np.empty((3*num_sensors, len(time_vals)))
 sun_vectors = np.empty((3*num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
     moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
@@ -35,7 +35,7 @@ earth_results = np.empty((num_sensors, len(time_vals)))
 moon_results = np.empty((num_sensors, len(time_vals)))
 sun_results = np.empty((num_sensors, len(time_vals)))
 check_results = np.empty((num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
     moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion_dynamic, (9.0400624349e-3, moon_additional_angle))
@@ -74,7 +74,7 @@ def EKF_measurement_equation(time_index, X, mu, sensor_position_vals, individual
     measurement = np.empty(num_sensors*individual_measurement_size)
     measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 6))
 
-    for sensor_index in np.arange(num_sensors):
+    for sensor_index in range(num_sensors):
         sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
         
         measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)
@@ -101,7 +101,7 @@ def costate_measurement_equation(time_index, X, mu, sensor_position_vals, indivi
     measurement = np.empty(num_sensors*individual_measurement_size)
     measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 12))
 
-    for sensor_index in np.arange(num_sensors):
+    for sensor_index in range(num_sensors):
         sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
         
         measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)

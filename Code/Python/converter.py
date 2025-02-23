@@ -31,7 +31,7 @@ solutions = np.loadtxt("L2_lyapunov.csv", delimiter=",")
 num_sol = np.size(solutions, 0)
 total = np.zeros((num_sol, 8))
 
-for sol_index in np.arange(num_sol):
+for sol_index in range(num_sol):
     solution = solutions[sol_index]
     to_be_saved = toICs(solution)
     total[sol_index, :] = to_be_saved
@@ -43,7 +43,7 @@ np.savetxt("L2_lyapunov_ICs.csv", total, delimiter=",")
 # num_IC = np.size(ICs, 0)
 # total = ICs*0
 
-# for IC_index in np.arange(num_IC):
+# for IC_index in range(num_IC):
 #     IC = ICs[IC_index]
 #     to_be_saved = NtoStoN(IC)
 #     total[IC_index, :] = to_be_saved

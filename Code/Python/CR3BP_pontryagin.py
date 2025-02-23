@@ -329,7 +329,7 @@ def get_min_energy_control(costate_output, umax):
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
 
     control = costate_output[0:3]*0
-    for time_index in np.arange(len(costate_output[0])):
+    for time_index in range(len(costate_output[0])):
         
         costate = costate_output[:, time_index]
 
@@ -348,7 +348,7 @@ def get_min_fuel_control(costate_output, umax, rho):
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
 
     control = costate_output[0:3]*0
-    for time_index in np.arange(len(costate_output[0])):
+    for time_index in range(len(costate_output[0])):
 
         costate = costate_output[:, time_index]
 
@@ -402,26 +402,26 @@ def get_min_fuel_costates(state, estimated_lv, mu, umax, duration, magnitudes, g
     # quit()
 
     if given == "initial" and desired == "initial":
-        for magnitude_index in np.arange(num_magnitudes):
+        for magnitude_index in range(num_magnitudes):
             magnitude = magnitudes[magnitude_index]
             initial_lv = final_lv * magnitude
             initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
             costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
     elif given == "initial" and desired == "final":
-        for magnitude_index in np.arange(num_magnitudes):
+        for magnitude_index in range(num_magnitudes):
             magnitude = magnitudes[magnitude_index]
             initial_lv = final_lv * magnitude
             initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)
             costate_estimates[:, magnitude_index] = np.concatenate((final_lr, final_lv))
     elif given == "final" and desired == "initial":
-        for magnitude_index in np.arange(num_magnitudes):
+        for magnitude_index in range(num_magnitudes):
             magnitude = magnitudes[magnitude_index]
             initial_lv = final_lv * magnitude
             final_lr = np.linalg.inv(STM_vr) @ (initial_lv - STM_vv @ final_lv)
             initial_lr = STM_rr @ final_lr + STM_rv @ final_lv
             costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
     elif given == "final" and desired == "final":
-        for magnitude_index in np.arange(num_magnitudes):
+        for magnitude_index in range(num_magnitudes):
             magnitude = magnitudes[magnitude_index]
             initial_lv = final_lv * magnitude
             final_lr = np.linalg.inv(STM_vr) @ (initial_lv - STM_vv @ final_lv)
@@ -459,7 +459,7 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
     STM = np.eye(6)
     direction = -posterior_estimates[9:12, 0]/np.linalg.norm(posterior_estimates[9:12, 0])
 
-    for time_index in np.arange(num_timesteps-1):
+    for time_index in range(num_timesteps-1):
         
         state = posterior_estimates[0:6, time_index]
         ICs = np.concatenate((state, np.eye(6).flatten()))
@@ -477,7 +477,7 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
     STM_vr = STM[3:6, 0:3]
     STM_vv = STM[3:6, 3:6]
 
-    for magnitude_index in np.arange(num_magnitudes):
+    for magnitude_index in range(num_magnitudes):
         magnitude = magnitudes[magnitude_index]
         initial_lv = initial_lv_hat * magnitude
         initial_lr = np.linalg.inv(STM_vr) @ (final_lv - STM_vv @ initial_lv)

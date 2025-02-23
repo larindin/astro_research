@@ -23,7 +23,7 @@ num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
 moon_vectors = np.empty((3*num_sensors, len(time_vals)))
 sun_vectors = np.empty((3*num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
     moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
@@ -33,7 +33,7 @@ earth_results = np.empty((num_sensors, len(time_vals)))
 moon_results = np.empty((num_sensors, len(time_vals)))
 sun_results = np.empty((num_sensors, len(time_vals)))
 check_results = np.empty((num_sensors, len(time_vals)))
-for sensor_index in np.arange(num_sensors):
+for sensor_index in range(num_sensors):
     sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
     earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
     moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion_dynamic, (9.0400624349e-3, moon_additional_angle))
@@ -88,7 +88,7 @@ def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individ
     measurement = np.empty(num_sensors*individual_measurement_size)
     measurement_jacobian = np.empty((num_sensors*individual_measurement_size, 12))
 
-    for sensor_index in np.arange(num_sensors):
+    for sensor_index in range(num_sensors):
         sensor_position = sensor_position_vals[sensor_index*3:(sensor_index+1)*3, time_index]
         
         measurement[sensor_index*individual_measurement_size:(sensor_index+1)*individual_measurement_size] = az_el_sensor(X, sensor_position)
@@ -115,57 +115,57 @@ weight_vals = output.weight_vals
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-for mode_index in np.arange(num_modes):
+for mode_index in range(num_modes):
     ax.plot(posterior_estimate_vals[0, :, mode_index], posterior_estimate_vals[1, :, mode_index], posterior_estimate_vals[2, :, mode_index], alpha=0.25)
 ax.set_aspect("equal")
 
 ax = plt.figure().add_subplot()
-for mode_index in np.arange(num_modes):
+for mode_index in range(num_modes):
     ax.step(time_vals, weight_vals[mode_index, :], alpha=0.25)
 
 fig = plt.figure()
 ax = fig.add_subplot(231)
 ax.plot(time_vals, truth_vals[6])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, posterior_estimate_vals[6, :, index], alpha=0.25)
 ax = fig.add_subplot(232)
 ax.plot(time_vals, truth_vals[7])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, posterior_estimate_vals[7, :, index], alpha=0.25)
 ax = fig.add_subplot(233)
 ax.plot(time_vals, truth_vals[8])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, posterior_estimate_vals[8, :, index], alpha=0.25)
 ax = fig.add_subplot(234)
 ax.plot(time_vals, truth_vals[9])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, posterior_estimate_vals[9, :, index], alpha=0.25)
 ax = fig.add_subplot(235)
 ax.plot(time_vals, truth_vals[10])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, posterior_estimate_vals[10, :, index], alpha=0.25)
 ax = fig.add_subplot(236)
 ax.plot(time_vals, truth_vals[11])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, posterior_estimate_vals[11, :, index], alpha=0.25)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_controls = []
-for index in np.arange(num_modes):
+for index in range(num_modes):
     estimated_control = get_min_fuel_control(posterior_estimate_vals[6:12, :, index], umax, filter_rho)
     estimated_controls.append(estimated_control)
 fig = plt.figure()
 ax = fig.add_subplot(311)
 ax.step(time_vals, truth_control[0])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, estimated_controls[index][0], alpha=0.25)
 ax = fig.add_subplot(312)
 ax.step(time_vals, truth_control[1])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, estimated_controls[index][1], alpha=0.25)
 ax = fig.add_subplot(313)
 ax.step(time_vals, truth_control[2])
-for index in np.arange(num_modes):
+for index in range(num_modes):
     ax.step(time_vals, estimated_controls[index][2], alpha=0.25)
 
 plt.show()

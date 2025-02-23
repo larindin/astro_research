@@ -40,7 +40,7 @@ plot_moon(ax, mu)
 ax.set_aspect("equal")
 
 fig = plt.figure()
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = fig.add_subplot(thing)
     ax.plot(total_time, control[ax_index])

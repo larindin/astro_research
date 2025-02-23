@@ -52,7 +52,7 @@ magnitudes = np.linspace(1.001, 2.0, num_magnitudes)
 initial_costate_guesses = np.empty((6, num_magnitudes))
 
 final_lambdav_guess = final_lambdav_hat
-for magnitude_index in np.arange(num_magnitudes):
+for magnitude_index in range(num_magnitudes):
     
     initial_lambdav_guess = magnitudes[magnitude_index] * initial_lambdav_hat
     initial_lambdar_guess = np.linalg.inv(STM_vr) @ (final_lambdav_guess - STM_vv @ initial_lambdav_guess)
@@ -77,21 +77,21 @@ ax.set_aspect("equal")
 
 truth_control = get_min_fuel_control(truth_propagation[6:12, :], umax, truth_rho)
 propagation_controls = []
-for index in np.arange(num_magnitudes):
+for index in range(num_magnitudes):
     propagation_control = get_min_fuel_control(propagations[index][6:12, :], umax, truth_rho)
     propagation_controls.append(propagation_control)
 
 test_control_fig = plt.figure()
-for ax_index in np.arange(3):
+for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = test_control_fig.add_subplot(thing)
     ax.plot(teval, truth_control[ax_index], alpha=0.5)
     # ax.plot(time_vals, initial_guess_control[ax_index], alpha=0.5)
-    for magnitude_index in np.arange(num_magnitudes):
+    for magnitude_index in range(num_magnitudes):
         ax.plot(teval, propagation_controls[magnitude_index][ax_index], alpha=0.15)
 
 ax = plt.figure().add_subplot(projection="3d")
-for magnitude_index in np.arange(num_magnitudes):
+for magnitude_index in range(num_magnitudes):
     ax.scatter(initial_costate_guesses[0, magnitude_index], initial_costate_guesses[1, magnitude_index], initial_costate_guesses[2, magnitude_index])
 
 ax = plt.figure().add_subplot()
@@ -106,27 +106,27 @@ quit()
 fig = plt.figure()
 ax = fig.add_subplot(231)
 ax.plot(time_vals, truth_vals[6])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(time_vals, propagations[index].y[6], alpha=0.25)
 ax = fig.add_subplot(232)
 ax.plot(time_vals, truth_vals[7])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(time_vals, propagations[index].y[7], alpha=0.25)
 ax = fig.add_subplot(233)
 ax.plot(time_vals, truth_vals[8])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(time_vals, propagations[index].y[8], alpha=0.25)
 ax = fig.add_subplot(234)
 ax.plot(time_vals, truth_vals[9])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(time_vals, propagations[index].y[9], alpha=0.25)
 ax = fig.add_subplot(235)
 ax.plot(time_vals, truth_vals[10])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(time_vals, propagations[index].y[10], alpha=0.25)
 ax = fig.add_subplot(236)
 ax.plot(time_vals, truth_vals[11])
-for index in np.arange(num_kernels):
+for index in range(num_kernels):
     ax.plot(time_vals, propagations[index].y[11], alpha=0.25)
 
 plt.show()

@@ -56,7 +56,7 @@ def compute_3sigmas(posterior_covariances, state_size):
 
     for posterior_covariance_vals in posterior_covariances:
         three_sigma_vals = []
-        for state_index in np.arange(state_size):
+        for state_index in range(state_size):
             three_sigma_vals.append(3*np.sqrt(posterior_covariance_vals[state_index, state_index, :]))
         three_sigmas.append(three_sigma_vals)
 
@@ -68,7 +68,7 @@ def compute_estimation_errors(truth, posterior_estimates, state_size):
 
     for posterior_estimate_vals in posterior_estimates:
         estimation_error_vals = []
-        for state_index in np.arange(state_size): 
+        for state_index in range(state_size): 
             estimation_error_vals.append(posterior_estimate_vals[state_index, :] - truth[state_index, :] )
         estimation_errors.append(estimation_error_vals)
     
@@ -101,8 +101,8 @@ def compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, we
     total_estimates = np.zeros((state_size, num_timesteps))
     total_covariances = np.zeros((state_size, state_size, num_timesteps))
 
-    for timestep_index in np.arange(num_timesteps):
-        for kernel_index in np.arange(num_kernels):
+    for timestep_index in range(num_timesteps):
+        for kernel_index in range(num_kernels):
             total_estimates[:, timestep_index] += weights[kernel_index, timestep_index] * posterior_estimate_vals[:, timestep_index, kernel_index]
             reshaped_posterior_estimate = posterior_estimate_vals[:, timestep_index, kernel_index, np.newaxis]
             total_covariances[:, :, timestep_index] += weights[kernel_index, timestep_index]*(posterior_covariance_vals[:, :, timestep_index, kernel_index] + reshaped_posterior_estimate @ reshaped_posterior_estimate.T)
@@ -128,7 +128,7 @@ def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_va
     truth = np.array([raw_truth[x_state_index], raw_truth[y_state_index]])
     estimates = np.empty((2, num_kernels))
     covariances = np.empty((2, 2, num_kernels))
-    for kernel_index in np.arange(num_kernels):
+    for kernel_index in range(num_kernels):
         estimates[:, kernel_index] = np.array([raw_estimates[x_state_index, kernel_index], raw_estimates[y_state_index, kernel_index]])
         covariances[:, :, kernel_index] = np.array([[raw_covariances[x_state_index, x_state_index, kernel_index], raw_covariances[x_state_index, y_state_index, kernel_index]],
                                                     [raw_covariances[y_state_index, x_state_index, kernel_index], raw_covariances[y_state_index, y_state_index, kernel_index]]])
@@ -142,19 +142,19 @@ def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_va
     exponents = np.empty((resolution, resolution, num_kernels))
     z_array = np.zeros((resolution, resolution))
 
-    for x_pixel_index in np.arange(resolution):
+    for x_pixel_index in range(resolution):
         x_val = x_vals[x_pixel_index]
-        for y_pixel_index in np.arange(resolution):
+        for y_pixel_index in range(resolution):
             y_val = y_vals[y_pixel_index]
-            for kernel_index in np.arange(num_kernels):
+            for kernel_index in range(num_kernels):
                 assess_val = np.array([x_val, y_val])
                 denominators[x_pixel_index, y_pixel_index, kernel_index], exponents[x_pixel_index, y_pixel_index, kernel_index] = assess_measurement_probability(assess_val - estimates[:, kernel_index], covariances[:, :, kernel_index])
 
     normalized_denominators = denominators/denominators.min()
     normalized_exponents = exponents - exponents.max()
 
-    for x_pixel_index in np.arange(resolution):
-        for y_pixel_index in np.arange(resolution):
+    for x_pixel_index in range(resolution):
+        for y_pixel_index in range(resolution):
             z_array[-y_pixel_index-1, x_pixel_index] = np.sum(weights/normalized_denominators[x_pixel_index, y_pixel_index, :] * np.exp(normalized_exponents[x_pixel_index, y_pixel_index, :]))
     
     z_array /= z_array.max()

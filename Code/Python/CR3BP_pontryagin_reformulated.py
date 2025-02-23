@@ -290,7 +290,7 @@ def get_reformulated_min_fuel_control(costate_output, umax, rho):
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
 
     control = costate_output[0:3]*0
-    for time_index in np.arange(len(costate_output[0])):
+    for time_index in range(len(costate_output[0])):
 
         theta, psi, eta = costate_output[3:6, time_index]
 
@@ -301,7 +301,7 @@ def get_reformulated_min_fuel_control(costate_output, umax, rho):
 def get_reformulated_min_energy_control(costate_output, umax):
 
     control = costate_output[0:3]*0
-    for time_index in np.arange(len(costate_output[0])):
+    for time_index in range(len(costate_output[0])):
 
         theta, psi, eta = costate_output[3:6, time_index]
         p = -eta * np.array([np.cos(psi)*np.cos(theta), np.cos(psi)*np.sin(theta), np.sin(psi)])

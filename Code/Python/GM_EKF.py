@@ -87,7 +87,7 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
     denominators = np.empty(num_kernels)
     exponents = np.empty(num_kernels)
 
-    for time_index in np.arange(1, num_measurements):
+    for time_index in range(1, num_measurements):
         print(time_index)
 
         measurement = measurement_vals[:, time_index]
@@ -100,7 +100,7 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
         posterior_covariances = np.empty((state_size, state_size, num_kernels))
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
-            for kernel_index in np.arange(num_kernels):
+            for kernel_index in range(num_kernels):
 
                 previous_posterior_estimate = previous_posterior_estimates[:, kernel_index]
                 previous_posterior_covariance = previous_posterior_covariances[:, :, kernel_index]
@@ -117,7 +117,7 @@ def run_GM_EKF(initial_estimates, initial_covariances, initial_weights,
                 denominators[kernel_index] = 1
                 exponents[kernel_index] = 1
         else:
-            for kernel_index in np.arange(num_kernels):
+            for kernel_index in range(num_kernels):
 
                 previous_posterior_estimate = previous_posterior_estimates[:, kernel_index]
                 previous_posterior_covariance = previous_posterior_covariances[:, :, kernel_index]

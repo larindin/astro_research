@@ -60,7 +60,10 @@ process_noise_covariances = np.stack((coasting_process_noise_covariance, thrusti
 initial_mode_probabilities = np.array([0.95, 0.05])
 mode_transition_matrix = np.array([[0.95, 0.05],
                                    [0.05, 0.95]])
+
+# Particle filter parameters
 thrusting_duration_cutoff = 5 
 thrusting_cutoff_offset = 10
 additional_measurements = 5
 num_particles = 1000
+magnitude_sampling_range = (1, 2)

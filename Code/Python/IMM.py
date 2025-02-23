@@ -64,7 +64,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
     innovations_vals = np.empty((measurement_size, num_measurements, num_modes))
 
     mode_probability_vals[:, 0] = initial_mode_probabilities
-    for mode_index in np.arange(num_modes):
+    for mode_index in range(num_modes):
         anterior_estimate_vals[:, 0, mode_index] = initial_estimate
         posterior_estimate_vals[:, 0, mode_index] = initial_estimate
         anterior_covariance_vals[:, :, 0, mode_index] = initial_covariance
@@ -80,7 +80,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
     individual_total_conditional_probabilities = np.empty(num_modes)
     raw_mode_probabilities = np.empty(num_modes)
     
-    for time_index in np.arange(1, num_measurements):
+    for time_index in range(1, num_measurements):
 
         measurement = measurement_vals[:, time_index]
         current_time = time_vals[time_index]
@@ -92,7 +92,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
         posterior_covariances = np.empty((state_size, state_size, num_modes))
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
-            for mode_index in np.arange(num_modes):
+            for mode_index in range(num_modes):
 
                 individual_total_conditional_probabilities[mode_index] = previous_mode_probabilities[mode_index]
 
@@ -113,7 +113,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
                 denominators[mode_index] = 1
                 exponents[mode_index] = 1
         else:
-            for mode_index in np.arange(num_modes):
+            for mode_index in range(num_modes):
                 
                 raw_conditional_probabilities = mode_transition_matrix[:, mode_index] * previous_mode_probabilities
                 conditional_probabilities = raw_conditional_probabilities / np.sum(raw_conditional_probabilities)
@@ -127,9 +127,9 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
                 mixed_initial_estimate = np.zeros(state_size)
                 mixed_initial_covariance = np.zeros((state_size, state_size))
 
-                for model_index in np.arange(num_modes):
+                for model_index in range(num_modes):
                     mixed_initial_estimate += conditional_probabilities[model_index] * previous_posterior_estimates[:, model_index]
-                for model_index in np.arange(num_modes):
+                for model_index in range(num_modes):
                     difference = np.reshape(previous_posterior_estimates[:, model_index] - mixed_initial_estimate, (state_size, 1))
                     mixed_initial_covariance += conditional_probabilities[model_index] * (previous_posterior_covariances[:, :, model_index] + difference @ difference.T)
 
@@ -176,10 +176,10 @@ def compute_IMM_output(mode_estimate_vals, mode_covariance_vals, weight_vals):
     posterior_estimate_vals = np.zeros(np.shape(mode_estimate_vals[:, :, 0]))
     posterior_covariance_vals = np.zeros(np.shape(mode_covariance_vals[:, :, :, 0]))
     
-    for time_index in np.arange(num_timesteps):
-        for mode_index in np.arange(num_modes):
+    for time_index in range(num_timesteps):
+        for mode_index in range(num_modes):
             posterior_estimate_vals[:, time_index] += weight_vals[mode_index, time_index] * mode_estimate_vals[:, time_index, mode_index]
-        for mode_index in np.arange(num_modes):
+        for mode_index in range(num_modes):
             difference = mode_estimate_vals[:, time_index, mode_index] - posterior_estimate_vals[:, time_index]
             posterior_covariance_vals[:, :, time_index] += weight_vals[mode_index, time_index] * (mode_covariance_vals[:, :, time_index, mode_index] + difference[:, None] @ difference[:, None].T)
 
@@ -193,7 +193,7 @@ def get_thrusting_indices(results, switching_cutoff):
     thrusting_boolean_array = mode_probability_vals[1, :] > 0.5
 
     thrusting_begins = False
-    for time_index in np.arange(len(time_vals)):
+    for time_index in range(len(time_vals)):
         
         if thrusting_begins == False and np.array_equal(thrusting_boolean_array[time_index:time_index+switching_cutoff], np.ones(switching_cutoff)):
             thrusting_begins = True

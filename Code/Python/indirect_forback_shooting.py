@@ -54,7 +54,7 @@ def forback_shooting_function(guess, boundary_conditions, tf, patching_time_fact
 
 
 generator = np.random.default_rng(seed)
-for guess_index in np.arange(num_guesses):
+for guess_index in range(num_guesses):
 
     print(guess_index)
 
