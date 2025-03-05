@@ -230,7 +230,7 @@ def generate_measurements(time_vals: np.ndarray, truth_vals: np.ndarray, measure
     
     return Measurements(time_vals, measurement_vals)
 
-def generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, noise_covariance, sensor_position_vals, check_results, seed):
+def generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, noise_covariance, sensor_position_vals, check_results, rng=None):
 
     num_measurements = len(time_vals)
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
@@ -253,11 +253,11 @@ def generate_sensor_measurements(time_vals, truth_vals, measurement_equation, in
         
         measurement_vals[sensor_index*individual_measurement_size:(sensor_index + 1)*individual_measurement_size, :] = sensor_measurements
 
-    generator = np.random.default_rng(seed)
+    generator = np.random.default_rng(rng)
     noise_mean = np.zeros(num_sensors*individual_measurement_size)
     noise_covariance = scipy.linalg.block_diag(*(noise_covariance,)*num_sensors)
     
-    noise_vals = generator.multivariate_normal(noise_mean, noise_covariance, num_measurements)
-    measurement_vals += noise_vals.T
+    noise_vals = generator.multivariate_normal(noise_mean, noise_covariance, num_measurements).T
+    measurement_vals += noise_vals
 
     return Measurements(time_vals, measurement_vals, individual_measurement_size)

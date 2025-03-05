@@ -6,14 +6,15 @@ from catalogue import *
 from helper_functions import *
 
 # Truth parameters
-initial_orbit_index = 1
-final_orbit_index = 2
+initial_orbit_index = 3
+final_orbit_index = 1
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
 final_time = 25*24 / NONDIM_TIME_HR
-# final_time = 15*24 / NONDIM_TIME_HR
-# final_time = 1
+# final_time *= 0.5
+# final_time = 2.25
+backprop_time = 0.5
 # dt = 30*60/NONDIM_TIME
 dt = 0.01
 dynamics_equation = minimum_fuel_ODE
@@ -48,14 +49,14 @@ initial_covariance = scipy.linalg.block_diag(initial_state_covariance, np.eye(6)
 generator = np.random.default_rng(seed)
 initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.zeros(3), np.ones(3)*1e-9))
 # initial_estimate = initial_truth
-filter_measurement_covariance = measurement_noise_covariance * (10)**2
+filter_measurement_covariance = measurement_noise_covariance * (100)**2
 filter_rho = 1e-4
 # magnitudes = np.linspace(1.15, 1.25, 11)
 magnitudes = np.linspace(1.01, 1.05, 2)
 magnitudes = [np.linalg.norm(initial_truth[9:12])]
 num_kernels = len(magnitudes)
 initial_weights = np.ones(num_kernels)/num_kernels
-state_roughening_cov = np.eye(6)*1e-3
-costate_roughening_cov = np.eye(6)*1e-3
+state_roughening_cov = np.eye(6)*1e-4**2
+costate_roughening_cov = np.eye(6)*1e-4**2
 roughening_cov = scipy.linalg.block_diag(state_roughening_cov, costate_roughening_cov)
 num_particles = 100

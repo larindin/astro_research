@@ -92,6 +92,7 @@ def check_divergence(estimation_errors, three_sigmas):
 def plot_moon(ax, mu):
     ax.scatter(1-mu, 0, 0, c="grey")
 
+
 def compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, weights):
 
     state_size = np.size(posterior_estimate_vals, 0)
@@ -111,6 +112,7 @@ def compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, we
         total_covariances[:, :, timestep_index] -= reshaped_total_estimate @ reshaped_total_estimate.T
     
     return total_estimates, total_covariances
+
 
 def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_vals, weight_vals, timestamp, xbounds=[0.5, 1.5], ybounds=[-0.5, 0.5], state_indices=[0, 1], resolution=101):
 
@@ -164,3 +166,75 @@ def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_va
     ax.scatter(truth[0], truth[1], s=1, c="r")
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
+
+
+def plot_weights(time_vals, weights, alpha=0.25, semilog=True):
+
+    num_particles = np.size(weights, 0)
+
+    if semilog:
+        yscale = "log"
+    else:
+        yscale = "linear"
+
+    ax = plt.figure().add_subplot()
+    
+    ax.set_title("Particle Weights vs. Time")
+    ax.set_xlabel("Time [TU]")
+    ax.set_ylabel("Particle Weight")
+    ax.set_yscale(yscale)
+
+    for particle_index in range(num_particles):
+        ax.scatter(time_vals, weights[particle_index], alpha=alpha, s=4)
+
+def plot_particles_1d(time_vals, y_vals, truth_y_vals=None, alpha=0.25, y_label="Y", equal=False):
+
+    num_particles = np.size(y_vals, 1)
+
+    ax = plt.figure().add_subplot()
+    ax.set_xlabel("Time [TU]")
+    ax.set_ylabel(y_label)
+
+    ax.plot(time_vals, truth_y_vals, alpha=0.75)
+
+    for particle_index in range(num_particles):
+        ax.scatter(time_vals, y_vals[:, particle_index], alpha=alpha, s=4)
+    
+    if equal:
+        ax.set_aspect("equal")
+
+def plot_particles_2d(xy_vals, truth_xy_vals=np.full((2, 1), np.nan), alpha=0.25, xy_labels=["X", "Y"], plt_moon=False, equal=True):
+
+    num_particles = np.size(xy_vals, 2)
+
+    ax = plt.figure().add_subplot()
+    ax.set_xlabel(xy_labels[0])
+    ax.set_ylabel(xy_labels[1])
+
+    ax.plot(truth_xy_vals[0], truth_xy_vals[1], alpha=0.75)
+
+    for particle_index in range(num_particles):
+        ax.scatter(xy_vals[0, :, particle_index], xy_vals[1, :, particle_index], alpha=alpha, s=4)
+    
+    if equal:
+        ax.set_aspect("equal")
+
+def plot_particles_3d(xyz_vals, truth_xyz_vals=np.full((3, 1), np.nan), alpha=0.25, xyz_labels=["X", "Y", "Z"], plt_moon=False, equal=True):
+
+    num_particles = np.size(xyz_vals, 2)
+
+    ax = plt.figure().add_subplot(projection="3d")
+    ax.set_xlabel(xyz_labels[0])
+    ax.set_ylabel(xyz_labels[1])
+    ax.set_zlabel(xyz_labels[2])
+
+    ax.plot(truth_xyz_vals[0], truth_xyz_vals[1], truth_xyz_vals[2], alpha=0.75)
+
+    for particle_index in range(num_particles):
+        ax.scatter(xyz_vals[0, :, particle_index], xyz_vals[1, :, particle_index], xyz_vals[2, :, particle_index], alpha=alpha, s=4)
+    
+    if plt_moon:
+        plot_moon(ax, 1.215059e-2)
+    
+    if equal:
+        ax.set_aspect("equal")

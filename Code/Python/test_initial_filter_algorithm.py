@@ -251,6 +251,8 @@ observation_check_results = check_results[:, start_index:observation_end_index].
 observation_truth_vals = truth_vals[:, start_index:observation_end_index].copy()
 
 truth_converted = np.concatenate((observation_truth_vals[0:6, 0], standard2reformulated(observation_truth_vals[6:12, 0])))
+print(truth_converted[-1])
+
 # truth_cost = state_cost_function(truth_converted[0:11], truth_converted[11], observation_times, observation_states, observation_covariances, truth_dynamics_args)
 # truth_residuals = measurement_lstsqr_reformulated(truth_converted[0:11], truth_converted[11], observation_times, observation_measurements, measurement_noise_covariance,
 #                                        obs_positions, observation_check_results, truth_dynamics_args)
@@ -315,10 +317,13 @@ for guess_index in range(num_guesses):
     # # print(np.sum(measurement_lstsqr_reformulated(solution.x, *cost_func_args)**2))
     # print(np.sum(measurement_lstsqr_reformulated_mag(solution.x, *cost_func_args)**2))
 
+inputs = np.load("sol_jac.npz")
+solutions[:, 0] = inputs["solution"]
+jacobians.append(inputs["jac"])
 
 proptime = 2.0
 # proptime = observation_times[-1] - observation_times[0]
-teval = np.arange(observation_times[0], observation_times[-1]+proptime, dt)
+teval = np.arange(observation_times[0], observation_times[-1]+proptime, dt/5)
 tspan = np.array([teval[0], teval[-1]])
 
 truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, thrusting_truth_vals[:, 0], args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
@@ -326,7 +331,7 @@ truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, thrustin
 # ICs = np.concatenate((initial_guess, np.array([magnitudes[0]])))
 # initial_guess_propagation = scipy.integrate.solve_ivp(minimum_fuel_ODE, tspan, initial_guess, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
 # initial_guess_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
-initial_guess_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, initial_guess, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
+initial_guess_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, solutions[:, 0], args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
 
 truth_propagation_control = get_min_fuel_control(truth_propagation[6:12, :], umax, truth_rho)
 initial_guess_control = get_reformulated_min_fuel_control(initial_guess_propagation[6:12, :], umax, truth_rho)
@@ -346,10 +351,6 @@ for guess_index in range(num_guesses):
     # test_controls.append(get_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
     test_controls.append(get_reformulated_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
     test_errors.append(new_propagation - truth_propagation)
-
-inputs = np.load("sol_jac.npz")
-solutions[:, 0] = inputs["solution"]
-jacobians.append(inputs["jac"])
 
 def min_fuel_STM_ode(t, X, mu, umax, rho):
 
@@ -376,20 +377,23 @@ solution_STM_propagation = scipy.integrate.solve_ivp(min_fuel_STM_ode, solution_
 solution_STM_vals = solution_STM_propagation.y
 
 solution_STM = solution_STM_vals[12:36+12, -1].reshape((6, 6))
-initial_lambdav_hat_solution = solution_STM_vals[9:12, 0]
-initial_lambdav_hat_solution /= np.linalg.norm(initial_lambdav_hat_solution)
-final_lambdav_hat_solution = solution_STM_vals[9:12, -1] 
-
-plt.show()
-quit()
-
-particle_propagations = []
-particle_controls = []
-particle_costs = []
+inv_solution_STM_vr = np.linalg.inv(solution_STM[3:6, 0:3])
+solution_STM_vv = solution_STM[3:6, 3:6]
+# initial_lambdav_hat_solution = solution_STM_vals[9:12, 0]
+# initial_lambdav_hat_solution /= np.linalg.norm(initial_lambdav_hat_solution)
+initial_angles_solution = solution_STM_vals[9:11, 0]
+# final_lambdav_hat_solution = solution_STM_vals[9:12, -1]
+final_angles_solution = solution_STM_vals[9:11, -1]
 
 solution_mean = solutions[:, 0]
+state_mean = solution_mean[0:6]
 jacobian = jacobians[0]
 sampling_covariance = np.linalg.inv(jacobians[guess_index].T @ jacobians[guess_index])
+
+print(truth_converted)
+print(solution_mean)
+print(np.sqrt(sampling_covariance[9:11, 9:11]))
+quit()
 
 def get_costs(value):
     return np.sum(measurement_lstsqr_reformulated_mag(value, *cost_func_args)**2)
@@ -399,6 +403,72 @@ def get_propagations(value):
 
 def get_controls(propagation):
     return get_reformulated_min_fuel_control(propagation[6:12, :], umax, truth_rho)
+
+# particle_ICs = np.empty((12, num_particles))
+# sampled_perturbations = generator.multivariate_normal(np.zeros(12), sampling_covariance, num_particles).T
+# second_angle_perturbations = generator.multivariate_normal(np.zeros(2), sampling_covariance[9:11, 9:11], num_particles).T
+# state_perturbations = sampled_perturbations[0:6]
+# first_angle_perturbations = sampled_perturbations[9:11]
+# first_magnitudes = generator.uniform(*first_magnitude_sampling_range, num_particles)
+# second_magnitudes = generator.uniform(*second_magnitude_sampling_range, num_particles)
+# for particle_index in range(num_particles):
+#     particle_state = state_mean + state_perturbations[:, particle_index]
+#     initial_particle_angles = initial_angles_solution + first_angle_perturbations[:, particle_index]
+#     final_particle_angles = final_angles_solution + second_angle_perturbations[:, particle_index]
+
+#     particle_initial_lambdav = reformulated2standard(np.concatenate((np.zeros(3), initial_particle_angles, [first_magnitudes[particle_index]])))[3:6]
+#     particle_final_lambdav = reformulated2standard(np.concatenate((np.zeros(3), final_particle_angles, [second_magnitudes[particle_index]])))[3:6]
+#     particle_lambdar = inv_solution_STM_vr @ (particle_final_lambdav - solution_STM_vv @ particle_initial_lambdav)
+
+#     particle_ICs[:, particle_index] = np.concatenate((particle_state, particle_lambdar, initial_particle_angles, [first_magnitudes[particle_index]]))
+
+chi2_cutoff = get_chi2_cutoff(6*(thrusting_cutoff_offset+additional_measurements)-12, 0.003)
+# chi2_cutoff = 150
+print(chi2_cutoff)
+remaining_particles = num_particles
+particle_ICs = np.empty((12, num_particles))
+while remaining_particles > 0:
+    
+    print(remaining_particles)
+
+    ICs = np.empty((12, remaining_particles))
+
+    sampled_perturbations = generator.multivariate_normal(np.zeros(12), sampling_covariance, remaining_particles).T
+    second_angle_perturbations = generator.multivariate_normal(np.zeros(2), sampling_covariance[9:11, 9:11], remaining_particles).T
+    state_perturbations = sampled_perturbations[0:6]
+    first_angle_perturbations = sampled_perturbations[9:11]
+    first_magnitudes = generator.uniform(*first_magnitude_sampling_range, remaining_particles)
+    second_magnitudes = generator.uniform(*second_magnitude_sampling_range, remaining_particles)
+    
+    for particle_index in range(remaining_particles):
+        particle_state = state_mean + state_perturbations[:, particle_index]
+        initial_particle_angles = initial_angles_solution + first_angle_perturbations[:, particle_index]
+        final_particle_angles = final_angles_solution + second_angle_perturbations[:, particle_index]
+
+        particle_initial_lambdav = reformulated2standard(np.concatenate((np.zeros(3), initial_particle_angles, [first_magnitudes[particle_index]])))[3:6]
+        particle_final_lambdav = reformulated2standard(np.concatenate((np.zeros(3), final_particle_angles, [second_magnitudes[particle_index]])))[3:6]
+        particle_lambdar = inv_solution_STM_vr @ (particle_final_lambdav - solution_STM_vv @ particle_initial_lambdav)
+
+        ICs[:, particle_index] = np.concatenate((particle_state, particle_lambdar, initial_particle_angles, [first_magnitudes[particle_index]]))
+
+    particle_costs = Parallel(n_jobs=8)(delayed(get_costs)(ICs[:, particle_index]) for particle_index in range(remaining_particles))
+
+    for particle_index in range(remaining_particles):
+        if particle_costs[particle_index] < chi2_cutoff:
+            particle_ICs[:, remaining_particles-1] = ICs[:, particle_index]
+            remaining_particles -= 1
+
+
+# print(truth_converted[9], truth_converted[10], truth_converted[11])
+# print(solution_mean[9], solution_mean[10], solution_mean[11])
+# print(angle_perturbations)
+# print(particle_ICs[9])
+# print(particle_ICs[10])
+# print(particle_ICs[11])
+
+particle_propagations = []
+particle_controls = []
+particle_costs = []
 
 # particle_ICs = generator.multivariate_normal(solution_mean, sampling_covariance, num_particles).T
 # chi2_cutoff = get_chi2_cutoff(6*(thrusting_cutoff_offset+additional_measurements)-12, 0.003)
@@ -416,6 +486,7 @@ def get_controls(propagation):
 #         if particle_costs[particle_index] < chi2_cutoff:
 #             particle_ICs[:, remaining_particles-1] = ICs[particle_index, :]
 #             remaining_particles -= 1
+
 
 print("getting costs")
 particle_costs = Parallel(n_jobs=8)(delayed(get_costs)(particle_ICs[:, particle_index]) for particle_index in range(num_particles))
@@ -445,6 +516,21 @@ for particle_index in range(num_particles):
     ax.plot(particle_propagations[particle_index][0], particle_propagations[particle_index][1], particle_propagations[particle_index][2], alpha=0.15)
 ax.set_aspect("equal")
 plot_moon(ax, mu)
+
+ax = plt.figure().add_subplot()
+ax.hist(particle_ICs[11], bins=np.linspace(1.02, 1.2, 19))
+
+ax = plt.figure().add_subplot(projection="3d")
+ax.scatter(truth_converted[6], truth_converted[7], truth_converted[8], alpha=0.75)
+ax.scatter(solution_mean[6], solution_mean[7], solution_mean[8], alpha=0.75)
+ax.scatter(particle_ICs[6], particle_ICs[7], particle_ICs[8], alpha=0.2)
+ax.set_aspect("equal")
+
+ax = plt.figure().add_subplot()
+ax.scatter(truth_converted[9], truth_converted[10], alpha=0.75)
+ax.scatter(initial_angles_solution[0], initial_angles_solution[1], alpha=0.75)
+ax.scatter(particle_ICs[9], particle_ICs[10], alpha=0.2)
+ax.set_aspect("equal")
 
 test_errors_fig = plt.figure()
 test_errors_ax_nums = [231, 232, 233, 234, 235, 236]

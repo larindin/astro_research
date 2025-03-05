@@ -6,16 +6,16 @@ from helper_functions import *
 from EKF import *
 
 class ParticleFilterResults:
-    def __init__(self, time_vals, estimate_vals, innovations_vals, weight_vals):
+    def __init__(self, time_vals, estimate_vals, innovations_vals, anterior_weight_vals, weight_vals):
         self.t = time_vals
         self.estimate_vals = estimate_vals
         self.innovations_vals = innovations_vals
+        self.anterior_weight_vals = anterior_weight_vals
         self.weight_vals = weight_vals
 
-def iterate_particle(time_index, previous_estimate, 
-                dynamics_equation, measurement_equation, individual_measurement_size, 
-                measurement_noise_covariance, measurement, timespan, 
-                dynamics_args, measurement_args):
+def iterate_particle(previous_estimate, time_index, dynamics_equation, 
+                     measurement_equation, individual_measurement_size, measurement_noise_covariance, 
+                     measurement, timespan, dynamics_args, measurement_args):
     
     state_size = np.size(previous_estimate, 0)
     initial_conditions = previous_estimate
@@ -48,10 +48,9 @@ def propagate_particle(previous_estimate, dynamics_equation, timespan, dynamics_
 
     return [estimate, innovations]
 
-def run_particle_filter(initial_estimates, initial_weights,
-               dynamics_equation, measurement_equation, measurements,
-               measurement_noise_covariance, dynamics_args,
-               measurement_args, resampling_args):
+def run_particle_filter(initial_estimates, initial_weights, dynamics_equation, 
+                        measurement_equation, measurements, measurement_noise_covariance, 
+                        dynamics_args, measurement_args, roughening_cov, seed):
     
     time_vals = measurements.t
     measurement_vals = measurements.measurements
@@ -63,6 +62,7 @@ def run_particle_filter(initial_estimates, initial_weights,
     num_measurements = np.size(measurement_vals, 1)
 
     weight_vals = np.empty((num_particles, num_measurements))
+    anterior_weight_vals = np.empty(np.shape(weight_vals))
     estimate_vals = np.empty((state_size, num_measurements, num_particles))
     innovations_vals = np.empty((measurement_size, num_measurements, num_particles))
     
@@ -75,6 +75,9 @@ def run_particle_filter(initial_estimates, initial_weights,
     
     denominators = np.empty(num_particles)
     exponents = np.empty(num_particles)
+    generator = np.random.default_rng(seed)
+
+    initial_conditions = initial_estimates.copy()
 
     for time_index in range(1, num_measurements):
         print(time_index)
@@ -86,18 +89,15 @@ def run_particle_filter(initial_estimates, initial_weights,
         estimates = np.empty((state_size, num_particles))
 
         if np.array_equal(measurement, np.empty(measurement_size)*np.nan, equal_nan=True):
-            propagation_input_list = []
-            for particle_index in range(num_particles):
-                previous_estimate = previous_estimates[:, particle_index]
 
-                propagation_input_list.append((previous_estimate, dynamics_equation, timespan, dynamics_args, measurement_size))
-
-            particle_propagations = Parallel(n_jobs=8)(delayed(propagate_particle)(*propagation_inputs) for propagation_inputs in propagation_input_list)
+            propagation_inputs = (dynamics_equation, timespan, dynamics_args, measurement_size)
+            particle_propagations = Parallel(n_jobs=8)(delayed(propagate_particle)(previous_estimates[:, particle_index], *propagation_inputs) for particle_index in range(num_particles))
 
             for particle_index in range(num_particles):
                 estimates[:, particle_index] = particle_propagations[particle_index][0]
                 innovations_vals[:, time_index, particle_index] = particle_propagations[particle_index][1]
 
+            anterior_weight_vals[:, time_index] = previous_weights
             weight_vals[:, time_index] = previous_weights
 
             estimate_vals[:, time_index, :] = estimates
@@ -107,16 +107,9 @@ def run_particle_filter(initial_estimates, initial_weights,
             previous_weights = previous_weights
         
         else:
-            iteration_input_list = []
-            for particle_index in range(num_particles):
-                
-                previous_estimate = previous_estimates[:, particle_index]
-                iteration_input_list.append((time_index, previous_estimate, 
-                            dynamics_equation, measurement_equation, individual_measurement_size, 
-                            measurement_noise_covariance, 
-                            measurement, timespan, dynamics_args, measurement_args))
-                
-            particle_iterations = Parallel(n_jobs=8)(delayed(iterate_particle)(*iteration_inputs) for iteration_inputs in iteration_input_list)
+            iteration_inputs = (time_index, dynamics_equation, measurement_equation, individual_measurement_size, 
+                            measurement_noise_covariance, measurement, timespan, dynamics_args, measurement_args)
+            particle_iterations = Parallel(n_jobs=8)(delayed(iterate_particle)(previous_estimates[:, particle_index], *iteration_inputs) for particle_index in range(num_particles))
             
             for particle_index in range(num_particles):
                 estimates[:, particle_index] = particle_iterations[particle_index][0]
@@ -130,8 +123,65 @@ def run_particle_filter(initial_estimates, initial_weights,
             measurement_probabilities = 1 / normalized_denominators * np.exp(normalized_exponents)
             raw_weights = previous_weights*measurement_probabilities
             new_weights = raw_weights/np.sum(raw_weights)
+
+            anterior_weight_vals[:, time_index] = new_weights.copy()
+
+            # if N_eff(new_weights, 0.25):
+            #     new_indices = stratified_resampling(new_weights, generator)
+
+            #     unique_new_indices, counts = np.unique(new_indices, return_counts=True)
+            #     num_unique_resampled = len(unique_new_indices)
+                
+            #     new_estimates = np.empty(np.shape(estimates))
+            #     new_initial_conditions = np.empty(np.shape(initial_conditions))
+
+            #     assignment_index = 0
+                
+            #     for resampled_particle_index in range(num_unique_resampled):
+            #         new_estimates[:, assignment_index] = estimates[:, unique_new_indices[resampled_particle_index]]
+            #         new_initial_conditions[:, assignment_index] = initial_conditions[:, unique_new_indices[resampled_particle_index]]
+            #         assignment_index += 1
+                    
+            #         duplicate_initial_conditions = np.empty((12, counts[resampled_particle_index]-1))
+            #         roughening_vals = generator.multivariate_normal(np.zeros(12), roughening_cov, counts[resampled_particle_index]-1)
+
+            #         for duplicate_index in range(counts[resampled_particle_index]-1):
+            #             duplicate_initial_conditions[:, duplicate_index] = initial_conditions[:, unique_new_indices[resampled_particle_index]] + roughening_vals[duplicate_index]
+                        
+            #         propagation_inputs = (dynamics_equation, current_time, dynamics_args, measurement_size)
+            #         particle_propagations = Parallel(n_jobs=8)(delayed(propagate_particle)(duplicate_initial_conditions[:, duplicate_index], *propagation_inputs) for duplicate_index in range(counts[resampled_particle_index]-1))
+                    
+            #         for duplicate_index in range(counts[resampled_particle_index]-1):
+            #             new_estimates[:, assignment_index] = particle_propagations[duplicate_index][0]
+            #             new_initial_conditions[:, assignment_index] = duplicate_initial_conditions[:, duplicate_index]
+            #             assignment_index += 1
+                        
+                
+            #     initial_conditions = new_initial_conditions
+            #     estimates = new_estimates
             
-            new_weights, estimates = resample_N_eff(new_weights, estimates, *resampling_args)
+            if N_eff(new_weights, 0.25):
+                new_indices = stratified_resampling(new_weights, generator)
+
+                unique_new_indices, counts = np.unique(new_indices, return_counts=True)
+                num_unique_resampled = len(unique_new_indices)
+                
+                new_estimates = np.empty(np.shape(estimates))
+
+                assignment_index = 0
+                roughening_vals = generator.multivariate_normal(np.zeros(12), roughening_cov, num_particles)
+
+                for resampled_particle_index in range(num_unique_resampled):
+                    new_estimates[:, assignment_index] = estimates[:, unique_new_indices[resampled_particle_index]]
+                    assignment_index += 1
+                    
+                    for duplicate_index in range(counts[resampled_particle_index]-1):
+                        new_estimates[:, assignment_index] = estimates[:, unique_new_indices[resampled_particle_index]] + roughening_vals[assignment_index]
+                        assignment_index += 1
+                
+                estimates = new_estimates
+                new_weights = np.ones(num_particles)/num_particles
+
             
             weight_vals[:, time_index] = new_weights
             estimate_vals[:, time_index, :] = estimates
@@ -140,32 +190,29 @@ def run_particle_filter(initial_estimates, initial_weights,
             previous_weights = new_weights
             previous_time = current_time
 
-    return ParticleFilterResults(time_vals, estimate_vals, innovations_vals, weight_vals)
+    return ParticleFilterResults(time_vals, estimate_vals, innovations_vals, anterior_weight_vals, weight_vals)
 
-def resample_N_eff(weights, estimates, roughening_cov):
+def N_eff(weights, proportion):
+    return 1 / np.sum(weights**2) < len(weights) * proportion
 
-    N_eff = 1 / np.sum(weights**2)
+def multinomial_resampling(weights, generator):
+
     num_particles = len(weights)
+    cumulative = np.concatenate(([0], np.cumsum(weights)))
 
-    if N_eff < num_particles/4:
+    new_indices = np.searchsorted(cumulative, generator.uniform(0, 1, num_particles), side="right") - 1
 
-        generator = np.random.default_rng(0)
-        cumulative = np.concatenate((np.zeros(1), np.cumsum(weights)))
+    return new_indices
 
-        new_indices = np.searchsorted(cumulative, generator.uniform(0, 1, num_particles), side="right") - 1
+def stratified_resampling(weights, generator):
 
-        new_estimates = np.copy(estimates)*0
+    num_particles = len(weights)
+    cumulative = np.concatenate(([0], np.cumsum(weights)))
 
-        roughening_noise = generator.multivariate_normal(np.zeros(12), roughening_cov, num_particles)
-        for index in range(num_particles):
-            new_estimates[:, index] = estimates[:, new_indices[index]] + roughening_noise[index]
-        
-        new_weights = np.ones(num_particles) / num_particles
+    u0_vals = generator.uniform(0, 1/num_particles, num_particles)
+    new_indices = np.searchsorted(cumulative, u0_vals+np.arange(num_particles)/num_particles, side="right") - 1
 
-        return new_weights, new_estimates
-    
-    else:
-        return weights, estimates
+    return new_indices
 
 def calculate_N_eff_vals(weight_vals):
-    return np.array([1 / np.sum(weight_vals[:, time_index]**2) for time_index in range(np.size(weight_vals, 1))])
+    return 1 / np.sum(weight_vals**2, axis=0)

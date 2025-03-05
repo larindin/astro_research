@@ -185,10 +185,7 @@ def compute_IMM_output(mode_estimate_vals, mode_covariance_vals, weight_vals):
 
     return posterior_estimate_vals, posterior_covariance_vals
 
-def get_thrusting_indices(results, switching_cutoff):
-
-    time_vals = results.t
-    mode_probability_vals = results.weight_vals
+def get_thrusting_indices(time_vals, mode_probability_vals, switching_cutoff):
 
     thrusting_boolean_array = mode_probability_vals[1, :] > 0.5
 
