@@ -334,7 +334,7 @@ for solution_index in range(num_solutions):
     new_propagation = scipy.integrate.solve_ivp(reformulated_min_fuel_ODE, tspan, ICs, args=truth_dynamics_args, t_eval=teval, atol=1e-12, rtol=1e-12).y
     test_propagations.append(new_propagation)
     test_controls.append(get_reformulated_min_fuel_control(new_propagation[6:12, :], umax, truth_rho))
-    new_residuals = measurement_lstsqr_standard(ICs, observation_times, observation_measurements, measurement_noise_covariance, 
+    new_residuals = measurement_lstsqr_reformulated_mag(ICs, observation_times, observation_measurements, measurement_noise_covariance, 
                                            obs_positions, observation_check_results, truth_dynamics_args )
     test_costs.append(np.sum(new_residuals**2))
     

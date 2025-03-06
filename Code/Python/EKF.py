@@ -31,14 +31,16 @@ def assess_measurement(measurement, individual_measurement_size):
     
     return new_measurement, valid_indices
 
-def parse_measurement(measurement, measurement_jacobian, individual_measurement_size, valid_indices):
+def parse_measurement(measurement, measurement_jacobian, measurement_noise_covariance, individual_measurement_size, valid_indices):
     new_measurement = np.empty(len(valid_indices)*individual_measurement_size)
     new_measurement_jacobian = np.empty((len(valid_indices)*individual_measurement_size, np.size(measurement_jacobian, 1)))
+    new_measurement_noise_covariance = np.empty((len(valid_indices)*individual_measurement_size, len(valid_indices)*individual_measurement_size))
     for index, valid_index in enumerate(valid_indices):
         new_measurement[index*individual_measurement_size:(index+1)*individual_measurement_size] = measurement[valid_index*individual_measurement_size:(valid_index+1)*individual_measurement_size]
         new_measurement_jacobian[index*individual_measurement_size:(index+1)*individual_measurement_size, :] = measurement_jacobian[valid_index*individual_measurement_size:(valid_index+1)*individual_measurement_size, :]
+        new_measurement_noise_covariance[index*individual_measurement_size:(index+1)*individual_measurement_size, index*individual_measurement_size:(index+1)*individual_measurement_size] = measurement_noise_covariance[valid_index*individual_measurement_size:(valid_index+1)*individual_measurement_size, valid_index*individual_measurement_size:(valid_index+1)*individual_measurement_size]
     
-    return new_measurement, new_measurement_jacobian
+    return new_measurement, new_measurement_jacobian, new_measurement_noise_covariance
 
 def iterate_EKF(time_index, previous_posterior_estimate, previous_posterior_covariance, 
                 dynamics_equation, measurement_equation, individual_measurement_size, 
