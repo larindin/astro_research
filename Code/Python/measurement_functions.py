@@ -161,6 +161,16 @@ def cartesian_jacobian(X):
 
     return B
 
+def pointing_vector(X, sensor_pos):
+    position = X[0:3]
+    difference = position - sensor_pos
+
+    return difference / np.linalg.norm(difference) 
+
+def pointing_vector_jacobian():
+    return np.hstack((np.eye(3), np.zeros((3, 9))))
+
+
 def check_exclusion(time, truth, sensor_pos, exclusion_vector, exclusion_angle):
 
     measurement_vector = truth[0:3] - sensor_pos
@@ -214,6 +224,27 @@ def check_validity(time_vals: np.ndarray, target_pos_vals: np.ndarray, sensor_po
         check_results[time_index] = check_function(time, target_pos, sensor_pos, exclusion_vector, *check_parameters)
 
     return check_results
+
+def angles2PV(measurements):
+    angles = measurements.measurements
+
+    num_measurements = np.size(angles, 1)
+    num_sensors = int(np.size(angles, 0)/2)
+
+    new_measurements = np.empty((3*num_sensors, num_measurements))
+
+    for measurement_index in range(num_measurements):
+        for sensor_index in range(num_sensors):
+            old_measurement = angles[sensor_index*2:(sensor_index+1)*2, measurement_index]
+            if np.array_equal(old_measurement, np.full(2, np.nan), equal_nan=True):
+                new_measurements[sensor_index*3:(sensor_index+1)*3, measurement_index] = np.full(3, np.nan)
+            else:
+                az, el = old_measurement
+                new_measurements[sensor_index*3:(sensor_index+1)*3, measurement_index] = np.array([np.cos(el)*np.cos(az), np.cos(el)*np.sin(az), np.sin(el)])
+
+    measurements.measurements = new_measurements
+
+    return measurements
 
 def generate_measurements(time_vals: np.ndarray, truth_vals: np.ndarray, measurement_equation, measurement_size: int, noise_covariance, measurement_args, seed):
 
