@@ -6,7 +6,7 @@ from GM_EKF import *
 
 def iterate_IMM_kernel(time_index, previous_posterior_estimate, previous_posterior_covariance, 
                 dynamics_equation, measurement_equation, individual_measurement_size, 
-                process_noise_covariance, input_measurement_covariance, measurement, timespan, 
+                process_noise_covariance, measurement_noise_covariance, measurement, timespan, 
                 dynamics_args, measurement_args):
     
     state_size = np.size(previous_posterior_estimate, 0)
@@ -21,18 +21,17 @@ def iterate_IMM_kernel(time_index, previous_posterior_estimate, previous_posteri
 
     measurement, valid_indices = assess_measurement(measurement, individual_measurement_size)
 
-    # predicted_measurement, measurement_jacobian, measurement_noise_covariance = measurement_equation(time_index, anterior_estimate, input_measurement_covariance, *measurement_args)
-    predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = measurement_equation(time_index, anterior_estimate, input_measurement_covariance, *measurement_args)
-    predicted_measurement, measurement_jacobian, measurement_noise_covariance = parse_measurement(predicted_measurement, measurement_jacobian, measurement_noise_covariance, individual_measurement_size, valid_indices)
+    predicted_measurement, measurement_jacobian = measurement_equation(time_index, anterior_estimate, *measurement_args)
+    predicted_measurement, measurement_jacobian = parse_measurement(predicted_measurement, measurement_jacobian, individual_measurement_size, valid_indices)
 
+    measurement_noise_covariance = scipy.linalg.block_diag(*(measurement_noise_covariance, )*len(valid_indices))
     innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
     innovations_covariance = enforce_symmetry(innovations_covariance)
     cross_covariance = anterior_covariance @ measurement_jacobian.T
     gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
 
     innovations = measurement - predicted_measurement
-    # innovations = check_innovations(innovations)
-    innovations = multiply_by_rs(innovations, rs, valid_indices)
+    innovations = check_innovations(innovations)
 
     denominator, exponent = assess_measurement_probability(innovations, innovations_covariance)
 
@@ -50,8 +49,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
 
     time_vals = measurements.t
     measurement_vals = measurements.measurements
-    # individual_measurement_size = measurements.individual_measurement_size
-    individual_measurement_size = 3
+    individual_measurement_size = measurements.individual_measurement_size
 
     state_size = np.size(initial_estimate, 0)
     num_modes = np.size(initial_mode_probabilities, 0)
@@ -83,7 +81,7 @@ def run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
     raw_mode_probabilities = np.empty(num_modes)
     
     for time_index in range(1, num_measurements):
-        
+
         measurement = measurement_vals[:, time_index]
         current_time = time_vals[time_index]
         timespan = current_time - previous_time
@@ -203,11 +201,3 @@ def get_thrusting_indices(time_vals, mode_probability_vals, switching_cutoff):
             break
 
     return np.array([thrust_start_index, thrust_end_index])
-
-def multiply_by_rs(innovations, rs, valid_indices):
-
-    for r_index in range(len(valid_indices)):
-
-        innovations[r_index*3:(r_index+1)*3] *= rs[valid_indices[r_index]]
-    
-    return innovations
