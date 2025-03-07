@@ -85,3 +85,6 @@ def compute_primer_vectors(lambda_v_vals):
     p2 = (-lambda_v_vals[1]/norms)[None, :]
     p3 = (-lambda_v_vals[2]/norms)[None, :]
     return np.vstack((p1, p2, p3))
+
+def get_chi2_cutoff(k, p):
+    return scipy.optimize.root_scalar(lambda chi: 1 - scipy.stats.chi2.cdf(chi, k) - p, x0=k).root

@@ -174,5 +174,3 @@ def measurement_lstsqr_costate(guess, state, magnitude, measurement_times, measu
 
     return np.array(residuals)
 
-def get_chi2_cutoff(k, p):
-    return scipy.optimize.root_scalar(lambda chi: 1 - scipy.stats.chi2.cdf(chi, k) - p, x0=k).root

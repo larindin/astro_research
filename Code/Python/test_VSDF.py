@@ -17,11 +17,11 @@ forprop_time_vals = np.arange(0, final_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
-back_propagation = np.vstack((back_propagation, np.ones(np.shape(back_propagation))*1e-9))
+back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), np.nan)))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
-truth_vals = np.concatenate((back_propagation, forward_propagation), axis=1)
-time_vals = np.arange(0, final_time+backprop_time, dt)
+truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
+time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
 
 initial_estimate = generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance)
 
@@ -150,7 +150,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 
 def q2m_initialization(posterior_estimate, posterior_covariance):
     posterior_estimate[6:12] = 0
-    posterior_covariance = scipy.linalg.block_diag(posterior_covariance[0:6, 0:6], np.eye(6)*1**2)
+    posterior_covariance = scipy.linalg.block_diag(posterior_covariance[0:6, 0:6], np.eye(6)*1e1**2)
     return posterior_estimate, posterior_covariance
 
 
@@ -159,7 +159,7 @@ filter_measurement_function = angles_measurement_equation
 # measurements = angles2PV(measurements)
 
 quiescent_ODE_args = (mu,)
-maneuvering_ODE_args = (mu, umax)
+maneuvering_ODE_args = (mu, 5)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
 
 filter = VSD_filter(quiescent_ODE,
@@ -184,7 +184,6 @@ truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_control = get_min_energy_control(posterior_estimate_vals[6:12], umax)
 
 ax = plt.figure().add_subplot(projection="3d")
-
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.5)
 ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2], alpha=0.5)
 ax.set_aspect("equal")

@@ -20,11 +20,11 @@ forprop_time_vals = np.arange(0, final_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
-back_propagation = np.vstack((back_propagation, np.ones(np.shape(back_propagation))*1e-9))
+back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), np.nan)))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
-truth_vals = np.concatenate((back_propagation, forward_propagation), axis=1)
-time_vals = np.arange(0, final_time+backprop_time, dt)
+truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
+time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
 
 initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e-6))
 

@@ -136,6 +136,7 @@ class VSD_filter():
             size = self.maneuvering_size
 
         innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
+        innovations_covariance = enforce_symmetry(innovations_covariance)
         cross_covariance = anterior_covariance @ measurement_jacobian.T
         gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
 
@@ -143,7 +144,7 @@ class VSD_filter():
         # for sensor_index, r in enumerate(rs):
         #     innovations[sensor_index*3:(sensor_index+1)*3]*= r
         posterior_estimate[0:size] = anterior_estimate + gain_matrix @ innovations
-        posterior_covariance [0:size, 0:size]= anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T
+        posterior_covariance [0:size, 0:size]= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
 
         innovations_distance = innovations.T @ np.linalg.inv(innovations_covariance) @ innovations
 
@@ -170,7 +171,7 @@ class VSD_filter():
 
         STM = propagation[size:size**2 + size].reshape((size, size))
         anterior_estimate[0:size] = propagation[0:size]
-        anterior_covariance[0:size, 0:size] = STM @ posterior_covariance @ STM.T + self.process_noise_covariances[active_filter]
+        anterior_covariance[0:size, 0:size] = enforce_symmetry(STM @ posterior_covariance @ STM.T + self.process_noise_covariances[active_filter])
 
         return anterior_estimate, anterior_covariance
 
