@@ -107,7 +107,7 @@ def maneuvering_dynamics_equation(t, X, mu, umax):
 
     return np.concatenate((ddt_state, ddt_STM.flatten()))
 
-def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
+def old_measurement_equation(time_index, X, mu, sensor_position_vals, individual_measurement_size):
 
     num_sensors = int(np.size(sensor_position_vals, 0)/3)
     measurement = np.empty(num_sensors*individual_measurement_size)
@@ -121,15 +121,84 @@ def filter_measurement_equation(time_index, X, mu, sensor_position_vals, individ
 
     return measurement, measurement_jacobian
 
+def angles_measurement_equation(time_index, X, measurement_variances, sensor_position_vals, check_results):
+
+    check_result = check_results[:, time_index]
+    angle_noise_variance = measurement_variances[0]
+
+    num_sensors = len(check_result)
+    valid_sensors = np.arange(0, num_sensors)[check_result == 1]
+    num_valid_sensors = len(valid_sensors)
+    measurement = np.empty(num_valid_sensors*2)
+    measurement_jacobian = np.empty((num_valid_sensors*2, len(X[np.isnan(X) == False])))
+    measurement_noise_covariance = np.zeros((num_valid_sensors*2, num_valid_sensors*2))
+
+    for assignment_index, valid_sensor_index in enumerate(valid_sensors):
+
+        sensor_position = sensor_position_vals[valid_sensor_index*3:(valid_sensor_index+1)*3, time_index]
+
+        new_jacobian = az_el_sensor_jacobian_costate(X, sensor_position)
+        new_measurement_covariance = np.diag([angle_noise_variance, angle_noise_variance])
+        if np.isnan(X[-1]):
+            new_jacobian = new_jacobian[:, 0:6]
+
+        measurement[assignment_index*2:(assignment_index+1)*2] = az_el_sensor(X, sensor_position)
+        measurement_jacobian[assignment_index*2:(assignment_index+1)*2] = new_jacobian
+        measurement_noise_covariance[assignment_index*2:(assignment_index+1)*2, assignment_index*2:(assignment_index+1)*2] = new_measurement_covariance
+    
+    return measurement, measurement_jacobian, measurement_noise_covariance
+
+def PV_measurement_equation(time_index, X, measurement_variances, sensor_position_vals, check_results):
+    
+    check_result = check_results[:, time_index]
+    angle_noise_variance = measurement_variances[0]
+    range_noise_variance = measurement_variances[1]
+
+    num_sensors = len(check_result)
+    valid_sensors = np.arange(0, num_sensors)[check_result == 1]
+    num_valid_sensors = len(valid_sensors)
+    measurement = np.empty(num_valid_sensors*3)
+    measurement_jacobian = np.empty((num_valid_sensors*3, len(X[np.isnan(X) == False])))
+    measurement_noise_covariance = np.zeros((num_valid_sensors*3, num_valid_sensors*3))
+    rs = np.empty(num_valid_sensors)
+    
+    for assignment_index, valid_sensor_index in enumerate(valid_sensors):
+
+        sensor_position = sensor_position_vals[valid_sensor_index*3:(valid_sensor_index+1)*3, time_index]
+        
+        az, el = az_el_sensor(X, sensor_position)
+        pvx, pvy, pvz = pointing_vector(X, sensor_position)
+        PV = np.array([[pvx, pvy, pvz]]).T
+
+        r = np.linalg.norm(X[0:3] - sensor_position)
+        v1 = np.array([[-np.cos(az)*np.sin(el), -np.sin(az)*np.sin(el), np.cos(el)]]).T
+        v2 = np.array([[np.sin(az), -np.cos(az), 0]]).T
+
+        new_measurement_noise_covariance = angle_noise_variance*(v1@v1.T + v2@v2.T) + range_noise_variance*r**2*PV@PV.T
+        new_jacobian = pointing_vector_jacobian()
+        if np.isnan(X[-1]):
+            new_jacobian = new_jacobian[:, 0:6]
+        
+        measurement[assignment_index*3:(assignment_index+1)*3] = PV.flatten()
+        measurement_jacobian[assignment_index*3:(assignment_index+1)*3] = new_jacobian
+        measurement_noise_covariance[assignment_index*3:(assignment_index+1)*3, assignment_index*3:(assignment_index+1)*3] = new_measurement_noise_covariance
+        rs[assignment_index] = r
+
+    return measurement, measurement_jacobian, measurement_noise_covariance, rs
+
+# filter_measurement_function = angles_measurement_equation
+filter_measurement_function = PV_measurement_equation
+measurements = angles2PV(measurements)
 
 dynamics_args = (mu, 5)
-measurement_args = (mu, sensor_position_vals, individual_measurement_size)
+measurement_args = (measurement_variances, sensor_position_vals, check_results)
+# measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 dynamics_equations = [coasting_dynamics_equation, maneuvering_dynamics_equation]
 num_modes = len(dynamics_equations)
 
 
 filter_output = run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
-                    dynamics_equations, filter_measurement_equation, measurements,
+                    dynamics_equations, filter_measurement_function, measurements,
                     process_noise_covariances, IMM_measurement_covariance,
                     dynamics_args, measurement_args, mode_transition_matrix)
 

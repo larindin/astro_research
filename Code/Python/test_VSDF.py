@@ -154,12 +154,12 @@ def q2m_initialization(posterior_estimate, posterior_covariance):
     return posterior_estimate, posterior_covariance
 
 
-filter_measurement_function = angles_measurement_equation
-# filter_measurement_function = PV_measurement_equation
-# measurements = angles2PV(measurements)
+# filter_measurement_function = angles_measurement_equation
+filter_measurement_function = PV_measurement_equation
+measurements = angles2PV(measurements)
 
 quiescent_ODE_args = (mu,)
-maneuvering_ODE_args = (mu, 5)
+maneuvering_ODE_args = (mu, 1)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
 
 filter = VSD_filter(quiescent_ODE,
@@ -182,6 +182,11 @@ posterior_covariance_vals = results.posterior_covariance_vals
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_control = get_min_energy_control(posterior_estimate_vals[6:12], umax)
+
+estimation_errors = compute_estimation_errors(truth_vals, [posterior_estimate_vals], 6)
+three_sigmas = compute_3sigmas([posterior_covariance_vals], 6)
+
+plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.5)

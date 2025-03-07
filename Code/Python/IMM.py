@@ -20,23 +20,22 @@ def iterate_IMM_kernel(time_index, previous_posterior_estimate, previous_posteri
     anterior_covariance = STM @ previous_posterior_covariance @ STM.T + process_noise_covariance
     anterior_covariance = enforce_symmetry(anterior_covariance)
 
-    measurement, valid_indices = assess_measurement(measurement, individual_measurement_size)
+    measurement = measurement[np.isnan(measurement)==False]
 
-    predicted_measurement, measurement_jacobian = measurement_equation(time_index, anterior_estimate, *measurement_args)
-    predicted_measurement, measurement_jacobian = parse_measurement(predicted_measurement, measurement_jacobian, individual_measurement_size, valid_indices)
+    predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = measurement_equation(time_index, anterior_estimate, *measurement_args)
 
-    measurement_noise_covariance = scipy.linalg.block_diag(*(measurement_noise_covariance, )*len(valid_indices))
     innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
     innovations_covariance = enforce_symmetry(innovations_covariance)
     cross_covariance = anterior_covariance @ measurement_jacobian.T
     gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
 
     innovations = measurement - predicted_measurement
-    innovations = check_innovations(innovations)
+    for sensor_index, r in enumerate(rs):
+            innovations[sensor_index*3:(sensor_index+1)*3]*= r
+    # innovations = check_innovations(innovations)
 
     denominator, exponent = assess_measurement_probability(innovations, innovations_covariance)
 
-    # posterior_estimate = anterior_estimate + gain_matrix @ innovations * np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     posterior_estimate = anterior_estimate + gain_matrix @ innovations
     posterior_covariance = anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T
     posterior_covariance = enforce_symmetry(posterior_covariance)

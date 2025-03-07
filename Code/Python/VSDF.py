@@ -80,6 +80,7 @@ class VSD_filter():
 
             if activation_metric > chi2_cutoff and active_filter == 0:
                 active_filter = 1
+                activation_metric = 0
                 print("maneuvering ", current_time)
 
                 previous_posterior_estimate = posterior_estimate_vals[:, time_index-window-1]
@@ -106,6 +107,7 @@ class VSD_filter():
             
             elif activation_metric > chi2_cutoff and active_filter == 1:
                 active_filter = 0
+                activation_metric = 0
                 print("quiescent ", current_time)
 
             anterior_estimate_vals[:, time_index] = anterior_estimate
@@ -125,8 +127,8 @@ class VSD_filter():
         posterior_estimate = np.full(len(anterior_estimate), np.nan)
         posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
 
-        predicted_measurement, measurement_jacobian, measurement_noise_covariance = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
-        # predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
+        # predicted_measurement, measurement_jacobian, measurement_noise_covariance = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
+        predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
 
         if active_filter == 0:
             size = self.quiescent_size
@@ -141,8 +143,10 @@ class VSD_filter():
         gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
 
         innovations = measurement - predicted_measurement
-        # for sensor_index, r in enumerate(rs):
-        #     innovations[sensor_index*3:(sensor_index+1)*3]*= r
+        for sensor_index, r in enumerate(rs):
+            innovations[sensor_index*3:(sensor_index+1)*3]*= r
+        # innovations = check_innovations(innovations)
+
         posterior_estimate[0:size] = anterior_estimate + gain_matrix @ innovations
         posterior_covariance [0:size, 0:size]= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
 
