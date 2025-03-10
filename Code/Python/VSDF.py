@@ -18,6 +18,7 @@ class VSD_filter():
                  measurement_function_args,
                  process_noise_covariances,
                  q2m_initialization,
+                 m2q_initialization,
                  memory_factor,
                  activation_significance
                  ):
@@ -32,6 +33,7 @@ class VSD_filter():
         self.measurement_function_args = measurement_function_args
         self.process_noise_covariances = process_noise_covariances
         self.q2m_initialization = q2m_initialization
+        self.m2q_initialization = m2q_initialization
         self.memory_factor = memory_factor
         self.activation_significance = activation_significance
     
@@ -46,11 +48,14 @@ class VSD_filter():
         window = round(1/ (1 - memory_factor))
 
         chi2_cutoff = get_chi2_cutoff(measurement_size*window, self.activation_significance)
+        # chi2_cutoff = 50
+        print(chi2_cutoff)
 
         anterior_estimate_vals = np.full((maneuvering_size, num_measurements), np.nan)
         posterior_estimate_vals = np.full((maneuvering_size, num_measurements), np.nan)
         anterior_covariance_vals = np.full((maneuvering_size, maneuvering_size, num_measurements), np.nan)
         posterior_covariance_vals = np.full((maneuvering_size, maneuvering_size, num_measurements), np.nan)
+        activation_metric_vals = np.full(num_measurements, np.nan)
         innovations_vals = np.full((measurement_size, num_measurements), np.nan)
 
         anterior_estimate_vals[0:quiescent_size, 0] = initial_estimate
@@ -59,6 +64,7 @@ class VSD_filter():
         posterior_estimate, posterior_covariance, activation_metric = self.measurement_update(0, anterior_estimate_vals[:, 0], anterior_covariance_vals[:, :, 0], measurement_vals[:, 0], 0)
         posterior_estimate_vals[:, 0] = posterior_estimate
         posterior_covariance_vals[:, :, 0] = posterior_covariance
+        activation_metric_vals[0] = activation_metric
 
         previous_time = time_vals[0]
         previous_posterior_estimate = posterior_estimate
@@ -78,18 +84,26 @@ class VSD_filter():
 
             activation_metric = innovations_distance + memory_factor*activation_metric
 
+            anterior_estimate_vals[:, time_index] = anterior_estimate
+            anterior_covariance_vals[:, :, time_index] = anterior_covariance
+            posterior_estimate_vals[:, time_index] = posterior_estimate
+            posterior_covariance_vals[:, :, time_index] = posterior_covariance
+            activation_metric_vals[time_index] = activation_metric
+
             if activation_metric > chi2_cutoff and active_filter == 0:
                 active_filter = 1
                 activation_metric = 0
                 print("maneuvering ", current_time)
 
-                previous_posterior_estimate = posterior_estimate_vals[:, time_index-window-1]
-                previous_posterior_covariance = posterior_covariance_vals[:, :, time_index-window-1]
-                previous_time = time_vals[time_index-window-1]
+                start_index = time_index - window
 
-                previous_posterior_estimate, previous_posterior_covariance = self.q2m_initialization(previous_posterior_estimate, previous_posterior_covariance)
+                previous_posterior_estimate = posterior_estimate_vals[:, start_index]
+                previous_posterior_covariance = posterior_covariance_vals[:, :, start_index]
+                previous_time = time_vals[start_index]
 
-                for repair_index in range(time_index-window-1, time_index+1):
+                previous_posterior_estimate, previous_posterior_covariance = self.q2m_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals)
+
+                for repair_index in range(time_index-window+1, time_index+1):
                     
                     current_time = time_vals[repair_index]
                     timespan = current_time - previous_time
@@ -110,16 +124,35 @@ class VSD_filter():
                 activation_metric = 0
                 print("quiescent ", current_time)
 
-            anterior_estimate_vals[:, time_index] = anterior_estimate
-            anterior_covariance_vals[:, :, time_index] = anterior_covariance
-            posterior_estimate_vals[:, time_index] = posterior_estimate
-            posterior_covariance_vals[:, :, time_index] = posterior_covariance
+                start_index = time_index - window
+
+                previous_posterior_estimate = posterior_estimate_vals[:, start_index]
+                previous_posterior_covariance = posterior_covariance_vals[:, :, start_index]
+                previous_time = time_vals[start_index]
+
+                previous_posterior_estimate, previous_posterior_covariance = self.m2q_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals)
+
+                for repair_index in range(time_index-window+1, time_index+1):
+                    
+                    current_time = time_vals[repair_index]
+                    timespan = current_time - previous_time
+
+                    current_measurement = measurement_vals[:, repair_index]
+
+                    anterior_estimate, anterior_covariance = self.time_update(repair_index, previous_posterior_estimate, previous_posterior_covariance, timespan, active_filter)
+                    
+                    posterior_estimate, posterior_covariance, innovations_distance = self.measurement_update(repair_index, anterior_estimate, anterior_covariance, current_measurement, active_filter)
+
+                    anterior_estimate_vals[:, repair_index] = anterior_estimate
+                    anterior_covariance_vals[:, :, repair_index] = anterior_covariance
+                    posterior_estimate_vals[:, repair_index] = posterior_estimate
+                    posterior_covariance_vals[:, :, repair_index] = posterior_covariance
 
             previous_posterior_estimate, previous_posterior_covariance = posterior_estimate, posterior_covariance
             
             previous_time = current_time
         
-        return FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, 0, 0)
+        return FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, activation_metric_vals, 0)
 
     def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement, active_filter):
 

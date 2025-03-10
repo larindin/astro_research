@@ -94,7 +94,7 @@ def coasting_dynamics_equation(t, X, mu, umax):
 
     return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
 
-def maneuvering_dynamics_equation(t, X, mu, umax):
+def min_energy_dynamics_equation(t, X, mu, umax):
     
     state = X[0:6]
     costate = X[6:12]
@@ -103,6 +103,19 @@ def maneuvering_dynamics_equation(t, X, mu, umax):
     jacobian = minimum_energy_jacobian(state, costate, mu, umax)
 
     ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
+    ddt_STM = jacobian @ STM
+
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
+
+def min_time_dynamics_equation(t, X, mu, umax):
+
+    state = X[0:6]
+    costate = X[6:12]
+    STM = X[12:156].reshape((12, 12))
+
+    jacobian = minimum_time_jacobian(state, costate, mu, umax)
+
+    ddt_state = minimum_time_ODE(0, X[0:12], mu, umax)
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_STM.flatten()))
@@ -185,6 +198,9 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
         rs[assignment_index] = r
 
     return measurement, measurement_jacobian, measurement_noise_covariance, rs
+
+
+maneuvering_dynamics_equation = min_energy_dynamics_equation
 
 # filter_measurement_function = angles_measurement_equation
 filter_measurement_function = PV_measurement_equation

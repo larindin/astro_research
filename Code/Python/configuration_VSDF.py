@@ -7,12 +7,14 @@ from catalogue import *
 from helper_functions import *
 
 # Monte-carlo parameters
-seed = 0
+seed = 1
 generator = np.random.default_rng(seed)
 
+#10, 13, 31 are good
+
 # Truth parameters
-initial_orbit_index = 3
-final_orbit_index = 1
+initial_orbit_index = 1
+final_orbit_index = 0
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
@@ -54,8 +56,11 @@ initial_costate_covariance = np.eye(6)*1e0**2
 initial_covariance = initial_state_covariance
 # initial_estimate = initial_truth
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
-coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-6)**2)
-thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-6)**2, np.eye(6)*(1e-3)**2)
-process_noise_covariances = [coasting_process_noise_covariance, thrusting_process_noise_covariance]
-memory_factor = 2/3
-activation_significance = 0.05
+coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2)
+coasting_process_noise_covariance = np.zeros((6, 6))
+energy_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-2)**2)
+accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
+energy_process_noise_covariance = scipy.linalg.block_diag(np.zeros((6, 6)), np.eye(6)*(5e-3)**2)
+accel_process_noise_covariance = scipy.linalg.block_diag(np.zeros((6, 6)), np.eye(3)*(5e-3)**2)
+memory_factor = 0
+activation_significance = 0.001

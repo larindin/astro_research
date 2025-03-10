@@ -148,6 +148,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 
         new_measurement_noise_covariance = angle_noise_variance*(v1@v1.T + v2@v2.T) + range_noise_variance*r**2*PV@PV.T
         new_jacobian = pointing_vector_jacobian()
+        new_jacobian = new_jacobian[:, 0:9]
         if np.isnan(X[-1]):
             new_jacobian = new_jacobian[:, 0:6]
         
@@ -158,24 +159,44 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 
     return measurement, measurement_jacobian, measurement_noise_covariance, rs
 
-def q2m_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
+def old_accel_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
     posterior_estimate = posterior_estimate_vals[:, start_index]
-    posterior_estimate[6:12] = 0
-    posterior_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index], np.eye(6)*1e0**2)
+    posterior_estimate[6:9] = 0
+    posterior_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index], np.eye(3)*1e0**2)
     return posterior_estimate, posterior_covariance
 
+def accel_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
+
+    previous_posterior_estimate = posterior_estimate_vals[:, start_index]
+    
+    timespan = time_vals[start_index:start_index+2]
+    ICs = np.concatenate((previous_posterior_estimate[0:6], np.zeros(3), np.eye(9).flatten()))
+    previous_posterior_propagation = scipy.integrate.solve_ivp(acceleration_ODE, timespan, ICs, args=maneuvering_ODE_args, atol=1e-12, rtol=1e-12).y
+
+    STM = previous_posterior_propagation[9:90, -1].reshape((9, 9))
+    predicted_posterior_estimate = previous_posterior_propagation[0:6, -1]
+    actual_posterior_estimate = posterior_estimate_vals[0:6, start_index+1]
+
+    initialized_estimate = np.concatenate((previous_posterior_estimate[0:6], np.linalg.inv(STM)[6:9, 0:6] @ (actual_posterior_estimate - predicted_posterior_estimate)))
+
+    initialized_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index], np.eye(3)*1e0**2)
+
+    return initialized_estimate, initialized_covariance
+
 def m2q_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
-    posterior_estimate = posterior_estimate_vals[:, start_index]
-    posterior_estimate[6:12] = np.nan
-    new_covariance = np.full((12, 12), np.nan)
-    new_covariance[0:6, 0:6] = posterior_covariance_vals[0:6, 0:6, start_index]*10
-    return posterior_estimate, new_covariance
+    initialized_estimate = posterior_estimate_vals[:, start_index]
+    initialized_estimate[6:9] = np.nan
+    initialized_covariance = np.full((9, 9), np.nan)
+    initialized_covariance[0:6, 0:6] = posterior_covariance_vals[0:6, 0:6, start_index]*10
+    return initialized_estimate, initialized_covariance
 
 quiescent_size = 6
 
-maneuvering_ODE = min_energy_ODE
-maneuvering_size = 12
-q2m = q2m_initialization
+# maneuvering_ODE = min_energy_ODE
+# initialization_function = q2m_initialization
+maneuvering_ODE = acceleration_ODE
+maneuvering_size = 9
+q2m = old_accel_initialization
 m2q = m2q_initialization
 
 # filter_measurement_function = angles_measurement_equation
@@ -185,7 +206,7 @@ measurements = angles2PV(measurements)
 quiescent_ODE_args = (mu,)
 maneuvering_ODE_args = (mu, 5)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
-process_noise_covariances = [coasting_process_noise_covariance, energy_process_noise_covariance]
+process_noise_covariances = [coasting_process_noise_covariance, accel_process_noise_covariance]
 
 filter = VSD_filter(quiescent_ODE,
                     quiescent_ODE_args,
@@ -208,13 +229,13 @@ posterior_covariance_vals = results.posterior_covariance_vals
 metric_vals = results.STM_vals
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-estimated_control = get_min_energy_control(posterior_estimate_vals[6:12], 5)
+truth_vals[6:9] = truth_control
 
-estimation_errors = compute_estimation_errors(truth_vals, [posterior_estimate_vals], 12)
-three_sigmas = compute_3sigmas([posterior_covariance_vals], 12)
+estimation_errors = compute_estimation_errors(truth_vals, [posterior_estimate_vals], 9)
+three_sigmas = compute_3sigmas([posterior_covariance_vals], 9)
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6)
+plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], 3)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.5)
@@ -231,20 +252,13 @@ for ax_index in range(6):
     ax.plot(time_vals, truth_vals[ax_index], alpha=0.5)
     ax.plot(time_vals, posterior_estimate_vals[ax_index], alpha=0.5)
 
-costate_figure = plt.figure()
-for ax_index in range(6):
-    thing = int("61" + str(ax_index+1))
-    ax = costate_figure.add_subplot(thing)
-    ax.plot(time_vals, truth_vals[6+ax_index], alpha=0.5)
-    ax.plot(time_vals, posterior_estimate_vals[6+ax_index], alpha=0.5)
 
 control_figure = plt.figure()
 for ax_index in range(3):
     thing = int("31" + str(ax_index+1))
     ax = control_figure.add_subplot(thing)
     ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
-    ax.plot(time_vals, estimated_control[ax_index], alpha=0.5)
+    ax.plot(time_vals, posterior_estimate_vals[6+ax_index], alpha=0.5)
     ax.set_ylim(-0.2, 0.2)
-
 
 plt.show()

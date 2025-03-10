@@ -56,9 +56,9 @@ initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0
 # initial_estimate = initial_truth
 IMM_measurement_covariance = measurement_noise_covariance * (1.5)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
-coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-6)**2, np.eye(6)*(1e-2)**2)
-thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-2)**2, np.eye(6)*(1)**2)
+coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-1)**2)
+thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1)**2)
 process_noise_covariances = np.stack((coasting_process_noise_covariance, thrusting_process_noise_covariance), 2)
-initial_mode_probabilities = np.array([0.95, 0.05])
-mode_transition_matrix = np.array([[0.95, 0.05],
-                                   [0.05, 0.95]])
+initial_mode_probabilities = np.array([0.99, 0.01])
+mode_transition_matrix = np.array([[0.99, 0.01],
+                                   [0.01, 0.99]])
