@@ -179,7 +179,7 @@ def accel_initialization(start_index, time_vals, posterior_estimate_vals, poster
 
     initialized_estimate = np.concatenate((previous_posterior_estimate[0:6], np.linalg.inv(STM)[6:9, 0:6] @ (actual_posterior_estimate - predicted_posterior_estimate)))
 
-    initialized_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index], np.eye(3)*1e0**2)
+    initialized_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index]*10, np.eye(3)*1e0**2)
 
     return initialized_estimate, initialized_covariance
 

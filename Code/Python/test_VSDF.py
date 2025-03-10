@@ -161,7 +161,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 def q2m_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
     posterior_estimate = posterior_estimate_vals[:, start_index]
     posterior_estimate[6:12] = 0
-    posterior_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index], np.eye(6)*1e0**2)
+    posterior_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index]*10, np.eye(6)*1e0**2)
     return posterior_estimate, posterior_covariance
 
 def m2q_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
