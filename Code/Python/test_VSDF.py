@@ -213,8 +213,10 @@ estimated_control = get_min_energy_control(posterior_estimate_vals[6:12], 5)
 estimation_errors = compute_estimation_errors(truth_vals, [posterior_estimate_vals], 12)
 three_sigmas = compute_3sigmas([posterior_covariance_vals], 12)
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6)
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
+plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
+plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.5)
