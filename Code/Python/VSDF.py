@@ -5,6 +5,19 @@ from helper_functions import *
 from EKF import *
 from GM_EKF import *
 
+class VSDFResults:
+    def __init__(self, time_vals, anterior_estimate_vals, posterior_estimate_vals, 
+                 anterior_covariance_vals, posterior_covariance_vals, 
+                 STM_vals, innovations_vals, activation_metric_vals):
+        self.t = time_vals
+        self.anterior_estimate_vals = anterior_estimate_vals
+        self.posterior_estimate_vals = posterior_estimate_vals
+        self.anterior_covariance_vals = anterior_covariance_vals
+        self.posterior_covariance_vals = posterior_covariance_vals
+        self.STM_vals = STM_vals
+        self.innovations_vals = innovations_vals
+        self.activation_metric_vals = activation_metric_vals
+
 class VSD_filter():
 
     def __init__(self,
@@ -55,8 +68,9 @@ class VSD_filter():
         posterior_estimate_vals = np.full((maneuvering_size, num_measurements), np.nan)
         anterior_covariance_vals = np.full((maneuvering_size, maneuvering_size, num_measurements), np.nan)
         posterior_covariance_vals = np.full((maneuvering_size, maneuvering_size, num_measurements), np.nan)
-        activation_metric_vals = np.full(num_measurements, np.nan)
+        STM_vals = np.full((maneuvering_size, maneuvering_size, num_measurements), np.nan)
         innovations_vals = np.full((measurement_size, num_measurements), np.nan)
+        activation_metric_vals = np.full(num_measurements, np.nan)
 
         anterior_estimate_vals[0:quiescent_size, 0] = initial_estimate
         anterior_covariance_vals[0:quiescent_size, 0:quiescent_size, 0] = initial_covariance
@@ -78,7 +92,7 @@ class VSD_filter():
             
             current_measurement = measurement_vals[:, time_index]
 
-            anterior_estimate, anterior_covariance = self.time_update(time_index, previous_posterior_estimate, previous_posterior_covariance, timespan, active_filter)
+            anterior_estimate, anterior_covariance, STM = self.time_update(time_index, previous_posterior_estimate, previous_posterior_covariance, timespan, active_filter)
 
             posterior_estimate, posterior_covariance, innovations_distance = self.measurement_update(time_index, anterior_estimate, anterior_covariance, current_measurement, active_filter)
 
@@ -88,6 +102,7 @@ class VSD_filter():
             anterior_covariance_vals[:, :, time_index] = anterior_covariance
             posterior_estimate_vals[:, time_index] = posterior_estimate
             posterior_covariance_vals[:, :, time_index] = posterior_covariance
+            STM_vals[:, :, time_index] = STM
             activation_metric_vals[time_index] = activation_metric
 
             if activation_metric > chi2_cutoff and active_filter == 0:
@@ -110,7 +125,7 @@ class VSD_filter():
 
                     current_measurement = measurement_vals[:, repair_index]
 
-                    anterior_estimate, anterior_covariance = self.time_update(repair_index, previous_posterior_estimate, previous_posterior_covariance, timespan, active_filter)
+                    anterior_estimate, anterior_covariance, STM = self.time_update(repair_index, previous_posterior_estimate, previous_posterior_covariance, timespan, active_filter)
                     
                     posterior_estimate, posterior_covariance, innovations_distance = self.measurement_update(repair_index, anterior_estimate, anterior_covariance, current_measurement, active_filter)
 
@@ -191,6 +206,7 @@ class VSD_filter():
 
         anterior_estimate = np.full(len(posterior_estimate), np.nan)
         anterior_covariance = np.full(np.shape(posterior_covariance), np.nan)
+        STM = np.full(np.shape(posterior_covariance), np.nan)
 
         if active_filter == 0:
             size = self.quiescent_size
@@ -206,9 +222,13 @@ class VSD_filter():
             ICs = np.concatenate((posterior_estimate, np.eye(size).flatten()))
             propagation = scipy.integrate.solve_ivp(self.maneuvering_ODE, [0,timespan], ICs, args=self.maneuvering_ODE_args, atol=1e-12, rtol=1e-12).y[:, -1]
 
-        STM = propagation[size:size**2 + size].reshape((size, size))
+        STM[0:size, 0:size] = propagation[size:size**2 + size].reshape((size, size))
         anterior_estimate[0:size] = propagation[0:size]
-        anterior_covariance[0:size, 0:size] = enforce_symmetry(STM @ posterior_covariance @ STM.T + self.process_noise_covariances[active_filter])
+        anterior_covariance[0:size, 0:size] = enforce_symmetry(STM[0:size, 0:size] @ posterior_covariance @ STM[0:size, 0:size].T + self.process_noise_covariances[active_filter])
 
-        return anterior_estimate, anterior_covariance
+        return anterior_estimate, anterior_covariance, STM
+    
+    def get_smoothing_test(self, start_index, posterior_estimate_vals, posterior_covariance_vals, STM_vals):
+
+
 
