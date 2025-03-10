@@ -21,14 +21,14 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
 
     num_runs = len(estimation_errors)
     
-    time_vals *= NONDIM_TIME_HR/24
+    plot_time = time_vals * NONDIM_TIME_HR/24
     for state_index in range(3):
         for run_index in range(num_runs):
             estimation_errors[run_index][state_index] *= scaling_factor
             three_sigmas[run_index][state_index] *= scaling_factor
 
     fig, axes = plt.subplots(3, 1, layout="constrained")
-    fig.set_figheight(6.4)
+    # fig.set_figheight(6.4)
     
     for state_index in range(3):
         
@@ -39,8 +39,8 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
         ax.set_yscale("log")
         ax.tick_params(axis="both", which="major", labelsize=6.5)
         for run_num in range(num_runs):
-            ax.step(time_vals, abs(estimation_errors[run_num][state_index]), c="black", alpha=alpha)
-            ax.step(time_vals, three_sigmas[run_num][state_index], c="red", ls="--", alpha=alpha)
+            ax.step(plot_time, abs(estimation_errors[run_num][state_index]), c="black", alpha=alpha)
+            ax.step(plot_time, three_sigmas[run_num][state_index], c="red", ls="--", alpha=alpha)
             ax.grid(True)
 
 def compute_3sigmas(posterior_covariances, state_size):
@@ -85,7 +85,6 @@ def check_divergence(estimation_errors, three_sigmas):
 def plot_moon(ax, mu):
     ax.scatter(1-mu, 0, 0, c="grey")
 
-
 def compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, weights):
 
     state_size = np.size(posterior_estimate_vals, 0)
@@ -105,7 +104,6 @@ def compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, we
         total_covariances[:, :, timestep_index] -= reshaped_total_estimate @ reshaped_total_estimate.T
     
     return total_estimates, total_covariances
-
 
 def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_vals, weight_vals, timestamp, xbounds=[0.5, 1.5], ybounds=[-0.5, 0.5], state_indices=[0, 1], resolution=101):
 
@@ -159,7 +157,6 @@ def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_va
     ax.scatter(truth[0], truth[1], s=1, c="r")
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
-
 
 def plot_weights(time_vals, weights, alpha=0.25, semilog=True):
 

@@ -10,11 +10,11 @@ from helper_functions import *
 seed = 1
 generator = np.random.default_rng(seed)
 
-#10, 13, 31 are good
+#10, 13, 31, 32 are good
 
 # Truth parameters
 initial_orbit_index = 1
-final_orbit_index = 0
+final_orbit_index = 3
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))

@@ -427,6 +427,18 @@ def get_min_energy_control(costate_output, umax):
     
     return control
 
+def get_min_energy_control_accel_cov(posterior_covariances):
+
+    three_sigmas = []
+
+    for posterior_covariance_vals in posterior_covariances:
+        three_sigma_vals = []
+        for state_index in range(3):
+            three_sigma_vals.append(3*np.sqrt(0.25*posterior_covariance_vals[state_index+9, state_index+9, :]))
+        three_sigmas.append(three_sigma_vals)
+
+    return three_sigmas
+
 def get_min_fuel_control(costate_output, umax, rho):
 
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
