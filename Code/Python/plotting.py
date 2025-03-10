@@ -6,48 +6,41 @@ import matplotlib.font_manager as font_manager
 from helper_functions import *
 
 
-def plot_3sigma(time_vals, estimation_errors, three_sigmas, state_size, bounds=(None, None), alpha=0.5):
+def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", alpha=0.5):
 
-    ylabels = [r"X Position Estimation Error", r"Y Position Estimation Error", r"Z Position Estimation Error", r"X Velocity Estimation Error", r"Y Velocity Estimation Error", r"Z Velocity Estimation Error"]
-    fig, axes = plt.subplots(2, 3, layout="constrained")
+    lr_labels = [r"$\lambda_1$ Error", r"$\lambda_2$ Error", r"$\lambda_3$ Error"]
+    lv_labels = [r"$\lambda_4$ Error", r"$\lambda_5$ Error", r"$\lambda_6$ Error"]
+    r_labels = [r"$x$ Error [km]", r"$y$ Error [km]", r"$z$ Error [km]"]
+    v_labels = [r"$v_x$ Error [m/s]", r"$v_y$ Error [m/s]", r"$v_z$ Error [m/s]"]
+    a_labels = [r"$a_x$ Error [m/s$^2$]", r"$a_y$ Error [m/s$^2$]", r"$a_z$ Error [m/s$^2$]"]
+    label_dict = {"position":r_labels, "velocity":v_labels, "acceleration":a_labels, "lambdar":lr_labels, "lambdav":lv_labels}
+    scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1000/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1000/NONDIM_TIME**2, "lambdar":1, "lambdav":1}
+    
+    scaling_factor = scaling_dict[labels]
+    ylabels = label_dict[labels]
+
+    num_runs = len(estimation_errors)
+    
+    time_vals *= NONDIM_TIME_HR/24
+    for state_index in range(3):
+        for run_index in range(num_runs):
+            estimation_errors[run_index][state_index] *= scaling_factor
+            three_sigmas[run_index][state_index] *= scaling_factor
+
+    fig, axes = plt.subplots(3, 1, layout="constrained")
     fig.set_figheight(6.4)
     
-    axes_rowref = [0, 0, 0, 1, 1, 1]
-    axes_colref = [0, 1, 2, 0, 1, 2]
-    for state_index in range(state_size):
+    for state_index in range(3):
         
-        ax = axes[axes_rowref[state_index], axes_colref[state_index]]
-        ax.set_ylim(bounds[0], bounds[1], auto=bounds[0]==None)
-        if axes_rowref[state_index] == 1:
-            ax.set_xlabel("Time, s", fontname="Times New Roman")
+        ax = axes[state_index]
+        if state_index == 2:
+            ax.set_xlabel("Time [days]", fontname="Times New Roman")
         ax.set_ylabel(ylabels[state_index], fontname="Times New Roman")
+        ax.set_yscale("log")
         ax.tick_params(axis="both", which="major", labelsize=6.5)
-        for run_num in range(len(estimation_errors)):
-            ax.step(time_vals, estimation_errors[run_num][state_index], color="blue", alpha=alpha)
-            ax.step(time_vals, three_sigmas[run_num][state_index], color="red", alpha=alpha)
-            ax.step(time_vals, -three_sigmas[run_num][state_index], color="red", alpha=alpha)
-            ax.grid(True)
-
-def plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, state_size, bounds=(None, None), alpha=0.5):
-
-    ylabels = [r"$\lambda_1$ Estimation Error", r"$\lambda_2$ Estimation Error", r"$\lambda_3$ Estimation Error", r"$\lambda_4$ Estimation Error", r"$\lambda_5$ Estimation Error", r"$\lambda_6$ Estimation Error"]
-    fig, axes = plt.subplots(2, 3, layout="constrained")
-    fig.set_figheight(6.4)
-    
-    axes_rowref = [0, 0, 0, 1, 1, 1]
-    axes_colref = [0, 1, 2, 0, 1, 2]
-    for state_index in range(state_size):
-        
-        ax = axes[axes_rowref[state_index], axes_colref[state_index]]
-        ax.set_ylim(bounds[0], bounds[1], auto=bounds[0]==None)
-        if axes_rowref[state_index] == 1:
-            ax.set_xlabel("Time, s", fontname="Times New Roman")
-        ax.set_ylabel(ylabels[state_index], fontname="Times New Roman")
-        ax.tick_params(axis="both", which="major", labelsize=6.5)
-        for run_num in range(len(estimation_errors)):
-            ax.step(time_vals, estimation_errors[run_num][state_index+6], color="blue", alpha=alpha)
-            ax.step(time_vals, three_sigmas[run_num][state_index+6], color="red", alpha=alpha)
-            ax.step(time_vals, -three_sigmas[run_num][state_index+6], color="red", alpha=alpha)
+        for run_num in range(num_runs):
+            ax.step(time_vals, abs(estimation_errors[run_num][state_index]), c="black", alpha=alpha)
+            ax.step(time_vals, three_sigmas[run_num][state_index], c="red", ls="--", alpha=alpha)
             ax.grid(True)
 
 def compute_3sigmas(posterior_covariances, state_size):
