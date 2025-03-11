@@ -33,7 +33,7 @@ def iterate_particle(previous_estimate, time_index, dynamics_equation,
     innovations = measurement - predicted_measurement
     innovations = check_innovations(innovations)
 
-    denominator, exponent = assess_measurement_probability(innovations, measurement_noise_covariance)
+    denominator, exponent = assess_measurement_likelihood(innovations, measurement_noise_covariance)
 
     return [estimate, innovations, denominator, exponent]
 

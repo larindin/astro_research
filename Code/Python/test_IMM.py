@@ -209,22 +209,29 @@ measurements = angles2PV(measurements)
 dynamics_args = (mu, umax)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
 # measurement_args = (mu, sensor_position_vals, individual_measurement_size)
-dynamics_equations = [coasting_dynamics_equation, maneuvering_dynamics_equation]
-num_modes = len(dynamics_equations)
+dynamics_functions = [coasting_dynamics_equation, maneuvering_dynamics_equation]
+dynamics_functions_args = [dynamics_args, dynamics_args]
 
+IMM = IMM_filter(dynamics_functions,
+                 dynamics_functions_args,
+                 filter_measurement_function,
+                 measurement_args,
+                 process_noise_covariances,
+                 mode_transition_matrix)
 
-filter_output = run_IMM(initial_estimate, initial_covariance, initial_mode_probabilities,
-                    dynamics_equations, filter_measurement_function, measurements,
-                    process_noise_covariances, IMM_measurement_covariance,
-                    dynamics_args, measurement_args, mode_transition_matrix)
+filter_output = IMM.run(initial_estimate, 
+                        initial_covariance,
+                        initial_mode_probabilities,
+                        time_vals,
+                        measurements.measurements)
 
 filter_time = filter_output.t
 posterior_estimate_vals = filter_output.posterior_estimate_vals
 posterior_covariance_vals = filter_output.posterior_covariance_vals
 anterior_estimate_vals = filter_output.anterior_estimate_vals
-mode_probabilities = filter_output.weight_vals
-
-output_estimate_vals, output_covariance_vals = compute_IMM_output(posterior_estimate_vals, posterior_covariance_vals, mode_probabilities)
+mode_probabilities = filter_output.mode_probability_vals
+output_estimate_vals = filter_output.output_estimate_vals
+output_covariance_vals = filter_output.output_covariance_vals
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 posterior_control = get_min_energy_control(output_estimate_vals[6:12, :], umax)
@@ -271,8 +278,6 @@ for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
     ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
-    # ax.plot(time_vals[:-1], estimated_control[ax_index, :, 0], alpha=0.5)
-    # ax.plot(time_vals, first_order[ax_index, :, 0], alpha=0.5)
     ax.plot(time_vals, posterior_control[ax_index], alpha=0.5)
     ax.set_ylabel(control_ax_labels[ax_index])
 ax.set_xlabel("Time [TU]")

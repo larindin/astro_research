@@ -67,7 +67,7 @@ def check_innovations(innovations):
             innovations[index] = -np.sign(innovation)*(2*np.pi - abs(innovation))
     return innovations
 
-def assess_measurement_probability(innovations, innovations_covariance):
+def assess_measurement_likelihood(innovations, innovations_covariance):
     return np.sqrt(np.linalg.det(2*np.pi*innovations_covariance)), -0.5 * innovations.T @ np.linalg.inv(innovations_covariance) @ innovations
 
 def trim_zero_weights(posterior_estimate_vals, posterior_covariance_vals, weight_vals):

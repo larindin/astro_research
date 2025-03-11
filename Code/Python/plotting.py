@@ -141,7 +141,7 @@ def plot_GM_heatmap(truth_vals, posterior_estimate_vals, posterior_covariance_va
             y_val = y_vals[y_pixel_index]
             for kernel_index in range(num_kernels):
                 assess_val = np.array([x_val, y_val])
-                denominators[x_pixel_index, y_pixel_index, kernel_index], exponents[x_pixel_index, y_pixel_index, kernel_index] = assess_measurement_probability(assess_val - estimates[:, kernel_index], covariances[:, :, kernel_index])
+                denominators[x_pixel_index, y_pixel_index, kernel_index], exponents[x_pixel_index, y_pixel_index, kernel_index] = assess_measurement_likelihood(assess_val - estimates[:, kernel_index], covariances[:, :, kernel_index])
 
     normalized_denominators = denominators/denominators.min()
     normalized_exponents = exponents - exponents.max()

@@ -43,7 +43,7 @@ def iterate_GM_kernel(time_index, previous_posterior_estimate, previous_posterio
     innovations = measurement - predicted_measurement
     innovations = check_innovations(innovations)
 
-    denominator, exponent = assess_measurement_probability(innovations, innovations_covariance)
+    denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)
 
     posterior_estimate = anterior_estimate + gain_matrix @ innovations
     posterior_covariance = anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T
