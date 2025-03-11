@@ -416,6 +416,22 @@ def min_fuel_shooting_function(guess, initial_state, target_state, mu, umax, rho
     print(constraint)
     return constraint
 
+def get_min_time_control(costate_output, umax):
+
+    B = np.vstack((np.zeros((3, 3)), np.eye(3)))
+
+    control = costate_output[0:3]*0
+    for time_index in range(len(costate_output[0])):
+        
+        costate = costate_output[:, time_index]
+
+        p = -B.T @ costate
+        p_mag = np.linalg.norm(p)
+
+        control[:, time_index] = umax * p/p_mag
+    
+    return control
+
 def get_min_energy_control(costate_output, umax):
 
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))

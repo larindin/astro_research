@@ -210,7 +210,7 @@ dynamics_args = (mu, umax)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
 # measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 dynamics_functions = [coasting_dynamics_equation, maneuvering_dynamics_equation]
-dynamics_functions_args = [dynamics_args, dynamics_args]
+dynamics_functions_args = [dynamics_args, [mu, umax]]
 
 IMM = IMM_filter(dynamics_functions,
                  dynamics_functions_args,
@@ -229,12 +229,14 @@ filter_time = filter_output.t
 posterior_estimate_vals = filter_output.posterior_estimate_vals
 posterior_covariance_vals = filter_output.posterior_covariance_vals
 anterior_estimate_vals = filter_output.anterior_estimate_vals
-mode_probabilities = filter_output.mode_probability_vals
+mode_probability_vals = filter_output.mode_probability_vals
 output_estimate_vals = filter_output.output_estimate_vals
 output_covariance_vals = filter_output.output_covariance_vals
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-posterior_control = get_min_energy_control(output_estimate_vals[6:12, :], umax)
+posterior_control = get_min_time_control(output_estimate_vals[6:12, :], umax)
+for index in range(3):
+    posterior_control[index, :] *= mode_probability_vals[1, :]
 
 truth_primer_vectors = compute_primer_vectors(truth_vals[9:12])
 estimated_primer_vectors = compute_primer_vectors(output_estimate_vals[9:12])
@@ -248,7 +250,7 @@ control_3sigmas[0][0] *= np.nan
 control_3sigmas[0][1] *= np.nan
 control_3sigmas[0][2] *= np.nan
 
-thrusting_bool = mode_probabilities[1] > 0.5
+thrusting_bool = mode_probability_vals[1] > 0.5
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
@@ -263,8 +265,8 @@ plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lam
 plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
 ax = plt.figure().add_subplot()
-ax.step(time_vals, mode_probabilities[0])
-ax.step(time_vals, mode_probabilities[1])
+ax.step(time_vals, mode_probability_vals[0])
+ax.step(time_vals, mode_probability_vals[1])
 ax.step(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
 ax.hlines((0, 1), time_vals[0], time_vals[-1], ls="--")
 # ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)

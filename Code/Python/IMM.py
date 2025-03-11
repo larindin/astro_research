@@ -82,10 +82,14 @@ class IMM_filter():
         previous_posterior_covariances = posterior_covariance_vals[:, :, 0, :]
         previous_mode_probabilities = mode_probability_vals[:, 0]
 
+        original_umax = self.dynamics_functions_args[1][1]
+
         for time_index in range(1, num_measurements):
             
             current_time = time_vals[time_index]
             timespan = current_time - previous_time
+
+            self.dynamics_functions_args[1][1] = original_umax * previous_mode_probabilities[1]
             
             current_measurement = measurement_vals[:, time_index]
 
