@@ -297,6 +297,14 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
 
     return jacobian
 
+def coasting_jacobian(state, mu, K):
+
+    jacobian = np.zeros((12, 12))
+    jacobian[0:6, 0:6] = CR3BP_jacobian(state, mu)
+    jacobian[6:12, 6:12] = -K
+
+    return jacobian
+
 def CR3BP_constant_thrust_jacobian(state, costate, mu, umax):
 
     l4, l5, l6 = costate

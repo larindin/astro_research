@@ -17,7 +17,7 @@ forprop_time_vals = np.arange(0, final_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
-back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), np.nan)))
+back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), 1e-12)))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
 truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
@@ -84,11 +84,11 @@ def coasting_dynamics_equation(t, X, mu, umax):
     costate = X[6:12]
     STM = X[12:156].reshape((12, 12))
 
-    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
-
     ddt_state = CR3BP_DEs(t, state, mu)
     # ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
-    K = np.diag(np.ones(6)*1e1)
+    # jacobian = minimum_energy_jacobian(state, costate, mu, umax)
+    K = np.diag(np.ones(6)*1e0)
+    jacobian = coasting_jacobian(state, mu, K)
     ddt_costate = -K @ costate
     ddt_STM = jacobian @ STM
 
@@ -200,13 +200,13 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
     return measurement, measurement_jacobian, measurement_noise_covariance, rs
 
 
-maneuvering_dynamics_equation = min_energy_dynamics_equation
+maneuvering_dynamics_equation = min_time_dynamics_equation
 
 # filter_measurement_function = angles_measurement_equation
 filter_measurement_function = PV_measurement_equation
 measurements = angles2PV(measurements)
 
-dynamics_args = (mu, 5)
+dynamics_args = (mu, umax)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
 # measurement_args = (mu, sensor_position_vals, individual_measurement_size)
 dynamics_equations = [coasting_dynamics_equation, maneuvering_dynamics_equation]
@@ -227,8 +227,6 @@ mode_probabilities = filter_output.weight_vals
 output_estimate_vals, output_covariance_vals = compute_IMM_output(posterior_estimate_vals, posterior_covariance_vals, mode_probabilities)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
-first_order = (posterior_estimate_vals[3:6, :] - anterior_estimate_vals[3:6, :])/dt
-estimated_control = (posterior_estimate_vals[3:6, :-1] - anterior_estimate_vals[3:6, :-1])/2/dt + (posterior_estimate_vals[3:6, 1:] - anterior_estimate_vals[3:6, 1:])/2/dt
 posterior_control = get_min_energy_control(output_estimate_vals[6:12, :], umax)
 
 truth_primer_vectors = compute_primer_vectors(truth_vals[9:12])
@@ -236,6 +234,12 @@ estimated_primer_vectors = compute_primer_vectors(output_estimate_vals[9:12])
 
 estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals], 12)
 three_sigmas = compute_3sigmas([output_covariance_vals], 12)
+
+control_error = posterior_control - truth_control
+control_3sigmas = get_min_energy_control_accel_cov([output_covariance_vals])
+control_3sigmas[0][0] *= np.nan
+control_3sigmas[0][1] *= np.nan
+control_3sigmas[0][2] *= np.nan
 
 thrusting_bool = mode_probabilities[1] > 0.5
 
@@ -245,13 +249,17 @@ ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2
 plot_moon(ax, mu)
 ax.set_aspect("equal")
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, 6)
-plot_3sigma_costate(time_vals, estimation_errors, three_sigmas, 6)
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
+plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
+plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
 ax = plt.figure().add_subplot()
-ax.plot(time_vals, mode_probabilities[0])
-ax.plot(time_vals, mode_probabilities[1])
-ax.plot(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
+ax.step(time_vals, mode_probabilities[0])
+ax.step(time_vals, mode_probabilities[1])
+ax.step(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
+ax.hlines((0, 1), time_vals[0], time_vals[-1], ls="--")
 # ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)
 ax.set_xlabel("Time [TU]")
 ax.set_ylabel("Mode Probability")

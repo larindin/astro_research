@@ -12,9 +12,9 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
     lv_labels = [r"$\lambda_4$ Error", r"$\lambda_5$ Error", r"$\lambda_6$ Error"]
     r_labels = [r"$x$ Error [km]", r"$y$ Error [km]", r"$z$ Error [km]"]
     v_labels = [r"$v_x$ Error [m/s]", r"$v_y$ Error [m/s]", r"$v_z$ Error [m/s]"]
-    a_labels = [r"$a_x$ Error [m/s$^2$]", r"$a_y$ Error [m/s$^2$]", r"$a_z$ Error [m/s$^2$]"]
+    a_labels = [r"$a_x$ Error [mm/s$^2$]", r"$a_y$ Error [mm/s$^2$]", r"$a_z$ Error [mm/s$^2$]"]
     label_dict = {"position":r_labels, "velocity":v_labels, "acceleration":a_labels, "lambdar":lr_labels, "lambdav":lv_labels}
-    scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1000/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1000/NONDIM_TIME**2, "lambdar":1, "lambdav":1}
+    scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1e3/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1e6/NONDIM_TIME**2, "lambdar":1, "lambdav":1}
     
     scaling_factor = scaling_dict[labels]
     ylabels = label_dict[labels]
