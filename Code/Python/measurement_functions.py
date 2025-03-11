@@ -170,7 +170,6 @@ def pointing_vector(X, sensor_pos):
 def pointing_vector_jacobian():
     return np.hstack((np.eye(3), np.zeros((3, 9))))
 
-
 def check_exclusion(time, truth, sensor_pos, exclusion_vector, exclusion_angle):
 
     measurement_vector = truth[0:3] - sensor_pos

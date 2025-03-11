@@ -7,7 +7,6 @@ from configuration_IMM import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from IMM import *
-from dual_filter import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
@@ -38,7 +37,9 @@ initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6,
 # truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=truth_dynamics_args, t_eval=time_vals, atol=1e-12, rtol=1e-12)
 # truth_vals = truth_propagation.y
 
-sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
+# sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
+sensor_position_vals = np.zeros((3, len(time_vals)))
+sensor_position_vals[0] = L2
 
 num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
@@ -261,8 +262,8 @@ ax.set_aspect("equal")
 plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
 plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
 plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
-plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
-plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
+# plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
+# plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
 ax = plt.figure().add_subplot()
 ax.step(time_vals, mode_probability_vals[0])
