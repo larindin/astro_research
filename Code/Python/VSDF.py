@@ -5,6 +5,23 @@ from helper_functions import *
 from EKF import *
 from GM_EKF import *
 
+class VSD_FilterResults:
+    def __init__(self, 
+                 time_vals, 
+                 anterior_estimate_vals, 
+                 posterior_estimate_vals,
+                 anterior_covariance_vals, 
+                 posterior_covariance_vals,
+                 innovations_vals, 
+                 activation_metric_vals):
+        self.t = time_vals
+        self.anterior_estimate_vals = anterior_estimate_vals
+        self.posterior_estimate_vals = posterior_estimate_vals
+        self.anterior_covariance_vals = anterior_covariance_vals
+        self.posterior_covariance_vals = posterior_covariance_vals
+        self.innovations_vals = innovations_vals
+        self.activation_metric_vals = activation_metric_vals
+
 class VSD_filter():
 
     def __init__(self,
@@ -152,7 +169,7 @@ class VSD_filter():
             
             previous_time = current_time
         
-        return FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, activation_metric_vals, 0)
+        return VSD_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, innovations_vals, activation_metric_vals)
 
     def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement, active_filter):
 

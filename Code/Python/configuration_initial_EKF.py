@@ -55,4 +55,4 @@ initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, 
 initial_costate_covariance = np.eye(6)*1e0**2
 initial_acceleration_covariance = np.eye(3)*1e0**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
-CR3BP_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*1e-15**2, np.eye(3)*1e-2**2)
+CR3BP_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*1e-15**2, np.eye(3)*1e-3**2)

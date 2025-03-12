@@ -73,6 +73,19 @@ def quiescent_ODE(t, X, mu):
 
     return np.concatenate((ddt_state, ddt_STM.flatten()))
 
+def min_time_dynamics_equation(t, X, mu, umax):
+
+    state = X[0:6]
+    costate = X[6:12]
+    STM = X[12:156].reshape((12, 12))
+
+    jacobian = minimum_time_jacobian(state, costate, mu, umax)
+
+    ddt_state = minimum_time_ODE(0, X[0:12], mu, umax)
+    ddt_STM = jacobian @ STM
+
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
+
 def min_energy_ODE(t, X, mu, umax):
 
     state = X[0:12]
@@ -127,10 +140,11 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
     range_noise_variance = measurement_variances[1]
 
     num_sensors = len(check_result)
+    state_size = len(X[np.isnan(X) == False])
     valid_sensors = np.arange(0, num_sensors)[check_result == 1]
     num_valid_sensors = len(valid_sensors)
     measurement = np.empty(num_valid_sensors*3)
-    measurement_jacobian = np.empty((num_valid_sensors*3, len(X[np.isnan(X) == False])))
+    measurement_jacobian = np.empty((num_valid_sensors*3, state_size))
     measurement_noise_covariance = np.zeros((num_valid_sensors*3, num_valid_sensors*3))
     rs = np.empty(num_valid_sensors)
     
@@ -147,9 +161,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
         v2 = np.array([[np.sin(az), -np.cos(az), 0]]).T
 
         new_measurement_noise_covariance = angle_noise_variance*(v1@v1.T + v2@v2.T) + range_noise_variance*r**2*PV@PV.T
-        new_jacobian = pointing_vector_jacobian()
-        if np.isnan(X[-1]):
-            new_jacobian = new_jacobian[:, 0:6]
+        new_jacobian = pointing_vector_jacobian(state_size)
         
         measurement[assignment_index*3:(assignment_index+1)*3] = PV.flatten()
         measurement_jacobian[assignment_index*3:(assignment_index+1)*3] = new_jacobian
@@ -160,7 +172,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 
 def q2m_initialization(start_index, time_vals, posterior_estimate_vals, posterior_covariance_vals):
     posterior_estimate = posterior_estimate_vals[:, start_index]
-    posterior_estimate[6:12] = 0
+    posterior_estimate[6:12] = 1e-3
     posterior_covariance = scipy.linalg.block_diag(posterior_covariance_vals[0:6, 0:6, start_index]*10, np.eye(6)*1e0**2)
     return posterior_estimate, posterior_covariance
 
@@ -173,7 +185,7 @@ def m2q_initialization(start_index, time_vals, posterior_estimate_vals, posterio
 
 quiescent_size = 6
 
-maneuvering_ODE = min_energy_ODE
+maneuvering_ODE = min_time_dynamics_equation
 maneuvering_size = 12
 q2m = q2m_initialization
 m2q = m2q_initialization
@@ -183,7 +195,7 @@ filter_measurement_function = PV_measurement_equation
 measurements = angles2PV(measurements)
 
 quiescent_ODE_args = (mu,)
-maneuvering_ODE_args = (mu, 5)
+maneuvering_ODE_args = (mu, umax)
 measurement_args = (measurement_variances, sensor_position_vals, check_results)
 process_noise_covariances = [coasting_process_noise_covariance, energy_process_noise_covariance]
 
@@ -205,7 +217,7 @@ results = filter.run(initial_estimate, initial_covariance, time_vals, measuremen
 
 posterior_estimate_vals = results.posterior_estimate_vals
 posterior_covariance_vals = results.posterior_covariance_vals
-metric_vals = results.STM_vals
+metric_vals = results.activation_metric_vals
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_control = get_min_energy_control(posterior_estimate_vals[6:12], 5)

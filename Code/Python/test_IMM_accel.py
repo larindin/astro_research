@@ -22,9 +22,9 @@ forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan
 truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
 time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
 
-# sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
-sensor_position_vals = np.zeros((3, len(time_vals)))
-sensor_position_vals[0] = L2
+sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
+# sensor_position_vals = np.zeros((3, len(time_vals)))
+# sensor_position_vals[0] = L2
 
 num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
@@ -204,6 +204,9 @@ thrusting_bool = mode_probability_vals[1] > 0.5
 plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
 plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
 plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "acceleration")
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
+plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "acceleration", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
