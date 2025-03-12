@@ -68,7 +68,7 @@ class IMM_filter():
             anterior_covariance_vals[:, :, 0, mode_index] = initial_covariance
 
         for mode_index in range(num_modes):
-            posterior_estimate, posterior_covariance, denominator, exponent  = self.measurement_update(0, initial_estimate, initial_covariance, measurement_vals[:, 0], 0)
+            posterior_estimate, posterior_covariance, denominator, exponent  = self.measurement_update(0, initial_estimate, initial_covariance, measurement_vals[:, 0])
             posterior_estimate_vals[:, 0, mode_index] = posterior_estimate
             posterior_covariance_vals[:, :, 0, mode_index] = posterior_covariance
             denominators[mode_index], exponents[mode_index] = denominator, exponent
@@ -99,7 +99,7 @@ class IMM_filter():
 
                 anterior_estimate, anterior_covariance = self.time_update(time_index, mixed_state, mixed_covariance, timespan, mode_index)
 
-                posterior_estimate, posterior_covariance, denominator, exponent = self.measurement_update(time_index, anterior_estimate, anterior_covariance, current_measurement, mode_index)
+                posterior_estimate, posterior_covariance, denominator, exponent = self.measurement_update(time_index, anterior_estimate, anterior_covariance, current_measurement)
 
                 anterior_estimate_vals[:, time_index, mode_index] = anterior_estimate
                 anterior_covariance_vals[:, :, time_index, mode_index] = anterior_covariance
@@ -121,13 +121,15 @@ class IMM_filter():
         
         return IMM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, output_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, output_covariance_vals, 0, mode_probability_vals)
 
-    def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement, active_filter):
+    def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement):
 
         measurement = measurement[np.isnan(measurement) == False]
+        if len(measurement) == 0:
+            return anterior_estimate, anterior_covariance, 1, 1
+        
         posterior_estimate = np.full(len(anterior_estimate), np.nan)
         posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
 
-        # predicted_measurement, measurement_jacobian, measurement_noise_covariance = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
         predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
 
         innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance

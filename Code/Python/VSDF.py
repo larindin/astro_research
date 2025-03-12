@@ -157,6 +157,9 @@ class VSD_filter():
     def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement, active_filter):
 
         measurement = measurement[np.isnan(measurement) == False]
+        if len(measurement) == 0:
+            return anterior_estimate, anterior_covariance, 0
+        
         posterior_estimate = np.full(len(anterior_estimate), np.nan)
         posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
 

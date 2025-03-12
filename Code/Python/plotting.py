@@ -40,7 +40,7 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
         ax.tick_params(axis="both", which="major", labelsize=6.5)
         for run_num in range(num_runs):
             ax.step(plot_time, abs(estimation_errors[run_num][state_index]), c="black", alpha=alpha)
-            ax.step(plot_time, three_sigmas[run_num][state_index], c="red", ls="--", alpha=alpha)
+            ax.step(plot_time, three_sigmas[run_num][state_index], c="red", ls="-", alpha=alpha)
             ax.grid(True)
 
 def compute_3sigmas(posterior_covariances, state_size):

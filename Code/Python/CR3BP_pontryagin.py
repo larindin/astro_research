@@ -297,7 +297,15 @@ def minimum_fuel_jacobian(state, costate, mu, umax, rho):
 
     return jacobian
 
-def coasting_jacobian(state, mu, K):
+def coasting_acceleration_jacobian(state, mu, K):
+
+    jacobian = np.zeros((9, 9))
+    jacobian[0:6, 0:6] = CR3BP_jacobian(state[0:6], mu)
+    jacobian[6:9, 6:9] = -K
+
+    return jacobian
+
+def coasting_costate_jacobian(state, mu, K):
 
     jacobian = np.zeros((12, 12))
     jacobian[0:6, 0:6] = CR3BP_jacobian(state, mu)

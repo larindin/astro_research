@@ -53,16 +53,14 @@ sun_exclusion_angle = np.deg2rad(20)
 # IMM parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
 initial_costate_covariance = np.eye(6)*1e0**2
-initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_costate_covariance)
-initial_estimate = np.concatenate((generator.multivariate_normal(initial_truth[0:6], initial_state_covariance), np.ones(6)*1e-12))
+initial_acceleration_covariance = np.eye(3)*1e0**2
 # initial_estimate = initial_truth
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
-# coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(1e-1)**2)
-thrusting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-6)**2, np.eye(3)*(1e-3)**2, np.eye(6)*(5e-1)**2)
-coasting_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-9)**2, np.eye(3)*(1e-9)**2, np.eye(6)*(1e-1)**2)
-# thrusting_process_noise_covariance = scipy.linalg.block_diag(np.zeros((6, 6)), np.eye(6)*(1)**2)
-process_noise_covariances = [coasting_process_noise_covariance, thrusting_process_noise_covariance]
+coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1)**2)
+min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-9)**2, np.eye(3)*(1e-9)**2, np.eye(6)*(1e-2)**2)
+coasting_acceleration_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
+acceleration_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-9)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2)
 initial_mode_probabilities = np.array([0.99, 0.01])
 mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])
