@@ -4,16 +4,6 @@ import numpy as np
 import scipy.integrate
 from helper_functions import *
 
-class FilterResults:
-    def __init__(self, time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, STM_vals, innovations_vals):
-        self.t = time_vals
-        self.anterior_estimate_vals = anterior_estimate_vals
-        self.posterior_estimate_vals = posterior_estimate_vals
-        self.anterior_covariance_vals = anterior_covariance_vals
-        self.posterior_covariance_vals = posterior_covariance_vals
-        self.STM_vals = STM_vals
-        self.innovations_vals = innovations_vals
-
 class EKF_Results:
     def __init__(self, 
                  time_vals, 
