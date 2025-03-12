@@ -67,6 +67,19 @@ def compute_estimation_errors(truth, posterior_estimates, state_size):
     
     return estimation_errors
 
+def plot_mode_probabilities(time_vals, mode_probability_vals, truth_control, alpha=0.5):
+    
+    plot_time = time_vals * NONDIM_TIME_HR/24
+
+    ax = plt.figure().add_subplot()
+    ax.step(plot_time, mode_probability_vals[0])
+    ax.step(plot_time, mode_probability_vals[1])
+    ax.step(plot_time, np.linalg.norm(truth_control, axis=0), alpha=alpha)
+    ax.hlines((0, 1), plot_time[0], plot_time[-1], ls="--")
+    ax.set_xlabel("Time [days]")
+    ax.set_ylabel("Mode Probability")
+    ax.legend(["Coasting", "Thrusting"])
+
 def check_divergence(estimation_errors, three_sigmas):
 
     num_runs = len(estimation_errors)

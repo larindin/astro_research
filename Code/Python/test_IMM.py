@@ -265,15 +265,7 @@ plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
-ax = plt.figure().add_subplot()
-ax.step(time_vals, mode_probability_vals[0])
-ax.step(time_vals, mode_probability_vals[1])
-ax.step(time_vals, np.linalg.norm(truth_control, axis=0), alpha=0.5)
-ax.hlines((0, 1), time_vals[0], time_vals[-1], ls="--")
-# ax.plot(time_vals, thrusting_bool*umax, alpha=0.5)
-ax.set_xlabel("Time [TU]")
-ax.set_ylabel("Mode Probability")
-ax.legend(["Coasting", "Thrusting"])
+plot_mode_probabilities(time_vals, mode_probability_vals, truth_control)
 
 control_fig = plt.figure()
 control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
