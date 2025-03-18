@@ -52,7 +52,7 @@ sun_exclusion_angle = np.deg2rad(20)
 
 # IMM parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
-initial_costate_covariance = np.eye(6)*1e0**2
+initial_costate_covariance = np.eye(6)*1e-2**2
 initial_acceleration_covariance = np.eye(3)*1e-2**2
 # initial_estimate = initial_truth
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2

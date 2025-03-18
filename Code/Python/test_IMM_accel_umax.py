@@ -203,10 +203,12 @@ estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals]
 three_sigmas = compute_3sigmas([output_covariance_vals], 9)
 
 control_error = posterior_control - truth_control
-control_3sigmas = [[three_sigmas[0][0].copy(), three_sigmas[0][1].copy(), three_sigmas[0][2].copy()]]
-control_3sigmas[0][0] *= np.nan
-control_3sigmas[0][1] *= np.nan
-control_3sigmas[0][2] *= np.nan
+control_covariance_vals = get_accel_umax_ctrl_cov(output_estimate_vals[6:9], output_covariance_vals, umax)
+control_3sigmas = compute_3sigmas([control_covariance_vals], 3)
+# control_3sigmas = [[three_sigmas[0][0].copy(), three_sigmas[0][1].copy(), three_sigmas[0][2].copy()]]
+# control_3sigmas[0][0] *= np.nan
+# control_3sigmas[0][1] *= np.nan
+# control_3sigmas[0][2] *= np.nan
 
 thrusting_bool = mode_probability_vals[1] > 0.5
 

@@ -6,7 +6,7 @@ import matplotlib.font_manager as font_manager
 from helper_functions import *
 
 
-def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", alpha=0.5, scale="log"):
+def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", alpha=0.5, scale="log", ylim=(None, None)):
 
     lr_labels = [r"$\lambda_1$ Error", r"$\lambda_2$ Error", r"$\lambda_3$ Error"]
     lv_labels = [r"$\lambda_4$ Error", r"$\lambda_5$ Error", r"$\lambda_6$ Error"]
@@ -45,6 +45,7 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
                 ax.step(plot_time, three_sigmas[run_num][state_index]*scaling_factor, c="red", ls="-", alpha=alpha)
                 ax.step(plot_time, -three_sigmas[run_num][state_index]*scaling_factor, c="red", ls="-", alpha=alpha)
                 ax.grid(True)
+        ax.set_ylim(*ylim)
 
 def compute_3sigmas(posterior_covariances, state_size):
 

@@ -193,3 +193,21 @@ def get_accel_umax_control(a_vecs, umax):
         control[ax_index] = umax * a_vecs[ax_index] / np.linalg.norm(a_vecs, axis=0)
 
     return control
+
+def get_accel_umax_ctrl_cov(a_vecs, posterior_covariance_vals, umax):
+    
+    num_timesteps = np.size(a_vecs, 1)
+    control_covariance_vals = np.empty((3, 3, num_timesteps))
+
+    for timestep_index in range(num_timesteps):
+        
+        ax, ay, az = a_vecs[:, timestep_index]
+        amag = np.linalg.norm([ax, ay, az])
+
+        transform = np.array([[1/amag - ax**2/amag**3, -ax*ay/amag**3, -ax*az/amag**3],
+                              [-ax*ay/amag**3, 1/amag - ay**2/amag**3, -ay*az/amag**3],
+                              [-ax*az/amag**3, -ay*az/amag**3, 1/amag - az**2/amag**3]]) * umax
+        
+        control_covariance_vals[:, :, timestep_index] = transform @ posterior_covariance_vals[6:9, 6:9, timestep_index] @ transform.T
+    
+    return control_covariance_vals

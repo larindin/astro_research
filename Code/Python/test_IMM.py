@@ -184,7 +184,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 
 coasting_dynamics_equation = coasting_costate_dynamics_equation
 maneuvering_dynamics_equation = min_time_dynamics_equation
-initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e-6))
+initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e0))
 initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_costate_covariance)
 process_noise_covariances = [coasting_costate_process_noise_covariance, min_time_process_noise_covariance]
 
@@ -231,12 +231,24 @@ estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals]
 three_sigmas = compute_3sigmas([output_covariance_vals], 12)
 
 control_error = posterior_control - truth_control
-control_3sigmas = get_min_energy_control_accel_cov([output_covariance_vals])
-control_3sigmas[0][0] *= np.nan
-control_3sigmas[0][1] *= np.nan
-control_3sigmas[0][2] *= np.nan
+control_covariance_vals = get_min_time_ctrl_cov(output_estimate_vals[6:12], output_covariance_vals, umax)
+control_3sigmas = compute_3sigmas([control_covariance_vals], 3)
+# control_3sigmas = get_min_energy_control_accel_cov([output_covariance_vals])
+# control_3sigmas[0][0] *= np.nan
+# control_3sigmas[0][1] *= np.nan
+# control_3sigmas[0][2] *= np.nan
 
 thrusting_bool = mode_probability_vals[1] > 0.5
+
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration", scale="linear", ylim=(-0.25, 0.25))
+# plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
+# plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
+
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
@@ -244,14 +256,6 @@ ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2
 plot_moon(ax, mu)
 ax.set_aspect("equal")
 
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
-plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
-plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration", scale="linear")
-# plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar")
-# plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav")
 
 plot_mode_probabilities(time_vals, mode_probability_vals, truth_control)
 

@@ -440,6 +440,24 @@ def get_min_time_control(costate_output, umax):
     
     return control
 
+def get_min_time_ctrl_cov(costate_output, posterior_covariance_vals, umax):
+
+    num_timesteps = np.size(costate_output, 1)
+    control_covariance_vals = np.empty((3, 3, num_timesteps))
+
+    for timestep_index in range(num_timesteps):
+        
+        l4, l5, l6 = costate_output[3:6, timestep_index]
+        lnorm = np.linalg.norm([l4, l5, l6])
+
+        transform = np.array([[-(1/lnorm - l4**2/lnorm**3), l4*l5/lnorm**3, l4*l6/lnorm**3],
+                            [l4*l5/lnorm**3, -(1/lnorm - l5**2/lnorm**3), l5*l6/lnorm**3],
+                            [l4*l6/lnorm**3, l5*l6/lnorm**3, -(1/lnorm - l6**2/lnorm**3)]]) * umax
+        
+        control_covariance_vals[:, :, timestep_index] = transform @ posterior_covariance_vals[9:12, 9:12, timestep_index] @ transform.T
+
+    return control_covariance_vals
+
 def get_min_energy_control(costate_output, umax):
 
     B = np.vstack((np.zeros((3, 3)), np.eye(3)))
@@ -612,3 +630,4 @@ def get_min_fuel_costates_2(posterior_estimates, dt, mu, umax, magnitudes):
         costate_estimates[:, magnitude_index] = np.concatenate((initial_lr, initial_lv))
     
     return costate_estimates
+
