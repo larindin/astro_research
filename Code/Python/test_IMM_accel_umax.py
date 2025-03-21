@@ -58,8 +58,8 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
-# check_results[:, 50:] = 0
-# check_results[:, 250:] = 1
+check_results[:, 350:] = 0
+check_results[:, 450:] = 1
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -212,30 +212,33 @@ control_3sigmas = compute_3sigmas([control_covariance_vals], 3)
 
 thrusting_bool = mode_probability_vals[1] > 0.5
 
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration", scale="linear", ylim=(-0.25, 0.25))
 plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
 plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
 plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
-plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration", scale="linear")
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
 plot_moon(ax, mu)
+plot_L2(ax)
 ax.set_aspect("equal")
 
 plot_mode_probabilities(time_vals, mode_probability_vals, truth_control)
+
+plot_time = time_vals * NONDIM_TIME_HR/24
 
 control_fig = plt.figure()
 control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
 for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
-    ax.plot(time_vals, posterior_control[ax_index], alpha=0.5)
+    ax.scatter(plot_time, truth_control[ax_index], alpha=0.5, s=4)
+    ax.scatter(plot_time, posterior_control[ax_index], alpha=0.5, s=4)
     ax.set_ylabel(control_ax_labels[ax_index])
-ax.set_xlabel("Time [TU]")
+ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
 
 plt.show()

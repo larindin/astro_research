@@ -185,16 +185,17 @@ posterior_covariances = [posterior_covariance_vals]
 estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 6)
 three_sigmas = compute_3sigmas(posterior_covariances, 6)
 
-ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
-ax.set_aspect("equal")
-
 # plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
 # plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
 
 plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
 plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
+
+ax = plt.figure().add_subplot(projection="3d")
+ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
+ax.plot(posterior_estimate_vals[0], posterior_estimate_vals[1], posterior_estimate_vals[2])
+ax.set_aspect("equal")
+
 
 # truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 # posterior_control = get_min_energy_control(posterior_estimate_vals[6:12, :], umax)

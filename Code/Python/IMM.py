@@ -73,7 +73,7 @@ class IMM_filter():
             posterior_covariance_vals[:, :, 0, mode_index] = posterior_covariance
             denominators[mode_index], exponents[mode_index] = denominator, exponent
         
-        mode_probability_vals[:, 0] = self.mode_probability_update(initial_mode_probabilities, denominators, exponents)
+        mode_probability_vals[:, 0] = self.mode_probability_update(initial_mode_probabilities, denominators, exponents, measurement_vals[:, 0])
         output_estimate, output_covariance = self.mixed_outputs(mode_probability_vals[:, 0], posterior_estimate_vals[:, 0, :], posterior_covariance_vals[:, :, 0, :])
         output_estimate_vals[:, 0], output_covariance_vals[:, :, 0] = output_estimate, output_covariance
 
@@ -108,7 +108,7 @@ class IMM_filter():
                 denominators[mode_index] = denominator
                 exponents[mode_index] = exponent
             
-            new_mode_probabilities = self.mode_probability_update(previous_mode_probabilities, denominators, exponents)
+            new_mode_probabilities = self.mode_probability_update(previous_mode_probabilities, denominators, exponents, current_measurement)
             mode_probability_vals[:, time_index] = new_mode_probabilities
 
             output_estimate, output_covariance = self.mixed_outputs(new_mode_probabilities, posterior_estimate_vals[:, time_index, :], posterior_covariance_vals[:, :, time_index, :])
@@ -164,7 +164,10 @@ class IMM_filter():
 
         return anterior_estimate, anterior_covariance
     
-    def mode_probability_update(self, previous_mode_probabilities, denominators, exponents):
+    def mode_probability_update(self, previous_mode_probabilities, denominators, exponents, current_measurement):
+
+        if len(current_measurement[np.isnan(current_measurement) == False]) == 0:
+            return previous_mode_probabilities
         
         num_modes = len(denominators)
         new_mode_probabilities = np.empty(num_modes)

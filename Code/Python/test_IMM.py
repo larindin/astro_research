@@ -71,8 +71,8 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
-# check_results[:, 50:] = 0
-# check_results[:, 250:] = 1
+check_results[:, 350:] = 0
+check_results[:, 450:] = 1
 
 measurements = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, seed)
 
@@ -85,7 +85,7 @@ def coasting_costate_dynamics_equation(t, X, mu, umax):
     ddt_state = CR3BP_DEs(t, state, mu)
     # ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
     # jacobian = minimum_energy_jacobian(state, costate, mu, umax)
-    K = np.diag(np.full(6, 1e0))
+    K = np.diag(np.full(6, 1e2))
     jacobian = coasting_costate_jacobian(state, mu, K)
     ddt_costate = -K @ costate
     ddt_STM = jacobian @ STM
@@ -240,12 +240,13 @@ control_3sigmas = compute_3sigmas([control_covariance_vals], 3)
 
 thrusting_bool = mode_probability_vals[1] > 0.5
 
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
-plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
+
 plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
 plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
 plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration", scale="linear", ylim=(-0.25, 0.25))
+plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
+plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
@@ -254,28 +255,31 @@ ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
 plot_moon(ax, mu)
+plot_L2(ax)
 ax.set_aspect("equal")
 
 
 plot_mode_probabilities(time_vals, mode_probability_vals, truth_control)
+
+plot_time = time_vals * NONDIM_TIME_HR/24
 
 control_fig = plt.figure()
 control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
 for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_control[ax_index], alpha=0.5)
-    ax.plot(time_vals, posterior_control[ax_index], alpha=0.5)
+    ax.scatter(plot_time, truth_control[ax_index], alpha=0.5, s=4)
+    ax.scatter(plot_time, posterior_control[ax_index], alpha=0.5, s=4)
     ax.set_ylabel(control_ax_labels[ax_index])
-ax.set_xlabel("Time [TU]")
+ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
 
 primer_vector_fig = plt.figure()
 for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = primer_vector_fig.add_subplot(thing)
-    ax.plot(time_vals, truth_primer_vectors[ax_index], alpha=0.5)
-    ax.plot(time_vals, estimated_primer_vectors[ax_index], alpha=0.5)
+    ax.plot(plot_time, truth_primer_vectors[ax_index], alpha=0.5)
+    ax.plot(plot_time, estimated_primer_vectors[ax_index], alpha=0.5)
 
 costate_fig = plt.figure()
 for ax_index in range(6):

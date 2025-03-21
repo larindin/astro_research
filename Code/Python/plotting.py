@@ -1,10 +1,12 @@
 
 import numpy as np
 import scipy
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 from helper_functions import *
 
+mpl.rcParams["mathtext.fontset"] = "cm"
 
 def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", alpha=0.5, scale="log", ylim=(None, None)):
 
@@ -30,8 +32,8 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
         
         ax = axes[state_index]
         if state_index == 2:
-            ax.set_xlabel("Time [days]", fontname="Times New Roman")
-        ax.set_ylabel(ylabels[state_index], fontname="Times New Roman")
+            ax.set_xlabel("Time [days]", fontname="Helvetica")
+        ax.set_ylabel(ylabels[state_index], fontname="Helvetica")
         ax.set_yscale(scale)
         ax.tick_params(axis="both", which="major", labelsize=6.5)
         if scale == "log":
@@ -101,6 +103,9 @@ def check_divergence(estimation_errors, three_sigmas):
 
 def plot_moon(ax, mu):
     ax.scatter(1-mu, 0, 0, c="grey")
+
+def plot_L2(ax):
+    ax.scatter(L2, 0, 0, c="orange", marker="+")
 
 def compute_total_GM_vals(posterior_estimate_vals, posterior_covariance_vals, weights):
 
