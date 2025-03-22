@@ -196,8 +196,8 @@ output_covariance_vals = filter_output.output_covariance_vals
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 truth_vals[6:9] = truth_control
 
-estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals], 9)
-three_sigmas = compute_3sigmas([output_covariance_vals], 9)
+estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals], (0, 9))
+three_sigmas = compute_3sigmas([output_covariance_vals], (0, 9))
 
 thrusting_bool = mode_probability_vals[1] > 0.5
 

@@ -15,11 +15,14 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
     r_labels = [r"$x$ Error [km]", r"$y$ Error [km]", r"$z$ Error [km]"]
     v_labels = [r"$v_x$ Error [m/s]", r"$v_y$ Error [m/s]", r"$v_z$ Error [m/s]"]
     a_labels = [r"$a_x$ Error [mm/s$^2$]", r"$a_y$ Error [mm/s$^2$]", r"$a_z$ Error [mm/s$^2$]"]
-    label_dict = {"position":r_labels, "velocity":v_labels, "acceleration":a_labels, "lambdar":lr_labels, "lambdav":lv_labels}
-    scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1e3/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1e6/NONDIM_TIME**2, "lambdar":1, "lambdav":1}
+    c_labels = a_labels
+    label_dict = {"position":r_labels, "velocity":v_labels, "acceleration":a_labels, "lambdar":lr_labels, "lambdav":lv_labels, "control":c_labels}
+    scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1e3/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1e6/NONDIM_TIME**2, "lambdar":1, "lambdav":1, "control":NONDIM_LENGTH*1e6/NONDIM_TIME**2}
+    offset_dict = {"position":0, "velocity":3, "acceleration":6, "lambdar":6, "lambdav":9, "control":0}
     
     scaling_factor = scaling_dict[labels]
     ylabels = label_dict[labels]
+    offset = offset_dict[labels]
 
     num_runs = len(estimation_errors)
     
@@ -28,12 +31,13 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
     fig, axes = plt.subplots(3, 1, layout="constrained")
     # fig.set_figheight(6.4)
     
-    for state_index in range(3):
+    for ax_index in range(3):
+        state_index = ax_index + offset
         
-        ax = axes[state_index]
-        if state_index == 2:
+        ax = axes[ax_index]
+        if ax_index == 2:
             ax.set_xlabel("Time [days]", fontname="Helvetica")
-        ax.set_ylabel(ylabels[state_index], fontname="Helvetica")
+        ax.set_ylabel(ylabels[ax_index], fontname="Helvetica")
         ax.set_yscale(scale)
         ax.tick_params(axis="both", which="major", labelsize=6.5)
         if scale == "log":
@@ -49,27 +53,21 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
                 ax.grid(True)
         ax.set_ylim(*ylim)
 
-def compute_3sigmas(posterior_covariances, state_size):
+def compute_3sigmas(posterior_covariances, state_indices: tuple):
 
     three_sigmas = []
 
     for posterior_covariance_vals in posterior_covariances:
-        three_sigma_vals = []
-        for state_index in range(state_size):
-            three_sigma_vals.append(3*np.sqrt(posterior_covariance_vals[state_index, state_index, :]))
-        three_sigmas.append(three_sigma_vals)
+        three_sigmas.append(3*np.sqrt(np.diagonal(posterior_covariance_vals, axis1=0, axis2=1)[:, state_indices[0]:state_indices[1]].T))
 
     return three_sigmas
 
-def compute_estimation_errors(truth, posterior_estimates, state_size):
+def compute_estimation_errors(truth, posterior_estimates, state_indices: tuple):
 
     estimation_errors = []
 
     for posterior_estimate_vals in posterior_estimates:
-        estimation_error_vals = []
-        for state_index in range(state_size): 
-            estimation_error_vals.append(posterior_estimate_vals[state_index, :] - truth[state_index, :] )
-        estimation_errors.append(estimation_error_vals)
+        estimation_errors.append(posterior_estimate_vals[state_indices[0]:state_indices[1], :] - truth[state_indices[0]:state_indices[1], :])
     
     return estimation_errors
 

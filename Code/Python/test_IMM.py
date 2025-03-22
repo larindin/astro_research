@@ -227,12 +227,12 @@ for index in range(3):
 truth_primer_vectors = compute_primer_vectors(truth_vals[9:12])
 estimated_primer_vectors = compute_primer_vectors(output_estimate_vals[9:12])
 
-estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals], 12)
-three_sigmas = compute_3sigmas([output_covariance_vals], 12)
+estimation_errors = compute_estimation_errors(truth_vals, [output_estimate_vals], (0, 12))
+three_sigmas = compute_3sigmas([output_covariance_vals], (0, 12))
 
 control_error = posterior_control - truth_control
 control_covariance_vals = get_min_time_ctrl_cov(output_estimate_vals[6:12], output_covariance_vals, umax)
-control_3sigmas = compute_3sigmas([control_covariance_vals], 3)
+control_3sigmas = compute_3sigmas([control_covariance_vals], (0, 3))
 # control_3sigmas = get_min_energy_control_accel_cov([output_covariance_vals])
 # control_3sigmas[0][0] *= np.nan
 # control_3sigmas[0][1] *= np.nan
@@ -241,12 +241,12 @@ control_3sigmas = compute_3sigmas([control_covariance_vals], 3)
 thrusting_bool = mode_probability_vals[1] > 0.5
 
 
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
-plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration", scale="linear", ylim=(-0.25, 0.25))
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
-plot_3sigma(time_vals, [control_error], control_3sigmas, "acceleration")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "control", scale="linear", ylim=(-0.25, 0.25))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity")
+plot_3sigma(time_vals, [control_error], control_3sigmas, "control")
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 

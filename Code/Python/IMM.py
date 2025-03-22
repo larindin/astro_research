@@ -1,5 +1,6 @@
 
 import numpy as np
+from joblib import Parallel, delayed, parallel_config
 from helper_functions import *
 from EKF import *
 from GM_EKF import *
@@ -24,6 +25,39 @@ class IMM_FilterResults:
         self.output_covariance_vals = output_covariance_vals
         self.innovations_vals = innovations_vals
         self.mode_probability_vals = mode_probability_vals
+
+class IMM_MCResults:
+    def __init__(self, IMM_results):
+
+        num_results = len(IMM_results)
+        anterior_estimates = []
+        posterior_estimates = []
+        output_estimates = []
+        anterior_covariances = []
+        posterior_covariances = []
+        output_covariances = []
+        innovations = []
+        mode_probabilities = []
+        for result in IMM_results:
+            anterior_estimates.append(result.anterior_estimate_vals)
+            posterior_estimates.append(result.posterior_estimate_vals)
+            output_estimates.append(result.output_estimate_vals)
+            anterior_covariances.append(result.anterior_covariance_vals)
+            posterior_covariances.append(result.posterior_covariance_vals)
+            output_covariances.append(result.output_covariance_vals)
+            innovations.append(result.innovations_vals)
+            mode_probabilities.append(result.mode_probability_vals)
+        
+        self.t = result.t
+        self.anterior_estimates = anterior_estimates
+        self.posterior_estimates = posterior_estimates
+        self.output_estimates = output_estimates
+        self.anterior_covariances = anterior_covariances
+        self.posterior_covariance = posterior_covariances
+        self.output_covariances = output_covariances
+        self.innovations = innovations
+        self.mode_probabilities = mode_probabilities
+
 
 class IMM_filter():
 
@@ -82,14 +116,10 @@ class IMM_filter():
         previous_posterior_covariances = posterior_covariance_vals[:, :, 0, :]
         previous_mode_probabilities = mode_probability_vals[:, 0]
 
-        original_umax = self.dynamics_functions_args[1][1]
-
         for time_index in range(1, num_measurements):
             
             current_time = time_vals[time_index]
             timespan = current_time - previous_time
-
-            self.dynamics_functions_args[1][1] = original_umax * previous_mode_probabilities[1]
             
             current_measurement = measurement_vals[:, time_index]
 
@@ -97,7 +127,7 @@ class IMM_filter():
 
                 mixed_state, mixed_covariance = self.mixed_initial_conditions(mode_index, previous_mode_probabilities, previous_posterior_estimates, previous_posterior_covariances)
 
-                anterior_estimate, anterior_covariance = self.time_update(time_index, mixed_state, mixed_covariance, timespan, mode_index)
+                anterior_estimate, anterior_covariance = self.time_update(time_index, mixed_state, mixed_covariance, timespan, mode_index, previous_mode_probabilities[mode_index])
 
                 posterior_estimate, posterior_covariance, denominator, exponent = self.measurement_update(time_index, anterior_estimate, anterior_covariance, current_measurement)
 
@@ -149,11 +179,15 @@ class IMM_filter():
 
         return posterior_estimate, posterior_covariance, denominator, exponent
 
-    def time_update(self, time_index, mixed_initial_conditions, mixed_initial_covariance, timespan, mode_index):
+    def time_update(self, time_index, mixed_initial_conditions, mixed_initial_covariance, timespan, mode_index, mode_probability):
 
         state_size = len(mixed_initial_conditions)
         dynamics_eq = self.dynamics_functions[mode_index]
         args = self.dynamics_functions_args[mode_index]
+
+        if mode_index != 0:
+            args = list(args)
+            args[1] *= mode_probability
 
         ICs = np.concatenate((mixed_initial_conditions, np.eye(state_size).flatten()))
         propagation = scipy.integrate.solve_ivp(dynamics_eq, [0,timespan], ICs, args=args, atol=1e-12, rtol=1e-12).y[:, -1]
@@ -215,6 +249,16 @@ class IMM_filter():
             mixed_covariance += mode_probabilities[mode_index] * (posterior_covariances[:, :, mode_index] + difference @ difference.T)
         
         return mixed_state, mixed_covariance
+    
+    def run_MC(self, initial_estimates, initial_covariance, initial_mode_probabilities, time_vals, measurements):
+
+        num_runs = len(initial_estimates)
+        results = []
+
+        with parallel_config(verbose=100, n_jobs=-1):
+            results = Parallel()(delayed(self.run)(initial_estimates[run_index], initial_covariance, initial_mode_probabilities, time_vals, measurements[run_index]) for run_index in range(num_runs))
+        
+        return IMM_MCResults(results)
 
 def get_thrusting_indices(time_vals, mode_probability_vals, switching_cutoff):
 
