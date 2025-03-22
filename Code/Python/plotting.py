@@ -71,6 +71,48 @@ def compute_estimation_errors(truth, posterior_estimates, state_indices: tuple):
     
     return estimation_errors
 
+def compute_anees(estimation_errors, posterior_covariances, state_indices: tuple):
+
+    num_runs = len(estimation_errors)
+    num_steps = np.size(estimation_errors[0], axis=1)
+
+    anees_vals = np.zeros(num_steps)
+    for run_index in range(num_runs):
+        for step_index in range(num_steps):
+            error = estimation_errors[run_index][state_indices[0]:state_indices[1], step_index]
+            covariance = posterior_covariances[run_index][state_indices[0]:state_indices[1], state_indices[0]:state_indices[1], step_index]
+            anees = error @ (np.linalg.inv(covariance) @ error)
+            anees_vals[step_index] += anees
+    
+    anees_vals /= num_runs
+    
+    return anees_vals
+
+def compute_rmse(estimation_errors, state_indices: tuple):
+
+    num_runs = len(estimation_errors)
+    num_steps = np.size(estimation_errors[0], axis=1)
+
+    rmse_vals = np.zeros((state_indices[1]- state_indices[0], num_steps))
+    for run_index in range(num_runs):
+        rmse_vals += estimation_errors[run_index][state_indices[0]:state_indices[1]]**2
+    rmse_vals /= num_runs
+    rmse_vals = np.sqrt(rmse_vals)
+
+    return rmse_vals
+
+def compute_avg_error(estimation_errors, state_indices: tuple):
+
+    num_runs = len(estimation_errors)
+    num_steps = np.size(estimation_errors[0], axis=1)
+
+    avg_error_vals = np.zeros((state_indices[1]- state_indices[0], num_steps))
+    for run_index in range(num_runs):
+        avg_error_vals += abs(estimation_errors[run_index][state_indices[0]:state_indices[1]])
+    avg_error_vals /= num_runs
+
+    return avg_error_vals
+
 def plot_mode_probabilities(time_vals, mode_probability_vals, truth_control, alpha=0.5):
     
     plot_time = time_vals * NONDIM_TIME_HR/24

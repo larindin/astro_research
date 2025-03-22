@@ -237,44 +237,60 @@ for run_index in range(num_runs):
 estimation_errors = compute_estimation_errors(truth_vals, output_estimates, (0, 12))
 three_sigmas = compute_3sigmas(output_covariances, (0, 12))
 control_3sigmas = compute_3sigmas(control_covariances, (0, 3))
-# control_3sigmas = get_min_energy_control_accel_cov([output_covariance_vals])
-# control_3sigmas[0][0] *= np.nan
-# control_3sigmas[0][1] *= np.nan
-# control_3sigmas[0][2] *= np.nan
 
+avg_error_vals = compute_avg_error(estimation_errors, (0, 6))
+anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear")
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear")
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", ylim=(-0.25, 0.25))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position")
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity")
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15, ylim=(-0.25, 0.25))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
-
-# ax = plt.figure().add_subplot(projection="3d")
-# ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-# ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
-# plot_moon(ax, mu)
-# plot_L2(ax)
-# ax.set_aspect("equal")
-
-# plot_mode_probabilities(time_vals, mode_probability_vals, truth_control)
-
 plot_time = time_vals * NONDIM_TIME_HR/24
+
+ax = plt.figure().add_subplot()
+ax.plot(plot_time, anees_vals)
+ax.set_ylim(0, 20)
+
+rmse_r_fig = plt.figure()
+rmse_ax_labels = ["$x$", "$y$", "$z$"]
+for ax_index in range(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = rmse_r_fig.add_subplot(thing)
+    ax.plot(plot_time, avg_error_vals[ax_index], alpha=0.75)
+    ax.set_ylabel(rmse_ax_labels[ax_index])
+ax.set_xlabel("Time [days]")
+
+rmse_v_fig = plt.figure()
+rmse_ax_labels = ["$v_x$", "$v_y$", "$v_z$"]
+for ax_index in range(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = rmse_v_fig.add_subplot(thing)
+    ax.plot(plot_time, avg_error_vals[ax_index+3], alpha=0.75)
+    ax.set_ylabel(rmse_ax_labels[ax_index])
+ax.set_xlabel("Time [days]")
 
 control_fig = plt.figure()
 control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
 for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
-    ax.scatter(plot_time, truth_control[ax_index], alpha=0.5, s=4)
+    ax.scatter(plot_time, truth_control[ax_index], alpha=0.75, s=4)
     for run_index in range(num_runs):
-        ax.scatter(plot_time, estimated_controls[run_index][ax_index], alpha=0.25, s=4)
+        ax.scatter(plot_time, estimated_controls[run_index][ax_index], alpha=0.15, s=4)
     ax.set_ylabel(control_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
 
+ax = plt.figure().add_subplot(projection="3d")
+ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
+for run_index in range(num_runs):
+    ax.plot(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.15)
+plot_moon(ax, mu)
+ax.set_aspect("equal")
 
 plt.show()
