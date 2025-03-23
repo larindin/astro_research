@@ -141,8 +141,11 @@ def check_divergence(estimation_errors, three_sigmas):
     
     return divergence_results
 
-def plot_moon(ax, mu):
-    ax.scatter(1-mu, 0, 0, c="grey")
+def plot_moon(ax, mu, units="nd"):
+    if units == "nd":
+        ax.scatter(1-mu, 0, 0, c="grey")
+    elif units == "km":
+        ax.scatter((1-mu)*NONDIM_LENGTH, 0, 0, c="grey")
 
 def plot_L2(ax):
     ax.scatter(L2, 0, 0, c="orange", marker="+")

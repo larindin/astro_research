@@ -243,7 +243,7 @@ anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15, ylim=(-0.25, 0.25))
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
 plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)

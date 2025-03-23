@@ -9,20 +9,20 @@ from helper_functions import *
 # Monte-carlo parameters
 seed = 0
 generator = np.random.default_rng(seed)
-num_runs = 50
+num_runs = 10
 
 #10, 13, 31, 32 are good
 
 # Truth parameters
-initial_orbit_index = 1
-final_orbit_index = 3
+initial_orbit_index = 3
+final_orbit_index = 1
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
 final_time = 25*24 / NONDIM_TIME_HR
 # final_time *= 0.8
 # final_time = 1
-backprop_time = 1
+backprop_time = 5 * 24 / NONDIM_TIME_HR
 # dt = 30*60/NONDIM_TIME
 dt = 0.01
 dynamics_equation = minimum_fuel_ODE
