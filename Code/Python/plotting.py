@@ -10,11 +10,11 @@ mpl.rcParams["mathtext.fontset"] = "cm"
 
 def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", alpha=0.5, scale="log", ylim=(None, None)):
 
-    lr_labels = [r"$\lambda_1$ Error", r"$\lambda_2$ Error", r"$\lambda_3$ Error"]
-    lv_labels = [r"$\lambda_4$ Error", r"$\lambda_5$ Error", r"$\lambda_6$ Error"]
-    r_labels = [r"$x$ Error [km]", r"$y$ Error [km]", r"$z$ Error [km]"]
-    v_labels = [r"$v_x$ Error [m/s]", r"$v_y$ Error [m/s]", r"$v_z$ Error [m/s]"]
-    a_labels = [r"$a_x$ Error [mm/s$^2$]", r"$a_y$ Error [mm/s$^2$]", r"$a_z$ Error [mm/s$^2$]"]
+    lr_labels = [r"$\lambda_1$", r"$\lambda_2$", r"$\lambda_3$"]
+    lv_labels = [r"$\lambda_4$", r"$\lambda_5$", r"$\lambda_6$"]
+    r_labels = [r"$x$ [km]", r"$y$ [km]", r"$z$ [km]"]
+    v_labels = [r"$v_x$ [m/s]", r"$v_y$ [m/s]", r"$v_z$ [m/s]"]
+    a_labels = [r"$a_x$ [mm/s$^2$]", r"$a_y$ [mm/s$^2$]", r"$a_z$ [mm/s$^2$]"]
     c_labels = a_labels
     label_dict = {"position":r_labels, "velocity":v_labels, "acceleration":a_labels, "lambdar":lr_labels, "lambdav":lv_labels, "control":c_labels}
     scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1e3/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1e6/NONDIM_TIME**2, "lambdar":1, "lambdav":1, "control":NONDIM_LENGTH*1e6/NONDIM_TIME**2}
@@ -36,8 +36,8 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
         
         ax = axes[ax_index]
         if ax_index == 2:
-            ax.set_xlabel("Time [days]", fontname="Helvetica")
-        ax.set_ylabel(ylabels[ax_index], fontname="Helvetica")
+            ax.set_xlabel("Time [days]", fontname="Times New Roman")
+        ax.set_ylabel(ylabels[ax_index], fontname="Times New Roman")
         ax.set_yscale(scale)
         ax.tick_params(axis="both", which="major", labelsize=6.5)
         if scale == "log":
@@ -70,6 +70,15 @@ def compute_estimation_errors(truth, posterior_estimates, state_indices: tuple):
         estimation_errors.append(posterior_estimate_vals[state_indices[0]:state_indices[1], :] - truth[state_indices[0]:state_indices[1], :])
     
     return estimation_errors
+
+def compute_norm_errors(estimation_errors, state_indices: tuple):
+
+    norm_errors = []
+
+    for estimation_error_vals in estimation_errors:
+        norm_errors.append(np.linalg.norm(estimation_error_vals[state_indices[0]:state_indices[1], :], axis=0)[None, :])
+    
+    return norm_errors
 
 def compute_anees(estimation_errors, posterior_covariances, state_indices: tuple):
 
@@ -106,7 +115,7 @@ def compute_avg_error(estimation_errors, state_indices: tuple):
     num_runs = len(estimation_errors)
     num_steps = np.size(estimation_errors[0], axis=1)
 
-    avg_error_vals = np.zeros((state_indices[1]- state_indices[0], num_steps))
+    avg_error_vals = np.zeros((state_indices[1] - state_indices[0], num_steps))
     for run_index in range(num_runs):
         avg_error_vals += abs(estimation_errors[run_index][state_indices[0]:state_indices[1]])
     avg_error_vals /= num_runs

@@ -89,3 +89,26 @@ def compute_primer_vectors(lambda_v_vals):
 
 def get_chi2_cutoff(k, p):
     return scipy.optimize.root_scalar(lambda chi: 1 - scipy.stats.chi2.cdf(chi, k) - p, x0=k).root
+
+def get_thrusting_arc_indices(control_history):
+
+    control_norms = np.linalg.norm(control_history, axis=0)
+    control_bool = control_norms > 0.01
+
+    num_timesteps = len(control_bool)
+    thrusting_arc_indices = []
+    started_flag = 0
+    for timestep_index in range(num_timesteps):
+        if control_bool[timestep_index] and started_flag == 0:
+            start_index = timestep_index
+            started_flag = 1
+        elif control_bool[timestep_index] == 0 and started_flag == 1:
+            end_index = timestep_index
+            started_flag = 0
+            thrusting_arc_indices.append((start_index, end_index))
+        elif timestep_index == num_timesteps - 1 and started_flag == 1:
+            end_index = timestep_index
+            started_flag = 0
+            thrusting_arc_indices.append((start_index, end_index))
+    
+    return thrusting_arc_indices

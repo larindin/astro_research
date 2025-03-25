@@ -238,15 +238,34 @@ estimation_errors = compute_estimation_errors(truth_vals, output_estimates, (0, 
 three_sigmas = compute_3sigmas(output_covariances, (0, 12))
 control_3sigmas = compute_3sigmas(control_covariances, (0, 3))
 
+position_norm_errors = compute_norm_errors(estimation_errors, (0, 3))
+velocity_norm_errors = compute_norm_errors(estimation_errors, (3, 6))
+ctrl_norm_errors = compute_norm_errors(control_errors, (0, 3))
+
+avg_position_norm_errors = compute_avg_error(position_norm_errors, (0, 1)) * NONDIM_LENGTH
+avg_velocity_norm_errors = compute_avg_error(velocity_norm_errors, (0, 1)) * NONDIM_LENGTH*1e3/NONDIM_TIME
+avg_ctrl_norm_errors = compute_avg_error(ctrl_norm_errors, (0, 1)) * NONDIM_LENGTH*1e6/NONDIM_TIME**2
+
 avg_error_vals = compute_avg_error(estimation_errors, (0, 6))
+avg_error_vals[0:3] *= NONDIM_LENGTH
+avg_error_vals[3:6] *= NONDIM_LENGTH*1e3/NONDIM_TIME
+avg_ctrl_error_vals = compute_avg_error(control_errors, (0, 3))
+avg_ctrl_error_vals *= NONDIM_LENGTH*1e6/NONDIM_TIME**2
+
+avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
+avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
+
+np.save("data/OCIMM_avg_error1.npy", avg_error_vals)
+np.save("data/OCIMM_avg_norm_error1.npy", avg_norm_error_vals)
+
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15, ylim=(1e-4, 1e5))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15, ylim=(1e-5, 1e3))
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, ylim=(1e-8, 1e4))
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
@@ -254,7 +273,8 @@ plot_time = time_vals * NONDIM_TIME_HR/24
 
 ax = plt.figure().add_subplot()
 ax.plot(plot_time, anees_vals)
-ax.set_ylim(0, 20)
+ax.set_ylim(0, 50)
+ax.hlines(6, 0, plot_time[-1])
 
 rmse_r_fig = plt.figure()
 rmse_ax_labels = ["$x$", "$y$", "$z$"]
@@ -271,6 +291,15 @@ for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = rmse_v_fig.add_subplot(thing)
     ax.plot(plot_time, avg_error_vals[ax_index+3], alpha=0.75)
+    ax.set_ylabel(rmse_ax_labels[ax_index])
+ax.set_xlabel("Time [days]")
+
+rmse_a_fig = plt.figure()
+rmse_ax_labels = ["$a_x$", "$a_y$", "$a_z$"]
+for ax_index in range(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = rmse_a_fig.add_subplot(thing)
+    ax.plot(plot_time, avg_ctrl_error_vals[ax_index], alpha=0.75)
     ax.set_ylabel(rmse_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
 

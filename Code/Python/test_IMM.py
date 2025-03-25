@@ -268,8 +268,10 @@ control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
 for ax_index in range(3):
     thing = int("31" + str(ax_index + 1))
     ax = control_fig.add_subplot(thing)
-    ax.scatter(plot_time, truth_control[ax_index], alpha=0.5, s=4)
-    ax.scatter(plot_time, posterior_control[ax_index], alpha=0.5, s=4)
+    # ax.scatter(plot_time, truth_control[ax_index], alpha=0.5, s=4)
+    # ax.scatter(plot_time, posterior_control[ax_index], alpha=0.5, s=4)
+    ax.plot(plot_time, truth_control[ax_index], alpha=0.5)
+    ax.plot(plot_time, posterior_control[ax_index], alpha=0.5)
     ax.set_ylabel(control_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
