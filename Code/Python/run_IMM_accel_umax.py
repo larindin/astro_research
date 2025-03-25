@@ -58,6 +58,8 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
+# check_results[:, 215:] = 0
+# check_results[:, 300:] = 1
 check_results[:, 350:] = 0
 check_results[:, 450:] = 1
 
@@ -230,8 +232,8 @@ anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
-np.save("data/accel_IMM_avg_error1.npy", avg_error_vals)
-np.save("data/accel_IMM_avg_norm_error1.npy", avg_norm_error_vals)
+np.save("data/accel_IMM_avg_error2.npy", avg_error_vals)
+np.save("data/accel_IMM_avg_norm_error2.npy", avg_norm_error_vals)
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear")
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear")

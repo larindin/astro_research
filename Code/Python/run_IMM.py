@@ -71,6 +71,8 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
+# check_results[:, 215:] = 0
+# check_results[:, 300:] = 1
 check_results[:, 350:] = 0
 check_results[:, 450:] = 1
 
@@ -255,8 +257,8 @@ avg_ctrl_error_vals *= NONDIM_LENGTH*1e6/NONDIM_TIME**2
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
-np.save("data/OCIMM_avg_error1.npy", avg_error_vals)
-np.save("data/OCIMM_avg_norm_error1.npy", avg_norm_error_vals)
+np.save("data/OCIMM_avg_error2.npy", avg_error_vals)
+np.save("data/OCIMM_avg_norm_error2.npy", avg_norm_error_vals)
 
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
@@ -270,6 +272,7 @@ plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, y
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
 plot_time = time_vals * NONDIM_TIME_HR/24
+plot_time = time_vals
 
 ax = plt.figure().add_subplot()
 ax.plot(plot_time, anees_vals)
