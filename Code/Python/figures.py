@@ -2,6 +2,7 @@
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from CR3BP import *
 from configuration_IMM import *
 from helper_functions import *
@@ -9,28 +10,52 @@ from plotting import *
 
 backprop_time_vals = -np.arange(0, backprop_time, dt)
 forprop_time_vals = np.arange(0, final_time, dt)
+additional_time_vals = np.arange(forprop_time_vals[-1], forprop_time_vals[-1]+additional_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
+additional_tspan = np.array([additional_time_vals[0], additional_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
 back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), 1e-12)))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
-truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
-time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
+additional_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, additional_tspan, forward_propagation[0:6, -1], args=(mu,), t_eval=additional_time_vals, atol=1e-12, rtol=1e-12).y
+additional_propagation = np.vstack((additional_propagation, np.full(np.shape(additional_propagation), 1e-12)))
+truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation, additional_propagation[:, 1:]), axis=1)
+time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, additional_time_vals[1:])) + abs(backprop_time_vals[-1])
 
 # accel_IMM_avg_error_vals = np.load("data/accel_IMM_avg_error.npy")
 # OCIMM_avg_error_vals = np.load("data/OCIMM_avg_error.npy")
 # accel_IMM_avg_norm_error_vals = np.load("data/accel_IMM_avg_norm_error.npy")
 # OCIMM_avg_norm_error_vals = np.load("data/OCIMM_avg_norm_error.npy")
+# accel_IMM_est_control_vals = np.load("data/accel_IMM_est_control.npy")
+# OCIMM_est_control_vals = np.load("data/OCIMM_est_control.npy")
+# accel_IMM_est_error_vals = np.load("data/accel_IMM_est_errors.npy")
+# OCIMM_est_error_vals = np.load("data/OCIMM_est_errors.npy")
+# accel_IMM_est_3sigma_vals = np.load("data/accel_IMM_est_3sigmas.npy")
+# OCIMM_est_3sigma_vals = np.load("data/OCIMM_est_errors.npy")
+# accel_IMM_ctrl_errors = np.load("data/accel_IMM_ctrl_errors.npy")
+# OCIMM_ctrl_errors = np.load("data/OCIMM_ctrl_errors.npy")
+# accel_IMM_ctrl_3sigmas = np.load("data/accel_IMM_ctrl_3sigmas.npy")
+# OCIMM_ctrl_3sigmas = np.load("data/OCIMM_ctrl_3sigmas.npy")
 
 accel_IMM_avg_error_vals = np.load("data/accel_IMM_avg_error1.npy")
 OCIMM_avg_error_vals = np.load("data/OCIMM_avg_error1.npy")
 accel_IMM_avg_norm_error_vals = np.load("data/accel_IMM_avg_norm_error1.npy")
 OCIMM_avg_norm_error_vals = np.load("data/OCIMM_avg_norm_error1.npy")
+accel_IMM_est_control_vals = np.load("data/accel_IMM_est_control1.npy")
+OCIMM_est_control_vals = np.load("data/OCIMM_est_control1.npy")
+accel_IMM_est_error_vals = np.load("data/accel_IMM_est_errors1.npy")
+OCIMM_est_error_vals = np.load("data/OCIMM_est_errors1.npy")
+accel_IMM_est_3sigma_vals = np.load("data/accel_IMM_est_3sigmas1.npy")
+OCIMM_est_3sigma_vals = np.load("data/OCIMM_est_3sigmas1.npy")
+accel_IMM_ctrl_errors = np.load("data/accel_IMM_ctrl_errors1.npy")
+OCIMM_ctrl_errors = np.load("data/OCIMM_ctrl_errors1.npy")
+accel_IMM_ctrl_3sigmas = np.load("data/accel_IMM_ctrl_3sigmas1.npy")
+OCIMM_ctrl_3sigmas = np.load("data/OCIMM_ctrl_3sigmas1.npy")
+OCIMM_mode_probabilities = np.load("data/OCIMM_mode_probabilities1.npy")
 
 check_results = np.ones(len(time_vals))
-check_results[350:] = 0
-check_results[450:] = 1
+check_results[15*24:20*24] = 0
 check_results = check_results == 0
 
 observation_arc_indices = get_thrusting_arc_indices(check_results[None, :])
@@ -54,98 +79,161 @@ final_orbit_prop = scipy.integrate.solve_ivp(CR3BP_DEs, [0, 10], final_state, ar
 
 plot_time = time_vals * NONDIM_TIME_HR/24
 
-ax = plt.figure(layout="constrained").add_subplot()
-ax.plot(plot_time, OCIMM_avg_norm_error_vals[0], alpha=1, c="red")
-ax.plot(plot_time, accel_IMM_avg_norm_error_vals[0], alpha=1, ls="--", c="black")
-for arc in thrusting_arc_indices:
-    ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
-ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
-ax.set_ylabel(r"$||\boldsymbol{r} - \hat{\boldsymbol{r}}||_2$  [km]", fontname="Times New Roman")
-ax.set_xlabel("Time [days]", fontname="Times New Roman")
-ax.grid(True)
-ax.legend(["OCIMM", "IMM", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False)
+for run_index in range(num_runs):
+    coasting_bool = OCIMM_mode_probabilities[run_index][0] > 0.5
+    for index in range(3):
+        OCIMM_ctrl_3sigmas[run_index][index, coasting_bool] = 2*umax_dim
+        
+OCIMM_est_error_vals[:, 0:3] *= NONDIM_LENGTH
+OCIMM_est_3sigma_vals[:, 0:3] *= NONDIM_LENGTH
+OCIMM_est_error_vals[:, 3:6] *= NONDIM_LENGTH*1000/NONDIM_TIME
+OCIMM_est_3sigma_vals[:, 3:6] *= NONDIM_LENGTH*1000/NONDIM_TIME
 
-ax = plt.figure(layout="constrained").add_subplot()
-ax.plot(plot_time, OCIMM_avg_norm_error_vals[1], alpha=1, c="red")
-ax.plot(plot_time, accel_IMM_avg_norm_error_vals[1], alpha=1, ls="--", c="black")
-for arc in thrusting_arc_indices:
-    ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
-ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
-ax.set_ylabel(r"$||\boldsymbol{v} - \hat{\boldsymbol{v}}||_2$  [m/s]", fontname="Times New Roman")
-ax.set_xlabel("Time [days]", fontname="Times New Roman")
-ax.grid(True)
-ax.legend(["OCIMM", "IMM", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False)
+ax = plt.figure().add_subplot()
+ax.hlines(1, 0, 1, colors="black", label="blank")
+ax.hlines(1, 0, 1, colors="red", label="blank2")
+myhandle, labels = ax.get_legend_handles_labels()
 
-ax = plt.figure(layout="constrained").add_subplot()
-ax.plot(plot_time, OCIMM_avg_norm_error_vals[2], alpha=1, c="red")
-ax.plot(plot_time, accel_IMM_avg_norm_error_vals[2], alpha=1, ls="--", c="black")
-for arc in thrusting_arc_indices:
-    ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
-ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
-ax.set_ylabel(r"$||\boldsymbol{a} - \hat{\boldsymbol{a}}||_2$  [mm/s$^2$]", fontname="Times New Roman")
-ax.set_xlabel("Time [days]", fontname="Times New Roman")
-ax.grid(True)
-ax.legend(["OCIMM", "IMM", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False)
-
-rmse_r_fig = plt.figure()
-rmse_ax_labels = ["$x$", "$y$", "$z$"]
-ylims = []
+fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
+ax_labels = [r"$x$ [km]", r"$y$ [km]", r"$z$ [km]"]
 for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_r_fig.add_subplot(thing)
-    ax.plot(plot_time, accel_IMM_avg_error_vals[ax_index], alpha=1, ls="--", c="black")
-    ax.plot(plot_time, OCIMM_avg_error_vals[ax_index], alpha=1, c="red")
-    ax.set_ylabel(rmse_ax_labels[ax_index])
+    ax = axes[ax_index]
+    for run_index in range(num_runs):
+        ax.plot(plot_time, abs(OCIMM_est_error_vals[run_index][ax_index]), label="Estimation Error", alpha=0.1, color="black")
+        ax.plot(plot_time, OCIMM_est_3sigma_vals[run_index][ax_index], label=r"$3\sigma$-bounds", alpha=0.1, color="red")
+    for arc in thrusting_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
+    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    for tick in ax.get_xticklabels():
+        tick.set_fontname("Times New Roman")
+    for tick in ax.get_yticklabels():
+        tick.set_fontname("Times New Roman")
+    ax.set_ylabel(ax_labels[ax_index], fontname="Times New Roman")
+    ax.grid(axis="y", which="both", linestyle="--")
+    ax.set_yscale("log")
+    ax.set_xlim(0, 35)
+    ax.set_ylim(1e-1, 1e5)
+ax.set_xlabel("Time [days]", fontname="Times New Roman")
+handles, labels = ax.get_legend_handles_labels()
+handles[0] = myhandle[0]
+handles[1] = myhandle[1]
+handles[2] = handles[-2]
+handles[3] = handles[-1]
+fig.legend(handles[0:4], ["Estimation Error", r"$3\sigma$-bounds", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+plt.savefig("figures/position_3sigmas.png", dpi=600, bbox_inches="tight")
+
+fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
+ax_labels = [r"$v_x$ [m/s]", r"$v_y$ [m/s]", r"$v_z$ [m/s]"]
+for ax_index in range(3):
+    ax = axes[ax_index]
+    for run_index in range(num_runs):
+        ax.plot(plot_time, abs(OCIMM_est_error_vals[run_index][ax_index+3]), label="Estimation Error", alpha=0.1, color="black")
+        ax.plot(plot_time, OCIMM_est_3sigma_vals[run_index][ax_index+3], label=r"$3\sigma$-bounds", alpha=0.1, color="red")
+    for arc in thrusting_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
+    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    for tick in ax.get_xticklabels():
+        tick.set_fontname("Times New Roman")
+    for tick in ax.get_yticklabels():
+        tick.set_fontname("Times New Roman")
+    ax.set_ylabel(ax_labels[ax_index], fontname="Times New Roman")
+    ax.grid(axis="y", which="both", linestyle="--")
+    ax.set_yscale("log")
+    ax.set_xlim(0, 35)
+    ax.set_ylim(1e-3, 1e3)
+ax.set_xlabel("Time [days]", fontname="Times New Roman")
+handles, labels = ax.get_legend_handles_labels()
+handles[0] = myhandle[0]
+handles[1] = myhandle[1]
+handles[2] = handles[-2]
+handles[3] = handles[-1]
+fig.legend(handles[0:4], ["Estimation Error", r"$3\sigma$-bounds", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+plt.savefig("figures/velocity_3sigmas.png", dpi=600, bbox_inches="tight")
+
+fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
+ax_labels = [r"$u_x$ [mm/s$^2$]", r"$u_y$ [mm/s$^2$]", r"$u_z$ [mm/s$^2$]"]
+for ax_index in range(3):
+    ax = axes[ax_index]
+    for run_index in range(num_runs):
+        ax.plot(plot_time, abs(OCIMM_ctrl_errors[run_index][ax_index]), label="Estimation Error", alpha=0.1, color="black")
+        ax.plot(plot_time, OCIMM_ctrl_3sigmas[run_index][ax_index]*OCIMM_mode_probabilities[run_index][1], label=r"$3\sigma$-bounds", alpha=0.1, color="red")
+    for arc in thrusting_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
+    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    for tick in ax.get_xticklabels():
+        tick.set_fontname("Times New Roman")
+    for tick in ax.get_yticklabels():
+        tick.set_fontname("Times New Roman")
+    ax.set_ylabel(ax_labels[ax_index], fontname="Times New Roman")
+    ax.grid(axis="y", which="both", linestyle="--")
+    ax.set_yscale("log")
+    ax.set_xlim(0, 35)
+    ax.set_ylim(1e-5, 1e1)
+ax.set_xlabel("Time [days]", fontname="Times New Roman")
+handles, labels = ax.get_legend_handles_labels()
+handles[0] = myhandle[0]
+handles[1] = myhandle[1]
+handles[2] = handles[-2]
+handles[3] = handles[-1]
+fig.legend(handles[0:4], ["Estimation Error", r"$3\sigma$-bounds", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+plt.savefig("figures/control_3sigmas.png", dpi=600, bbox_inches="tight")
+
+MAE_fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
+MAE_fig_labels = [r"$||\boldsymbol{r} - \hat{\boldsymbol{r}}||_2$  [km]", r"$||\boldsymbol{v} - \hat{\boldsymbol{v}}||_2$  [m/s]", r"$||\boldsymbol{a} - \hat{\boldsymbol{a}}||_2$  [mm/s$^2$]"]
+for ax_index in range(3):
+    ax = axes[ax_index]
+    ax.plot(plot_time, OCIMM_avg_norm_error_vals[ax_index], alpha=1, c="red")
+    ax.plot(plot_time, accel_IMM_avg_norm_error_vals[ax_index], alpha=1, c="black", ls="--")
+    ax.set_ylabel(MAE_fig_labels[ax_index], fontname="Times New Roman")
+    # ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
-    ylims.append(ax.get_ylim())
-upper_bound = max([ylims[ax_index][1] for ax_index in range(3)])
-lower_bound = min([ylims[ax_index][0] for ax_index in range(3)])
-for ax_index in range(3):
-    ax.set_ylim(lower_bound, upper_bound)
-ax.set_xlabel("Time [days]")
-ax.legend(["IMM", "OCIMM"])
+    for tick in ax.get_xticklabels():
+        tick.set_fontname("Times New Roman")
+    for tick in ax.get_yticklabels():
+        tick.set_fontname("Times New Roman")
+    ax.grid(True)
+    ax.set_xlim(0, 35)
+ax.set_xlabel("Time [days]", fontname="Times New Roman")
+MAE_fig.align_ylabels()
+MAE_fig.legend(["OCIMM", "IMM", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+# MAE_fig.legend(["OCIMM", "IMM", "Observation Gap", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+# plt.savefig("figures/MAE_normal.png", dpi=600, bbox_inches="tight")
 
-rmse_v_fig = plt.figure()
-rmse_ax_labels = ["$v_x$", "$v_y$", "$v_z$"]
-ylims=[]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_v_fig.add_subplot(thing)
-    ax.plot(plot_time, accel_IMM_avg_error_vals[ax_index+3], alpha=1, ls="--", c="black")
-    ax.plot(plot_time, OCIMM_avg_error_vals[ax_index+3], alpha=1, c="red")
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-    for arc in thrusting_arc_indices:
-        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--")
-    ylims.append(ax.get_ylim())
-upper_bound = max([ylims[ax_index][1] for ax_index in range(3)])
-lower_bound = min([ylims[ax_index][0] for ax_index in range(3)])
-for ax_index in range(3):
-    ax.set_ylim(lower_bound, upper_bound)
-ax.set_xlabel("Time [days]")
+ax = plt.figure().add_subplot()
+ax.hlines(1, 0, 1, colors="red", label="blank")
+myhandle, labels = ax.get_legend_handles_labels()
 
-rmse_a_fig = plt.figure()
-rmse_ax_labels = ["$a_x$", "$a_y$", "$a_z$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_a_fig.add_subplot(thing)
-    ax.plot(plot_time, accel_IMM_avg_error_vals[ax_index+6], alpha=1, ls="--", c="black")
-    ax.plot(plot_time, OCIMM_avg_error_vals[ax_index+6], alpha=1, c="red")
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-    ax.set_ylim(0, umax_dim)
-    for arc in thrusting_arc_indices:
-        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--")
-ax.set_xlabel("Time [days]")
+start_index = 13*24
+end_index = 22*24
+start_index = 0
+end_index = -1
 
-fig, axes = plt.subplots(3, 1, layout="constrained") 
+fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
 control_ax_labels = ["$u_x$ [mm/s$^2$]", "$u_y$ [mm/s$^2$]", "$u_z$ [mm/s$^2$]"]
 for ax_index in range(3):
     ax = axes[ax_index]
-    ax.plot(plot_time, truth_control[ax_index], c="black")
-    ax.set_ylabel(control_ax_labels[ax_index], fontname="Times New Roman")
-    ax.set_ylim(-umax_dim, umax_dim)
-    ax.grid(True)
-ax.set_xlabel("Time [days]", fontname="Times New Roman")
+    ax.plot(plot_time[start_index:end_index], truth_control[ax_index, start_index:end_index], alpha=1, c="black", zorder=3, label="Truth")
+    for run_index in range(num_runs):
+        ax.step(plot_time[start_index:end_index], OCIMM_est_control_vals[run_index, ax_index, start_index:end_index], alpha=0.1, c="red", label="Estimated")
+    for arc in thrusting_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
+    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    ax.set_ylabel(control_ax_labels[ax_index], fontname="Times New Roman", fontsize=10)
+    ax.grid(axis="y", which="both", linestyle="--")
+    for tick in ax.get_xticklabels():
+        tick.set_fontname("Times New Roman")
+    for tick in ax.get_yticklabels():
+        tick.set_fontname("Times New Roman")
+    ax.set_xlim(0, 35)
+    ax.set_ylim(-0.4, 0.4)
+ax.set_xlabel("Time [days]", fontname="Times New Roman", fontsize=10)
+handles, labels = ax.get_legend_handles_labels()
+handles[1] = myhandle[0]
+handles[2] = handles[-2]
+handles[3] = handles[-1]
+fig.legend(handles[0:4], ["Truth Control", "Estimated Control", "Maneuver", "Observation Gap"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+plt.savefig("figures/control.png", dpi=600, bbox_inches="tight")
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.scatter(0, 0, 0, color="grey", s=6, label="Moon")
@@ -161,7 +249,7 @@ ax.plot_wireframe(x, y, z, color="grey", label="Moon")
 ax.plot(initial_orbit_prop[0]*NONDIM_LENGTH, initial_orbit_prop[1]*NONDIM_LENGTH, initial_orbit_prop[2]*NONDIM_LENGTH, label="Departure Orbit", color="blue")
 ax.scatter(truth_vals[0, 0]*NONDIM_LENGTH, truth_vals[1, 0]*NONDIM_LENGTH, truth_vals[2, 0]*NONDIM_LENGTH, marker="^", label="Departure Point", color="blue")
 ax.plot(final_orbit_prop[0]*NONDIM_LENGTH, final_orbit_prop[1]*NONDIM_LENGTH, final_orbit_prop[2]*NONDIM_LENGTH, label="Arrival Orbit", color="red")
-ax.scatter(final_state[0]*NONDIM_LENGTH, final_state[1]*NONDIM_LENGTH, final_state[2]*NONDIM_LENGTH, marker="v", label="Arrival Point", color="red")
+ax.scatter(truth_vals[0, -1]*NONDIM_LENGTH, truth_vals[1, -1]*NONDIM_LENGTH, truth_vals[2, -1]*NONDIM_LENGTH, marker="v", label="Arrival Point", color="red")
 ax.plot(coasting_truth[0]*NONDIM_LENGTH, coasting_truth[1]*NONDIM_LENGTH, coasting_truth[2]*NONDIM_LENGTH, c="black", label="Coasting Arc")
 ax.plot(thrusting_truth[0]*NONDIM_LENGTH, thrusting_truth[1]*NONDIM_LENGTH, thrusting_truth[2]*NONDIM_LENGTH, c="magenta", label="Thrusting Arc")
 ax.grid(False)
@@ -197,4 +285,107 @@ handles[0] = myhandle[0]
 ax.legend(handles, labels, prop={"family":"Times New Roman", "size":6.5}, fancybox=False, loc="center right")
 
 
-plt.show()
+# ax = plt.figure(layout="constrained").add_subplot()
+# ax.plot(plot_time, OCIMM_avg_norm_error_vals[0], alpha=1, c="red")
+# ax.plot(plot_time, accel_IMM_avg_norm_error_vals[0], alpha=1, ls="--", c="black")
+# ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
+# for arc in thrusting_arc_indices:
+#     ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
+# ax.set_ylabel(r"$||\boldsymbol{r} - \hat{\boldsymbol{r}}||_2$  [km]", fontname="Times New Roman")
+# ax.set_xlabel("Time [days]", fontname="Times New Roman")
+# ax.grid(True)
+# ax.legend(["OCIMM", "IMM", "Observation Gap", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False)
+# for tick in ax.get_xticklabels():
+#     tick.set_fontname("Times New Roman")
+# for tick in ax.get_yticklabels():
+#     tick.set_fontname("Times New Roman")
+
+# ax = plt.figure(layout="constrained").add_subplot()
+# ax.plot(plot_time, OCIMM_avg_norm_error_vals[1], alpha=1, c="red")
+# ax.plot(plot_time, accel_IMM_avg_norm_error_vals[1], alpha=1, ls="--", c="black")
+# ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
+# for arc in thrusting_arc_indices:
+#     ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
+# ax.set_ylabel(r"$||\boldsymbol{v} - \hat{\boldsymbol{v}}||_2$  [m/s]", fontname="Times New Roman")
+# ax.set_xlabel("Time [days]", fontname="Times New Roman")
+# ax.grid(True)
+# ax.legend(["OCIMM", "IMM", "Observation Gap", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False)
+# for tick in ax.get_xticklabels():
+#     tick.set_fontname("Times New Roman")
+# for tick in ax.get_yticklabels():
+#     tick.set_fontname("Times New Roman")
+
+# ax = plt.figure(layout="constrained").add_subplot()
+# ax.plot(plot_time, OCIMM_avg_norm_error_vals[2], alpha=1, c="red")
+# ax.plot(plot_time, accel_IMM_avg_norm_error_vals[2], alpha=1, ls="--", c="black")
+# ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
+# for arc in thrusting_arc_indices:
+#     ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
+# ax.set_ylabel(r"$||\boldsymbol{a} - \hat{\boldsymbol{a}}||_2$  [mm/s$^2$]", fontname="Times New Roman")
+# ax.set_xlabel("Time [days]", fontname="Times New Roman")
+# ax.grid(True)
+# ax.legend(["OCIMM", "IMM", "Observation Gap", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False)
+# for tick in ax.get_xticklabels():
+#     tick.set_fontname("Times New Roman")
+# for tick in ax.get_yticklabels():
+#     tick.set_fontname("Times New Roman")
+
+# rmse_r_fig = plt.figure()
+# rmse_ax_labels = ["$x$", "$y$", "$z$"]
+# ylims = []
+# for ax_index in range(3):
+#     thing = int("31" + str(ax_index + 1))
+#     ax = rmse_r_fig.add_subplot(thing)
+#     ax.plot(plot_time, accel_IMM_avg_error_vals[ax_index], alpha=1, ls="--", c="black")
+#     ax.plot(plot_time, OCIMM_avg_error_vals[ax_index], alpha=1, c="red")
+#     ax.set_ylabel(rmse_ax_labels[ax_index])
+#     for arc in thrusting_arc_indices:
+#         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
+#     ylims.append(ax.get_ylim())
+# upper_bound = max([ylims[ax_index][1] for ax_index in range(3)])
+# lower_bound = min([ylims[ax_index][0] for ax_index in range(3)])
+# for ax_index in range(3):
+#     ax.set_ylim(lower_bound, upper_bound)
+# ax.set_xlabel("Time [days]")
+# ax.legend(["IMM", "OCIMM"])
+
+# rmse_v_fig = plt.figure()
+# rmse_ax_labels = ["$v_x$", "$v_y$", "$v_z$"]
+# ylims=[]
+# for ax_index in range(3):
+#     thing = int("31" + str(ax_index + 1))
+#     ax = rmse_v_fig.add_subplot(thing)
+#     ax.plot(plot_time, accel_IMM_avg_error_vals[ax_index+3], alpha=1, ls="--", c="black")
+#     ax.plot(plot_time, OCIMM_avg_error_vals[ax_index+3], alpha=1, c="red")
+#     ax.set_ylabel(rmse_ax_labels[ax_index])
+#     for arc in thrusting_arc_indices:
+#         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--")
+#     ylims.append(ax.get_ylim())
+# upper_bound = max([ylims[ax_index][1] for ax_index in range(3)])
+# lower_bound = min([ylims[ax_index][0] for ax_index in range(3)])
+# for ax_index in range(3):
+#     ax.set_ylim(lower_bound, upper_bound)
+# ax.set_xlabel("Time [days]")
+
+# rmse_a_fig = plt.figure()
+# rmse_ax_labels = ["$a_x$", "$a_y$", "$a_z$"]
+# for ax_index in range(3):
+#     thing = int("31" + str(ax_index + 1))
+#     ax = rmse_a_fig.add_subplot(thing)
+#     ax.plot(plot_time, accel_IMM_avg_error_vals[ax_index+6], alpha=1, ls="--", c="black")
+#     ax.plot(plot_time, OCIMM_avg_error_vals[ax_index+6], alpha=1, c="red")
+#     ax.set_ylabel(rmse_ax_labels[ax_index])
+#     ax.set_ylim(0, umax_dim)
+#     for arc in thrusting_arc_indices:
+#         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--")
+# ax.set_xlabel("Time [days]")
+
+# fig, axes = plt.subplots(3, 1, layout="constrained") 
+# control_ax_labels = ["$u_x$ [mm/s$^2$]", "$u_y$ [mm/s$^2$]", "$u_z$ [mm/s$^2$]"]
+# for ax_index in range(3):
+#     ax = axes[ax_index]
+#     ax.plot(plot_time, truth_control[ax_index], c="black")
+#     ax.set_ylabel(control_ax_labels[ax_index], fontname="Times New Roman")
+#     ax.set_ylim(-umax_dim, umax_dim)
+#     ax.grid(True)
+# ax.set_xlabel("Time [days]", fontname="Times New Roman")

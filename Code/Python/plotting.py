@@ -14,7 +14,7 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
     lv_labels = [r"$\lambda_4$", r"$\lambda_5$", r"$\lambda_6$"]
     r_labels = [r"$x$ [km]", r"$y$ [km]", r"$z$ [km]"]
     v_labels = [r"$v_x$ [m/s]", r"$v_y$ [m/s]", r"$v_z$ [m/s]"]
-    a_labels = [r"$a_x$ [mm/s$^2$]", r"$a_y$ [mm/s$^2$]", r"$a_z$ [mm/s$^2$]"]
+    a_labels = [r"$u_x$ [mm/s$^2$]", r"$u_y$ [mm/s$^2$]", r"$u_z$ [mm/s$^2$]"]
     c_labels = a_labels
     label_dict = {"position":r_labels, "velocity":v_labels, "acceleration":a_labels, "lambdar":lr_labels, "lambdav":lv_labels, "control":c_labels}
     scaling_dict = {"position":NONDIM_LENGTH, "velocity":NONDIM_LENGTH*1e3/NONDIM_TIME, "acceleration":NONDIM_LENGTH*1e6/NONDIM_TIME**2, "lambdar":1, "lambdav":1, "control":NONDIM_LENGTH*1e6/NONDIM_TIME**2}
@@ -28,7 +28,7 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
     
     plot_time = time_vals * NONDIM_TIME_HR/24
 
-    fig, axes = plt.subplots(3, 1, layout="constrained")
+    fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
     # fig.set_figheight(6.4)
     
     for ax_index in range(3):
@@ -36,10 +36,10 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
         
         ax = axes[ax_index]
         if ax_index == 2:
-            ax.set_xlabel("Time [days]", fontname="Times New Roman")
-        ax.set_ylabel(ylabels[ax_index], fontname="Times New Roman")
+            ax.set_xlabel("Time [days]", fontname="Times New Roman", fontsize=10)
+        ax.set_ylabel(ylabels[ax_index], fontname="Times New Roman", fontsize=10)
         ax.set_yscale(scale)
-        ax.tick_params(axis="both", which="major", labelsize=6.5)
+        ax.tick_params(axis="both", which="major", labelsize=10)
         if scale == "log":
             for run_num in range(num_runs):
                 ax.step(plot_time, abs(estimation_errors[run_num][state_index])*scaling_factor, c="black", alpha=alpha)
@@ -52,6 +52,11 @@ def plot_3sigma(time_vals, estimation_errors, three_sigmas, labels="position", a
                 ax.step(plot_time, -three_sigmas[run_num][state_index]*scaling_factor, c="red", ls="-", alpha=alpha)
                 ax.grid(True)
         ax.set_ylim(*ylim)
+        ax.set_xlim(plot_time[0], plot_time[-1])
+        for tick in ax.get_xticklabels():
+            tick.set_fontname("Times New Roman")
+        for tick in ax.get_yticklabels():
+            tick.set_fontname("Times New Roman")
 
 def compute_3sigmas(posterior_covariances, state_indices: tuple):
 

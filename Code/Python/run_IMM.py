@@ -13,14 +13,18 @@ from plotting import *
 
 backprop_time_vals = -np.arange(0, backprop_time, dt)
 forprop_time_vals = np.arange(0, final_time, dt)
+additional_time_vals = np.arange(forprop_time_vals[-1], forprop_time_vals[-1]+additional_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
+additional_tspan = np.array([additional_time_vals[0], additional_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
 back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), 1e-12)))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
-truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
-time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
+additional_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, additional_tspan, forward_propagation[0:6, -1], args=(mu,), t_eval=additional_time_vals, atol=1e-12, rtol=1e-12).y
+additional_propagation = np.vstack((additional_propagation, np.full(np.shape(additional_propagation), 1e-12)))
+truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation, additional_propagation[:, 1:]), axis=1)
+time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, additional_time_vals[1:])) + abs(backprop_time_vals[-1])
 
 # ax = plt.figure().add_subplot(projection="3d")
 # ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
@@ -38,6 +42,8 @@ time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals))
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
 # sensor_position_vals = np.zeros((3, len(time_vals)))
 # sensor_position_vals[0] = L2
+print(dt)
+print(len(time_vals))
 
 num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
@@ -71,10 +77,12 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
+check_results[:, 15*24:20*24] = 0
+
 # check_results[:, 215:] = 0
 # check_results[:, 300:] = 1
-check_results[:, 350:] = 0
-check_results[:, 450:] = 1
+# check_results[:, 350:] = 0
+# check_results[:, 450:] = 1
 
 
 def coasting_costate_dynamics_equation(t, X, mu, umax):
@@ -230,11 +238,14 @@ control_errors = []
 control_covariances = []
 for run_index in range(num_runs):
     posterior_control = get_min_time_control(output_estimates[run_index][6:12, :], umax)
+    control_covariance_vals = get_min_time_ctrl_cov(output_estimates[run_index][6:12], output_covariances[run_index], umax)
     for index in range(3):
         posterior_control[index, :] *= mode_probabilities[run_index][1, :]
+        # control_covariance_vals[index, index, :] *= mode_probabilities[run_index][1, :]**2
     estimated_controls.append(posterior_control)
     control_errors.append(posterior_control - truth_control)
-    control_covariances.append(get_min_time_ctrl_cov(output_estimates[run_index][6:12], output_covariances[run_index], umax))
+    control_covariances.append(control_covariance_vals)
+    
 
 estimation_errors = compute_estimation_errors(truth_vals, output_estimates, (0, 12))
 three_sigmas = compute_3sigmas(output_covariances, (0, 12))
@@ -254,11 +265,20 @@ avg_error_vals[3:6] *= NONDIM_LENGTH*1e3/NONDIM_TIME
 avg_ctrl_error_vals = compute_avg_error(control_errors, (0, 3))
 avg_ctrl_error_vals *= NONDIM_LENGTH*1e6/NONDIM_TIME**2
 
+output_estimated_control = np.array(estimated_controls) * NONDIM_LENGTH*1e6/NONDIM_TIME**2
+
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
-np.save("data/OCIMM_avg_error2.npy", avg_error_vals)
-np.save("data/OCIMM_avg_norm_error2.npy", avg_norm_error_vals)
+# np.save("data/OCIMM_est_control1.npy", output_estimated_control)
+# np.save("data/OCIMM_avg_error1.npy", avg_error_vals)
+# np.save("data/OCIMM_avg_norm_error1.npy", avg_norm_error_vals)
+# np.save("data/OCIMM_est_errors1.npy", estimation_errors)
+# np.save("data/OCIMM_est_3sigmas1.npy", three_sigmas)
+# np.save("data/OCIMM_ctrl_errors1.npy", control_errors)
+# np.save("data/OCIMM_ctrl_3sigmas1.npy", control_3sigmas)
+np.save("data/OCIMM_mode_probabilities1.npy", mode_probabilities)
+quit()
 
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 

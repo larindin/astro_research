@@ -9,7 +9,7 @@ from helper_functions import *
 # Monte-carlo parameters
 seed = 0
 generator = np.random.default_rng(seed)
-num_runs = 10
+num_runs = 100
 
 #10, 13, 31, 32 are good
 
@@ -23,8 +23,9 @@ final_time = 25*24 / NONDIM_TIME_HR
 # final_time *= 0.8
 # final_time = 1
 backprop_time = 5 * 24 / NONDIM_TIME_HR
-# dt = 30*60/NONDIM_TIME
-dt = 0.01
+additional_time = 5 * 24 / NONDIM_TIME_HR
+dt = 1/NONDIM_TIME_HR
+# dt = 0.01
 dynamics_equation = minimum_fuel_ODE
 truth_rho = 1e-4
 mass = 1500 # kg

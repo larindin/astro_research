@@ -13,14 +13,18 @@ from plotting import *
 
 backprop_time_vals = -np.arange(0, backprop_time, dt)
 forprop_time_vals = np.arange(0, final_time, dt)
+additional_time_vals = np.arange(forprop_time_vals[-1], forprop_time_vals[-1]+additional_time, dt)
 backprop_tspan = np.array([backprop_time_vals[0], backprop_time_vals[-1]])
 forprop_tspan = np.array([forprop_time_vals[0], forprop_time_vals[-1]])
+additional_tspan = np.array([additional_time_vals[0], additional_time_vals[-1]])
 back_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, backprop_tspan, initial_truth[0:6], args=(mu,), t_eval=backprop_time_vals, atol=1e-12, rtol=1e-12).y
 back_propagation = np.vstack((back_propagation, np.full(np.shape(back_propagation), 1e-12)))
 back_propagation = np.flip(back_propagation, axis=1)
 forward_propagation = scipy.integrate.solve_ivp(dynamics_equation, forprop_tspan, initial_truth, args=truth_dynamics_args, t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
-truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
-time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
+additional_propagation = scipy.integrate.solve_ivp(CR3BP_DEs, additional_tspan, forward_propagation[0:6, -1], args=(mu,), t_eval=additional_time_vals, atol=1e-12, rtol=1e-12).y
+additional_propagation = np.vstack((additional_propagation, np.full(np.shape(additional_propagation), 1e-12)))
+truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation, additional_propagation[:, 1:]), axis=1)
+time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, additional_time_vals[1:])) + abs(backprop_time_vals[-1])
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
 # sensor_position_vals = np.zeros((3, len(time_vals)))
@@ -58,10 +62,12 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
+check_results[:, 15*24:20*24] = 0
+
 # check_results[:, 215:] = 0
 # check_results[:, 300:] = 1
-check_results[:, 350:] = 0
-check_results[:, 450:] = 1
+# check_results[:, 350:] = 0
+# check_results[:, 450:] = 1
 
 def coasting_acceleration_ODE(t, X, mu, umax):
     
@@ -229,18 +235,25 @@ avg_ctrl_error_vals = compute_avg_error(control_errors, (0, 3))
 avg_ctrl_error_vals *= NONDIM_LENGTH*1e6/NONDIM_TIME**2
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
+output_estimated_control = np.array(estimated_controls) * NONDIM_LENGTH*1e6/NONDIM_TIME**2
+
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
-np.save("data/accel_IMM_avg_error2.npy", avg_error_vals)
-np.save("data/accel_IMM_avg_norm_error2.npy", avg_norm_error_vals)
+np.save("data/accel_IMM_est_control1.npy", output_estimated_control)
+np.save("data/accel_IMM_avg_error1.npy", avg_error_vals)
+np.save("data/accel_IMM_avg_norm_error1.npy", avg_norm_error_vals)
+np.save("data/accel_IMM_est_errors1.npy", estimation_errors)
+np.save("data/accel_IMM_est_3sigmas1.npy", three_sigmas)
+np.save("data/accel_IMM_ctrl_errors1.npy", control_errors)
+np.save("data/accel_IMM_ctrl_3sigmas1.npy", control_3sigmas)
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear")
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear")
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", ylim=(-0.25, 0.25))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15, ylim=(1e-4, 1e5))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15, ylim=(1e-5, 1e3))
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, ylim=(1e-8, 1e4))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=1/num_runs, scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=1/num_runs, scale="linear")
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=1/num_runs, scale="linear", ylim=(-0.25, 0.25))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=1/num_runs, ylim=(1e-4, 1e5))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=1/num_runs, ylim=(1e-5, 1e3))
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=1/num_runs, ylim=(1e-8, 1e4))
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
