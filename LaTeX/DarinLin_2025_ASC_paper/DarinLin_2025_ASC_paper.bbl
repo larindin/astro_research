@@ -1,0 +1,42 @@
+\begin{thebibliography}{10}
+
+\bibitem{nelson2024moon}
+S.~Nelson, ``Moon Race 2.0: Why so many nations and private companies are aiming for lunar landings,''  Feb 2024.
+
+\bibitem{bar2004estimation}
+Y.~Bar-Shalom, X.~R. Li, and T.~Kirubarajan, {\em Estimation with applications to tracking and navigation: theory algorithms and software}.
+\newblock John Wiley \& Sons, 2004.
+
+\bibitem{bar2007variable}
+Y.~Bar-Shalom and K.~Birmiwal, ``Variable dimension filter for maneuvering target tracking,''  {\em IEEE transactions on Aerospace and Electronic Systems}, No.~5, 2007, pp.~621--629.
+
+\bibitem{goff2015orbit}
+G.~M. Goff, J.~T. Black, and J.~A. Beck, ``Orbit estimation of a continuously thrusting spacecraft using variable dimension filters,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~38, No.~12, 2015, pp.~2407--2420.
+
+\bibitem{wetterer2022cislunar}
+C.~J. Wetterer, C.~Chow, J.~Baldwin, M.~Dilley, A.~Keri, and K.~Howell, ``Cislunar maneuver detection and classification,''  {\em Proceedings of the Advanced Maui Optical and Space Surveillance Technologies Conference (AMOS)}, Vol.~10, 2022, p.~J086167.
+
+\bibitem{iannamorelli2025adaptive}
+J.~L. Iannamorelli and K.~A. LeGrand, ``Adaptive Gaussian Mixture Filtering for Multi-Sensor Maneuvering Cislunar Space Object Tracking,''  {\em The Journal of the Astronautical Sciences}, Vol.~72, No.~1, 2025, p.~2.
+
+\bibitem{lubey2013optimal}
+D.~P. Lubey and D.~J. Scheeres, ``An optimal control based estimator for maneuver and natural dynamics reconstruction,''  {\em Proceedings of the 2013 Advanced Maui Optical and Space Surveillance Technologies Conference}, 2013.
+
+\bibitem{greaves2021observation}
+J.~A. Greaves and D.~J. Scheeres, ``Observation and maneuver detection for cislunar vehicles: Using optical measurements and the optimal control based estimator,''  {\em The Journal of the Astronautical Sciences}, Vol.~68, No.~4, 2021, pp.~826--854.
+
+\bibitem{pontryagin1962}
+L.~Pontryagin, {\em Mathematical Theory of Optimal Processes}, pp.~1--114.
+\newblock New York: Interscience, 1962.
+
+\bibitem{smith1962application}
+G.~L. Smith, S.~F. Schmidt, and L.~A. McGee, {\em Application of statistical filter theory to the optimal estimation of position and velocity on board a circumlunar vehicle}, Vol.~135.
+\newblock National Aeronautics and Space Administration, 1962.
+
+\bibitem{gupta2023constellation}
+M.~Gupta, K.~C. Howell, and C.~Frueh, ``Constellation design to support cislunar surveillance leveraging sidereal resonant orbits,''  {\em 33rd AAS/AIAA Space Flight Mechanics Meeting}, 2023.
+
+\bibitem{craigrobust}
+N.~H. Craig and K.~Oguri, ``ROBUST CISLUNAR OBJECT TRACKING WITH INFREQUENT MEASUREMENTS: VARIABLE-RANGE POINTING VECTOR APPROACH,''
+
+\end{thebibliography}
