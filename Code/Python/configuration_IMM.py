@@ -9,7 +9,7 @@ from helper_functions import *
 # Monte-carlo parameters
 seed = 0
 generator = np.random.default_rng(seed)
-num_runs = 100
+num_runs = 10
 
 #10, 13, 31, 32 are good
 

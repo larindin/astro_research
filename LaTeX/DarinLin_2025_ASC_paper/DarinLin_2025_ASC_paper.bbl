@@ -14,7 +14,7 @@ Y.~Bar-Shalom and K.~Birmiwal, ``Variable dimension filter for maneuvering targe
 G.~M. Goff, J.~T. Black, and J.~A. Beck, ``Orbit estimation of a continuously thrusting spacecraft using variable dimension filters,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~38, No.~12, 2015, pp.~2407--2420.
 
 \bibitem{wetterer2022cislunar}
-C.~J. Wetterer, C.~Chow, J.~Baldwin, M.~Dilley, A.~Keri, and K.~Howell, ``Cislunar maneuver detection and classification,''  {\em Proceedings of the Advanced Maui Optical and Space Surveillance Technologies Conference (AMOS)}, Vol.~10, 2022, p.~J086167.
+C.~J. Wetterer, C.~Chow, J.~Baldwin, M.~Dilley, A.~Keri, and K.~Howell, ``Cislunar maneuver detection and classification,''  {\em Proceedings of the Advanced Maui Optical and Space Surveillance Technologies Conference (AMOS)}, 2022.
 
 \bibitem{iannamorelli2025adaptive}
 J.~L. Iannamorelli and K.~A. LeGrand, ``Adaptive Gaussian Mixture Filtering for Multi-Sensor Maneuvering Cislunar Space Object Tracking,''  {\em The Journal of the Astronautical Sciences}, Vol.~72, No.~1, 2025, p.~2.
@@ -36,7 +36,7 @@ G.~L. Smith, S.~F. Schmidt, and L.~A. McGee, {\em Application of statistical fil
 \bibitem{gupta2023constellation}
 M.~Gupta, K.~C. Howell, and C.~Frueh, ``Constellation design to support cislunar surveillance leveraging sidereal resonant orbits,''  {\em 33rd AAS/AIAA Space Flight Mechanics Meeting}, 2023.
 
-\bibitem{craigrobust}
-N.~H. Craig and K.~Oguri, ``ROBUST CISLUNAR OBJECT TRACKING WITH INFREQUENT MEASUREMENTS: VARIABLE-RANGE POINTING VECTOR APPROACH,''
+\bibitem{craig2024robust}
+N.~H. Craig and K.~Oguri, ``ROBUST CISLUNAR OBJECT TRACKING WITH INFREQUENT MEASUREMENTS: VARIABLE-RANGE POINTING VECTOR APPROACH,''  {\em 35th AAS/AIAA Space Flight Mechanics Meeting}, 2024.
 
 \end{thebibliography}

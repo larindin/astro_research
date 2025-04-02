@@ -94,6 +94,24 @@ ax.hlines(1, 0, 1, colors="black", label="blank")
 ax.hlines(1, 0, 1, colors="red", label="blank2")
 myhandle, labels = ax.get_legend_handles_labels()
 
+ax = plt.figure(layout="constrained", figsize=((7.75, 7.75/2))).add_subplot()
+for run_index in range(num_runs):
+    ax.scatter(plot_time, OCIMM_mode_probabilities[run_index][0], color="black", label="Coasting", alpha=0.15, s=4, edgecolors="none")
+    ax.scatter(plot_time, OCIMM_mode_probabilities[run_index][1], color="magenta", label="Maneuvering", alpha=0.15, s=4, edgecolors="none")
+for arc in thrusting_arc_indices:
+    ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
+ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+ax.set_ylabel("Mode Probability", fontname="Times New Roman", fontsize=10)
+ax.set_xlabel("Time [days]", fontname="Times New Roman", fontsize=10)
+for tick in ax.get_xticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_yticklabels():
+    tick.set_fontname("Times New Roman")
+ax.tick_params(axis="both", which="major", labelsize=10)
+ax.set_xlim(0, 35)
+ax.set_ylim(0, 1)
+plt.savefig("figures/mode_probabilities.png", dpi=600, bbox_inches="tight")
+
 fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+0.5)))
 ax_labels = [r"$x$ [km]", r"$y$ [km]", r"$z$ [km]"]
 for ax_index in range(3):
@@ -239,7 +257,14 @@ ax = plt.figure().add_subplot(projection="3d")
 ax.scatter(0, 0, 0, color="grey", s=6, label="Moon")
 myhandle, labels = ax.get_legend_handles_labels()
 
-ax = plt.figure(layout="constrained").add_subplot(projection="3d")
+mosaic = [["trajectory", ".", "x"],
+          ["trajectory", ".", "y"],
+          ["trajectory", ".", "z"],
+          ["trajectory", ".", "norm"],
+          ["trajectory", ".", "."]]
+fig = plt.figure(layout="constrained", figsize=((7.75, 7.75/2+0.5)))
+ax_dict = fig.subplot_mosaic(mosaic, per_subplot_kw={"trajectory":{"projection":"3d"}}, width_ratios=(0.7, 0, 0.3), height_ratios=(0.2, 0.2, 0.2, 0.2, 0.2), empty_sentinel=".")
+ax = ax_dict["trajectory"]
 # ax.scatter((1-mu)*NONDIM_LENGTH, 0, 0, c="grey", s=6, label="Moon", zorder=-1)
 u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
 x = np.cos(u)*np.sin(v)*1740 + (1 - mu)*NONDIM_LENGTH
@@ -255,9 +280,9 @@ ax.plot(thrusting_truth[0]*NONDIM_LENGTH, thrusting_truth[1]*NONDIM_LENGTH, thru
 ax.grid(False)
 ax.tick_params(axis="both", which="major", labelsize=8)
 ax.ticklabel_format(axis="both", style="sci", scilimits=(0, 0))
-ax.set_xlabel("$x$ [km]", fontname="Times New Roman", fontsize=10)
-ax.set_ylabel("$y$ [km]", fontname="Times New Roman", fontsize=10)
-ax.set_zlabel("$z$ [km]", fontname="Times New Roman", fontsize=10)
+ax.set_xlabel("$x$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_ylabel("$y$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_zlabel("$z$ [km]", fontname="Times New Roman", fontsize=8)
 ax.set_zlim(-5e4, 5e4)
 ax.set_zticks((-5e4, 0, 5e4))
 ax.xaxis.pane.fill = False
@@ -270,9 +295,9 @@ ax.set_aspect("equal")
 ax.get_xaxis().get_offset_text().set_fontname("Times New Roman")
 ax.get_yaxis().get_offset_text().set_fontname("Times New Roman")
 ax.get_zaxis().get_offset_text().set_fontname("Times New Roman")
-ax.get_xaxis().get_offset_text().set_fontsize(10)
-ax.get_yaxis().get_offset_text().set_fontsize(10)
-ax.get_zaxis().get_offset_text().set_fontsize(10)
+ax.get_xaxis().get_offset_text().set_fontsize(8)
+ax.get_yaxis().get_offset_text().set_fontsize(8)
+ax.get_zaxis().get_offset_text().set_fontsize(8)
 ax.get_zaxis().get_offset_text().set_position((0, 0, 1))
 for tick in ax.get_xticklabels():
     tick.set_fontname("Times New Roman")
@@ -282,8 +307,39 @@ for tick in ax.get_zticklabels():
     tick.set_fontname("Times New Roman")
 handles, labels = ax.get_legend_handles_labels()
 handles[0] = myhandle[0]
-ax.legend(handles, labels, prop={"family":"Times New Roman", "size":6.5}, fancybox=False, loc="center right")
+ax.legend(handles, labels, prop={"family":"Times New Roman", "size":8}, fancybox=False, loc="upper right")
+ax.view_init(elev=25, azim=-110, roll=0)
 
+ax_index = 0
+ax_labels = ["$u_x$ [mm/s$^2$]", "$u_y$ [mm/s$^2$]", "$u_z$ [mm/s$^2$]"]
+for ax_name in ["x", "y", "z"]:
+    ax = ax_dict[ax_name]
+    ax.plot(plot_time, truth_control[ax_index], color="black")
+    ax.set_ylabel(ax_labels[ax_index], fontsize=8, fontname="Times New Roman")
+    ax.set_xlim(0, 35)
+    ax.set_ylim(-0.4, 0.4)
+    ax.tick_params(axis="both", which="major", labelsize=8)
+    ax.tick_params(axis="x", bottom=False, labelbottom=False)
+    for tick in ax.get_xticklabels():
+        tick.set_fontname("Times New Roman")
+    for tick in ax.get_yticklabels():
+        tick.set_fontname("Times New Roman")
+    ax_index += 1
+
+ax = ax_dict["norm"]
+ax.plot(plot_time, np.linalg.norm(truth_control, axis=0), color="black")
+ax.set_xlabel("Time [days]", fontname="Times New Roman", fontsize=8)
+ax.set_ylabel(r"$||\boldsymbol{u}||_2$ [mm/s$^2$]", fontname="Times New Roman", fontsize=8)
+ax.set_xlim(0, 35)
+ax.set_ylim(0, 0.4)
+ax.tick_params(axis="both", which="major", labelsize=8)
+for tick in ax.get_xticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_yticklabels():
+    tick.set_fontname("Times New Roman")
+fig.align_ylabels(axs=[ax_dict["x"], ax_dict["y"], ax_dict["z"], ax_dict["norm"]])
+
+plt.savefig("figures/truth_trajectory.png", dpi=600, bbox_inches="tight")
 
 # ax = plt.figure(layout="constrained").add_subplot()
 # ax.plot(plot_time, OCIMM_avg_norm_error_vals[0], alpha=1, c="red")

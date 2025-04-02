@@ -348,7 +348,7 @@ Because of the difficulty of observing CSOs from Earth, angles-only measurements
 
 \noindent where $\bar{x}_k^{(i)}$, $\bar{y}_k^{(i)}$, and $\bar{z}_k^{(i)}$ are the respective $x$, $y$, and $z$ components of the observer spacecraft's position in the CR3BP coordinate frame. 
 
-To improve estimation performance when using angles-only measurements, we implement the pointing vector reformulation developed by Craig and Oguri \cite{craigrobust}. The general idea of the pointing vector reformulation is to transform the nonlinear angles-only measurement equation into a linear Cartesian measurement equation with a properly transformed measurement noise covariance matrix. The pointing vector measurement equation for a single sensor $i \in [1, \cdots, m]$ is then 
+To improve estimation performance when using angles-only measurements, we implement the pointing vector reformulation developed by Craig and Oguri \cite{craig2024robust}. The general idea of the pointing vector reformulation is to transform the nonlinear angles-only measurement equation into a linear Cartesian measurement equation with a properly transformed measurement noise covariance matrix. The pointing vector measurement equation for a single sensor $i \in [1, \cdots, m]$ is then 
 
 \begin{align}
     \bm{h}_k^{(i)}(\bm{x}_k) &= \begin{bmatrix}
@@ -404,8 +404,8 @@ To test the tracking performance of the OCIMM, we simulate a low-thrust spacecra
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.75\linewidth]{Figures/truth_trajectory.png}
-    \caption{Initial orbit, final orbit, and truth trajectory}
+    \includegraphics[width=\linewidth]{Figures/truth_trajectory.png}
+    \caption{Truth transfer trajectory, with initial orbit, final orbit, coasting/thrusting arcs, and truth control history}
     \label{fig:truth_trajectory}
 \end{figure}
 
