@@ -62,7 +62,8 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 15*24:20*24] = 0
+if gap == True:
+    check_results[:, 15*24:20*24] = 0
 
 # check_results[:, 215:] = 0
 # check_results[:, 300:] = 1
@@ -240,13 +241,23 @@ output_estimated_control = np.array(estimated_controls) * NONDIM_LENGTH*1e6/NOND
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
-np.save("data/accel_IMM_est_control1.npy", output_estimated_control)
-np.save("data/accel_IMM_avg_error1.npy", avg_error_vals)
-np.save("data/accel_IMM_avg_norm_error1.npy", avg_norm_error_vals)
-np.save("data/accel_IMM_est_errors1.npy", estimation_errors)
-np.save("data/accel_IMM_est_3sigmas1.npy", three_sigmas)
-np.save("data/accel_IMM_ctrl_errors1.npy", control_errors)
-np.save("data/accel_IMM_ctrl_3sigmas1.npy", control_3sigmas)
+if save == True:
+    if gap == True:
+        np.save("data/accel_IMM_est_control1.npy", output_estimated_control)
+        np.save("data/accel_IMM_avg_error1.npy", avg_error_vals)
+        np.save("data/accel_IMM_avg_norm_error1.npy", avg_norm_error_vals)
+        np.save("data/accel_IMM_est_errors1.npy", estimation_errors)
+        np.save("data/accel_IMM_est_3sigmas1.npy", three_sigmas)
+        np.save("data/accel_IMM_ctrl_errors1.npy", control_errors)
+        np.save("data/accel_IMM_ctrl_3sigmas1.npy", control_3sigmas)
+    elif gap == False:
+        np.save("data/accel_IMM_est_control.npy", output_estimated_control)
+        np.save("data/accel_IMM_avg_error.npy", avg_error_vals)
+        np.save("data/accel_IMM_avg_norm_error.npy", avg_norm_error_vals)
+        np.save("data/accel_IMM_est_errors.npy", estimation_errors)
+        np.save("data/accel_IMM_est_3sigmas.npy", three_sigmas)
+        np.save("data/accel_IMM_ctrl_errors.npy", control_errors)
+        np.save("data/accel_IMM_ctrl_3sigmas.npy", control_3sigmas)
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=1/num_runs, scale="linear")
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=1/num_runs, scale="linear")

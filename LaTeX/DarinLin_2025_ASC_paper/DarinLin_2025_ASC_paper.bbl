@@ -29,9 +29,22 @@ J.~A. Greaves and D.~J. Scheeres, ``Observation and maneuver detection for cislu
 L.~Pontryagin, {\em Mathematical Theory of Optimal Processes}, pp.~1--114.
 \newblock New York: Interscience, 1962.
 
+\bibitem{zimovan2017characteristics}
+E.~Zimovan, ``Characteristics and Design Strategies for Near Rectilinear Halo Orbits Within the Earth-Moon System,''  Master's thesis, Purdue University, 2017.
+
 \bibitem{smith1962application}
 G.~L. Smith, S.~F. Schmidt, and L.~A. McGee, {\em Application of statistical filter theory to the optimal estimation of position and velocity on board a circumlunar vehicle}, Vol.~135.
 \newblock National Aeronautics and Space Administration, 1962.
+
+\bibitem{lawden1963optimal}
+D.~Lawden, {\em Optimal Trajectories for Space Navigation}.
+\newblock Butterworths mathematical texts, Butterworths, 1963.
+
+\bibitem{taheri2018generic}
+E.~Taheri and J.~L. Junkins, ``Generic smoothing for optimal bang-off-bang spacecraft maneuvers,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~41, No.~11, 2018, pp.~2470--2475.
+
+\bibitem{junkins2019exploration}
+J.~L. Junkins and E.~Taheri, ``Exploration of alternative state vector choices for low-thrust trajectory optimization,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~42, No.~1, 2019, pp.~47--64.
 
 \bibitem{gupta2023constellation}
 M.~Gupta, K.~C. Howell, and C.~Frueh, ``Constellation design to support cislunar surveillance leveraging sidereal resonant orbits,''  {\em 33rd AAS/AIAA Space Flight Mechanics Meeting}, 2023.

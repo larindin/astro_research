@@ -40,8 +40,9 @@ time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, 
 # truth_vals = truth_propagation.y
 
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
-# sensor_position_vals = np.zeros((3, len(time_vals)))
+# sensor_position_vals = np.zeros((6, len(time_vals)))
 # sensor_position_vals[0] = L2
+# sensor_position_vals[3] = L1
 print(dt)
 print(len(time_vals))
 
@@ -77,13 +78,13 @@ for sensor_index in range(num_sensors):
 
 check_results[:, :] = 1
 
-check_results[:, 15*24:20*24] = 0
+if gap == True:
+    check_results[:, 15*24:20*24] = 0
 
 # check_results[:, 215:] = 0
 # check_results[:, 300:] = 1
 # check_results[:, 350:] = 0
 # check_results[:, 450:] = 1
-
 
 def coasting_costate_dynamics_equation(t, X, mu, umax):
 
@@ -270,15 +271,25 @@ output_estimated_control = np.array(estimated_controls) * NONDIM_LENGTH*1e6/NOND
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
-# np.save("data/OCIMM_est_control1.npy", output_estimated_control)
-# np.save("data/OCIMM_avg_error1.npy", avg_error_vals)
-# np.save("data/OCIMM_avg_norm_error1.npy", avg_norm_error_vals)
-# np.save("data/OCIMM_est_errors1.npy", estimation_errors)
-# np.save("data/OCIMM_est_3sigmas1.npy", three_sigmas)
-# np.save("data/OCIMM_ctrl_errors1.npy", control_errors)
-# np.save("data/OCIMM_ctrl_3sigmas1.npy", control_3sigmas)
-np.save("data/OCIMM_mode_probabilities1.npy", mode_probabilities)
-quit()
+if save == True:
+    if gap == True:
+        np.save("data/OCIMM_est_control1.npy", output_estimated_control)
+        np.save("data/OCIMM_avg_error1.npy", avg_error_vals)
+        np.save("data/OCIMM_avg_norm_error1.npy", avg_norm_error_vals)
+        np.save("data/OCIMM_est_errors1.npy", estimation_errors)
+        np.save("data/OCIMM_est_3sigmas1.npy", three_sigmas)
+        np.save("data/OCIMM_ctrl_errors1.npy", control_errors)
+        np.save("data/OCIMM_ctrl_3sigmas1.npy", control_3sigmas)
+        np.save("data/OCIMM_mode_probabilities1.npy", mode_probabilities)
+    elif gap == False:
+        np.save("data/OCIMM_est_control.npy", output_estimated_control)
+        np.save("data/OCIMM_avg_error.npy", avg_error_vals)
+        np.save("data/OCIMM_avg_norm_error.npy", avg_norm_error_vals)
+        np.save("data/OCIMM_est_errors.npy", estimation_errors)
+        np.save("data/OCIMM_est_3sigmas.npy", three_sigmas)
+        np.save("data/OCIMM_ctrl_errors.npy", control_errors)
+        np.save("data/OCIMM_ctrl_3sigmas.npy", control_3sigmas)
+        np.save("data/OCIMM_mode_probabilities.npy", mode_probabilities)
 
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 

@@ -3,11 +3,12 @@
 import numpy as np
 import scipy
 
-np.set_printoptions(suppress=True, precision=8, linewidth=500)
+np.set_printoptions(suppress=True, precision=18, linewidth=500)
 
 NONDIM_LENGTH = 3.844e5 # kilometers
 NONDIM_TIME = 3.751903e5 # seconds
 NONDIM_TIME_HR = 1.042195278e2 # hours
+L1 = 0.83691513	# Earth-Moon system
 L2 = 1.15568217 # Earth-Moon system
 mu = 1.215059e-2 # Earth-Moon system
 
