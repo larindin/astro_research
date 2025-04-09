@@ -3,9 +3,8 @@
 \bibitem{nelson2024moon}
 S.~Nelson, ``Moon Race 2.0: Why so many nations and private companies are aiming for lunar landings,''  Feb 2024.
 
-\bibitem{bar2004estimation}
-Y.~Bar-Shalom, X.~R. Li, and T.~Kirubarajan, {\em Estimation with applications to tracking and navigation: theory algorithms and software}.
-\newblock John Wiley \& Sons, 2004.
+\bibitem{bar1989tracking}
+Y.~Bar-Shalom, K.~Chang, and H.~Blom, ``Tracking a maneuvering target using input estimation versus the interacting multiple model algorithm,''  {\em IEEE Transactions on Aerospace and Electronic Systems}, Vol.~25, No.~2, 1989, pp.~296--300, 10.1109/7.18693.
 
 \bibitem{bar2007variable}
 Y.~Bar-Shalom and K.~Birmiwal, ``Variable dimension filter for maneuvering target tracking,''  {\em IEEE transactions on Aerospace and Electronic Systems}, No.~5, 2007, pp.~621--629.
@@ -16,8 +15,17 @@ G.~M. Goff, J.~T. Black, and J.~A. Beck, ``Orbit estimation of a continuously th
 \bibitem{wetterer2022cislunar}
 C.~J. Wetterer, C.~Chow, J.~Baldwin, M.~Dilley, A.~Keri, and K.~Howell, ``Cislunar maneuver detection and classification,''  {\em Proceedings of the Advanced Maui Optical and Space Surveillance Technologies Conference (AMOS)}, 2022.
 
+\bibitem{demars2013entropy}
+K.~J. DeMars, R.~H. Bishop, and M.~K. Jah, ``Entropy-Based Approach for Uncertainty Propagation of Nonlinear Dynamical Systems,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~36, No.~4, 2013, pp.~1047--1057, 10.2514/1.58987.
+
+\bibitem{vishwajet2018adaptive}
+K.~Vishwajeet and P.~Singla, ``Adaptive Split/Merge-Based Gaussian Mixture Model Approach for Uncertainty Propagation,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~41, No.~3, 2018, pp.~603--617, 10.2514/1.G002801.
+
 \bibitem{iannamorelli2025adaptive}
 J.~L. Iannamorelli and K.~A. LeGrand, ``Adaptive Gaussian Mixture Filtering for Multi-Sensor Maneuvering Cislunar Space Object Tracking,''  {\em The Journal of the Astronautical Sciences}, Vol.~72, No.~1, 2025, p.~2.
+
+\bibitem{holzinger2012object}
+M.~J. Holzinger, D.~J. Scheeres, and K.~T. Alfriend, ``Object Correlation, Maneuver Detection, and Characterization Using Control Distance Metrics,''  {\em Journal of Guidance, Control, and Dynamics}, Vol.~35, No.~4, 2012, pp.~1312--1325, 10.2514/1.53245.
 
 \bibitem{lubey2013optimal}
 D.~P. Lubey and D.~J. Scheeres, ``An optimal control based estimator for maneuver and natural dynamics reconstruction,''  {\em Proceedings of the 2013 Advanced Maui Optical and Space Surveillance Technologies Conference}, 2013.
@@ -35,6 +43,12 @@ E.~Zimovan, ``Characteristics and Design Strategies for Near Rectilinear Halo Or
 \bibitem{smith1962application}
 G.~L. Smith, S.~F. Schmidt, and L.~A. McGee, {\em Application of statistical filter theory to the optimal estimation of position and velocity on board a circumlunar vehicle}, Vol.~135.
 \newblock National Aeronautics and Space Administration, 1962.
+
+\bibitem{blom1988interacting}
+H.~Blom and Y.~Bar-Shalom, ``The interacting multiple model algorithm for systems with Markovian switching coefficients,''  {\em IEEE Transactions on Automatic Control}, Vol.~33, No.~8, 1988, pp.~780--783, 10.1109/9.1299.
+
+\bibitem{genovese2001interacting}
+A.~Genovese, ``The interacting multiple model algorithm for accurate state estimation of maneuvering targets,''  {\em Johns Hopkins APL Technical Digest (Applied Physics Laboratory)}, Vol.~22, 10 2001, pp.~614--623.
 
 \bibitem{lawden1963optimal}
 D.~Lawden, {\em Optimal Trajectories for Space Navigation}.

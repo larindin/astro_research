@@ -68,6 +68,12 @@ INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/l3kernel/expl3.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/l3kernel/expl3.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/algorithms/algorithm.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/algorithms/algorithm.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/ifthen.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/ifthen.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/algpseudocodex/algpseudocodex.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/algpseudocodex/algpseudocodex.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty
@@ -78,8 +84,6 @@ INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty
-INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/ifthen.sty
-INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/ifthen.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/fifo-stack/fifo-stack.sty
@@ -373,8 +377,6 @@ INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmr8r.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf
-INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf
-INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmr8c.vf
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmr8r.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf
@@ -387,6 +389,8 @@ INPUT ./Figures/CR3BP.png
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
 INPUT ./Figures/truth_trajectory.png
 INPUT ./Figures/truth_trajectory.png
 INPUT ./Figures/truth_trajectory.png

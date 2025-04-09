@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex DarinLin_2025_ASC_paper"] 1744122444.60014 "DarinLin_2025_ASC_paper.aux" "DarinLin_2025_ASC_paper.bbl" "DarinLin_2025_ASC_paper" 1744122476.35205 0
+["bibtex DarinLin_2025_ASC_paper"] 1744158612.77702 "DarinLin_2025_ASC_paper.aux" "DarinLin_2025_ASC_paper.bbl" "DarinLin_2025_ASC_paper" 1744158619.35514 0
   "./AAS_publication.bst" 1743536832 17438 b0110560a858beeea248ed6fbdc49cd1 ""
-  "./references.bib" 1744077323.80533 5268 9b06adcce4b263563c601e84ad5d3510 ""
-  "DarinLin_2025_ASC_paper.aux" 1744122476.16873 9951 b03a64b01dc65aea4cf871fd58c5c3f0 "pdflatex"
+  "./references.bib" 1744155300.25336 7771 6a9617d94b494b12f8898eb6174142b1 ""
+  "DarinLin_2025_ASC_paper.aux" 1744158619.16475 12276 989a040da81fe2d39356f184d7018753 "pdflatex"
   (generated)
   "DarinLin_2025_ASC_paper.bbl"
   "DarinLin_2025_ASC_paper.blg"
   (rewritten before read)
-["pdflatex"] 1744122469.89682 "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" "DarinLin_2025_ASC_paper.pdf" "DarinLin_2025_ASC_paper" 1744122476.35215 0
-  "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" 1744122469.68106 44835 497a2b179b230ab7e26b9a8ed172e324 ""
+["pdflatex"] 1744158612.84894 "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" "DarinLin_2025_ASC_paper.pdf" "DarinLin_2025_ASC_paper" 1744158619.35524 0
+  "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" 1744158606.01866 48681 3b7f5d871f49eccf5f8609e3c2671240 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/helvetic/phvb7t.tfm" 1136768653 2240 eb56c13537f4d8a0bd3fafc25572b1bd ""
@@ -157,6 +157,7 @@
   "/usr/local/texlive/2025/texmf-dist/tex/generic/stringenc/stringenc.sty" 1575152242 21514 b7557edcee22835ef6b03ede1802dad4 ""
   "/usr/local/texlive/2025/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty" 1576624663 7008 f92eaa0a3872ed622bbf538217cd2ab7 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty" 1160617237 26750 ce139c05a983e19ddca355b43e29c395 ""
+  "/usr/local/texlive/2025/texmf-dist/tex/latex/algorithms/algorithm.sty" 1251330371 3249 15763257e50278eef5db1952ccde229c ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/algpseudocodex/algpseudocodex.sty" 1681846876 41509 837cfcc7518e510b1b7ee0351b65150c ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amsfonts.sty" 1359763108 5949 3f3fd50a8cc94c3d4cbf4fc66cd3df1c ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amssymb.sty" 1359763108 13829 94730e64147574077f8ecfea9bb69af4 ""
@@ -179,6 +180,7 @@
   "/usr/local/texlive/2025/texmf-dist/tex/latex/etoolbox/etoolbox.sty" 1739306980 46850 d87daedc2abdc653769a6f1067849fe0 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty" 1739048179 31715 19e60610b63819fe670dfa1cd84a4e94 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/fifo-stack/fifo-stack.sty" 1395782913 7921 92dc2d34bc6a866d79c62eb360f0792d ""
+  "/usr/local/texlive/2025/texmf-dist/tex/latex/float/float.sty" 1137110151 6749 16d2656a1984957e674b149555f1ea1d ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/footnpag/footnpag.sty" 1137110164 20051 7d709b2d6a97002acd157ef7b6c12c49 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-cfg/color.cfg" 1459978653 1213 620bba36b25224fa9b7e1ccb4ecb76fd ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-cfg/graphics.cfg" 1465944070 1224 978390e9c2234eab29404bc21b268d1e ""
@@ -236,10 +238,10 @@
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
   "AAS.cls" 1743536832 24466 06c89235df8688b294c4ecb0d9debe6f ""
-  "DarinLin_2025_ASC_paper.aux" 1744122476.16873 9951 b03a64b01dc65aea4cf871fd58c5c3f0 "pdflatex"
-  "DarinLin_2025_ASC_paper.bbl" 1744122444.66574 3588 64a50bfe4436d5b3c573cba8e743ae38 "bibtex DarinLin_2025_ASC_paper"
-  "DarinLin_2025_ASC_paper.out" 1744122476.16944 3017 06b995f4de6e7b2a7e470a08cdbfc9c5 "pdflatex"
-  "DarinLin_2025_ASC_paper.tex" 1744122469.68106 44835 497a2b179b230ab7e26b9a8ed172e324 ""
+  "DarinLin_2025_ASC_paper.aux" 1744158619.16475 12276 989a040da81fe2d39356f184d7018753 "pdflatex"
+  "DarinLin_2025_ASC_paper.bbl" 1744158612.84666 4985 396e9d64b62020165f4e7fdfefb45954 "bibtex DarinLin_2025_ASC_paper"
+  "DarinLin_2025_ASC_paper.out" 1744158619.16557 3225 10e4ffe4a05bac51a2716a694c60a184 "pdflatex"
+  "DarinLin_2025_ASC_paper.tex" 1744158606.01866 48681 3b7f5d871f49eccf5f8609e3c2671240 ""
   "Figures/CR3BP.png" 1744076634.72507 98372 9f3619dedbcb044a09a8d9d39c90d413 ""
   "Figures/MAE_gap.png" 1743973135.18595 413464 8517f3ca80c20fddbe2d6008701add63 ""
   "Figures/MAE_normal.png" 1743975736.13488 548432 4b43c5a5f05c7b8fd2952dbadb04fd8e ""

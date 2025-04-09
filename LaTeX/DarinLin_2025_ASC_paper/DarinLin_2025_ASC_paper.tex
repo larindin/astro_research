@@ -11,6 +11,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{physics}
+\usepackage{algorithm}
 \usepackage{algpseudocodex}
 \usepackage{subfigure}
 %\usepackage[notref,notcite]{showkeys}  % use this to temporarily show labels
@@ -46,13 +47,15 @@ Tracking maneuvering cislunar spacecraft is a difficult task due to the highly n
 
 %This is going to be pretty similar to most other papers on cislunar SDA. Will need to cite many papers here, including Iannamorelli, Holzinger, Scheeres, Wishnek, and Lubey. Discuss other efforts in cislunar SDA, optimal-control based estimation, cislunar initial orbit determination, and maneuver reconstruction.
 
-International interest in cislunar space has increased significantly in the recent decade \cite{nelson2024moon} . Space domain awareness (SDA) will be critical for the future sustainable development of cislunar space. Compared to SDA near Earth, cislunar SDA faces significant challenges due to highly nonlinear cislunar dynamics, extreme distances, and frequent observation gaps. To add to this complexity, active cislunar spacecraft have the ability to maneuver, which in combintation with the chaotic cislunar dynamics further compounds the extreme nonlinearity of the tracking problem. Additionally, low-thrust propulsion has become an increasingly popular choice for spacecraft because of its high specific impulse, allowing for longer mission durations and smaller fuel fractions. Thus, methods for tracking low-thrust maneuvering spacecraft in cislunar space are of interest. 
+International interest in cislunar space has increased significantly in the recent decade \cite{nelson2024moon}. Space domain awareness (SDA) will be critical for the future sustainable development of cislunar space. Compared to SDA near Earth, cislunar SDA faces significant challenges due to highly nonlinear cislunar dynamics, extreme distances, and frequent observation gaps. To add to this complexity, active cislunar spacecraft have the ability to maneuver, which in combintation with the chaotic cislunar dynamics further compounds the extreme nonlinearity of the tracking problem. Additionally, low-thrust propulsion has become an increasingly popular choice for spacecraft because of its high specific impulse, allowing for longer mission durations and smaller fuel fractions. Thus, methods for tracking low-thrust maneuvering spacecraft in cislunar space are of interest. 
 
-Significant research effort has been dedicated to the general maneuvering target tracking problem. Bar-Shalom et al. has presented several sequential algorithms to account for the discrete nature of maneuvering objects, most notably the interacting multiple model estimator \cite{bar2004estimation} (IMM) and the variable state dimension estimator \cite{bar2007variable} (VSD). Goff et al. implemented a combination of these algorithms specifically for tracking low-thrust maneuvering spacecraft in geocentric orbits \cite{goff2015orbit}. Wetterer et al. utilized an IMM to track impulsively maneuvering spacecraft in cislunar space \cite{wetterer2022cislunar}.
+Significant research effort has been dedicated to the general maneuvering target tracking problem. Bar-Shalom et al. has presented several sequential algorithms to account for the discrete nature of maneuvering objects, most notably the interacting multiple model estimator \cite{bar1989tracking} (IMM) and the variable state dimension estimator \cite{bar2007variable} (VSD). Goff et al. implemented a combination of these algorithms specifically for tracking low-thrust maneuvering spacecraft in geocentric orbits \cite{goff2015orbit}. Wetterer et al. utilized an IMM to track impulsively maneuvering spacecraft in cislunar space \cite{wetterer2022cislunar}.
 
-Other research efforts have been dedicated to manage the extreme nonlinearity of the problem. Iannamorelli and LeGrand combatted the extreme nonlinearity of the maneuvering cislunar tracking problem by utilizing an Gaussian mixture estimator with multiple models and kernel splitting criteria to accurately model the uncertainty distribution \cite{iannamorelli2025adaptive}. In essence, their algorithm is able to accurately determine where the spacecraft \textit{could} be. However, it is reasonable to assume that spacecraft will maneuver optimally. Then, given some observations of the beginning of a maneuver, it is possible to answer where the spacecraft \textit{should} be at some future time. 
+Other research efforts have been dedicated to manage the nonlinearity of the problem. DeMars et al. modeled the true uncertainty distribution as a mixture of Gaussian distributions, where the number of distributions is adaptively increased and decreased in areas of higher and lower nonlinearity, respectively, where nonlinearity is detected via entropy \cite{demars2013entropy}. They then applied this algorithm to accurately model the uncertainty distribution of a spacecraft in geocentric orbit. Vishwjeet and Singla applied a similar approach, instead detecting nonlinearity using the Kolmogorov equation error \cite{vishwajet2018adaptive}. 
 
-The concept of improving estimation performance using optimal control has been explored by Lubey and Scheeres, resulting in the Optimal Control-Based Estimator (OCBE) \cite{lubey2013optimal}. The OCBE models any deviation in the state dynamics as an optimal control, which allows both control inputs and mismodeled dynamics to be reconstructed from these deviations. The OCBE was applied by Greaves and Scheeres to the cislunar tracking problem for maneuver detection and reconstruction \cite{greaves2021observation}. These approaches, however, are for the posterior reconstruction and detection of maneuvers rather than for the prior prediction of maneuvers. 
+Iannamorelli and LeGrand combined the adaptive Gaussian mixture and multiple model estimation approaches to simultaneously combat the extreme nonlinearity of cislunar dynamics while also accounting for the maneuvers of an active spacecraft \cite{iannamorelli2025adaptive}. In essence, their algorithm is able to accurately determine where the spacecraft \textit{could} be. However, it is reasonable to assume that spacecraft will maneuver optimally. Then, given some observations of the beginning of a maneuver, it is possible to answer where the spacecraft \textit{should} be at some future time.
+
+The concept of using optimal control to improve tracking has been explored by Holzinger et al., resulting in the development of the control-distance metric \cite{holzinger2012object}. The control-distance metric characterizes the amount of control effort required to connect two spacecraft states assuming some optimal control, thus allowing the correlation of tracks which are separated by smaller control distances. Lubey and Scheeres applied this framework to develop a sequential estimator, resulting in the Optimal Control-Based Estimator (OCBE) \cite{lubey2013optimal}. The OCBE models any deviation in the state dynamics as an optimal control, which allows both control inputs and mismodeled dynamics to be reconstructed from these deviations. The OCBE was applied by Greaves and Scheeres to the cislunar tracking problem for maneuver detection and reconstruction \cite{greaves2021observation}. These approaches, however, are for the posterior reconstruction and detection of maneuvers rather than for the prior prediction of maneuvers. 
 
 The main contribution of this paper is the implementation of an assumed optimal control policy directly into the dynamics of an adaptive multiple-model estimator. An IMM with two modes is utilized, where the non-maneuvering (coasting) mode assumes ballistic dynamics, and the maneuvering (thrusting) mode assumes a minimum-time optimal control policy. The dynamics of the minimum-time optimal control policy are obtained using Pontryagin's minimum principle \cite{pontryagin1962}. This optimal control IMM (OCIMM) is used to track a cislunar spacecraft performing a low-thrust transfer between two periodic cislunar orbits under a fuel-optimal control policy, whose thrusting arcs follow the same dynamics of a time-optimal policy. The OCIMM is shown to be able to accurately predict the future control inputs of the target spacecraft, even during observation gaps and periods of rapidly changing control. This results in superior estimation performance compared to a traditional IMM. 
 
@@ -60,14 +63,14 @@ The main contribution of this paper is the implementation of an assumed optimal 
 
 \subsection{Circular-Restricted Three-Body Problem (CR3BP) with Control}
 
-To model the motion of a maneuvering spacecraft in cislunar space, we utilize the circular restricted three-body problem dynamics model with low-thrust control modeled as an affine acceleration. This model assumes circular motion of two massive primary bodies around their barycenter. A third massless body is then subject to the gravities of the other two massive bodies. This third body represents the spacecraft of interest, and its state $\bm{\xi} = [\bm{r}^\top, \bm{v}^\top]^\top$ consists of a three-dimensional position and velocity, $\bm{r} = [x, y, z]^\top$ and $\bm{v} = [v_x, v_y, v_z]^\top$, respectively. The control is a three-dimensional additive acceleration $\bm{u} = [u_x, u_y, u_z]^\top$. To define the coordinate frame, the origin is fixed at the barycenter, the X-axis is aligned with the line between the two massive bodies, the Z-axis is aligned with the angular velocity vector, and the Y-axis completes the X-Y-Z right-handed coordinate frame. The CR3BP coordinate frame is illustrated in Figure \ref{fig:CR3BP}. 
-
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{Figures/CR3BP.png}
     \caption{Circular-Restricted Three-Body Problem Coordinate Frame}
     \label{fig:CR3BP}
 \end{figure}
+
+To model the motion of a maneuvering spacecraft in cislunar space, we utilize the circular restricted three-body problem dynamics model with low-thrust control modeled as an affine acceleration. This model assumes circular motion of two massive primary bodies around their barycenter. A third massless body is then subject to the gravities of the other two massive bodies. This third body represents the spacecraft of interest, and its state $\bm{\xi} = [\bm{r}^\top, \bm{v}^\top]^\top$ consists of a three-dimensional position and velocity, $\bm{r} = [x, y, z]^\top$ and $\bm{v} = [v_x, v_y, v_z]^\top$, respectively. The control is a three-dimensional additive acceleration $\bm{u} = [u_x, u_y, u_z]^\top$. To define the coordinate frame, the origin is fixed at the barycenter, the X-axis is aligned with the line between the two massive bodies, the Z-axis is aligned with the angular velocity vector, and the Y-axis completes the X-Y-Z right-handed coordinate frame. The CR3BP coordinate frame is illustrated in Figure \ref{fig:CR3BP}. 
 
 The units of the system are normalized such that the unit length is the distance between the two massive bodies, and the unit time is the inverse of the angular velocity of the two massive bodies. The motion of the massless body is then described by a system of nonlinear differential equations given by 
 \begin{align}
@@ -92,6 +95,10 @@ The units of the system are normalized such that the unit length is the distance
 \end{align}
 \noindent where $\mu = m_2/(m_1 + m_2)$ is the ratio of the second body's mass to the total mass of the system \cite{zimovan2017characteristics}.
 
+\subsection{Periodic Orbits in the CR3BP}
+
+
+
 \subsection{Extended Kalman Filter (EKF)}
 
 The ubiquitous Extended Kalman Filter (EKF) is an recursive estimation algorithm for systems with nonlinear dynamics/measurements \cite{smith1962application}. One iteration of the continuous-discrete EKF consists of two steps: a continuous time update and a discrete measurement update.
@@ -103,7 +110,7 @@ The ubiquitous Extended Kalman Filter (EKF) is an recursive estimation algorithm
     \begin{align}
         {}^-\hat{\bm{x}}_k &= \int_{t_{k-1}}^{t_k} \bm{f}(\bm{\hat{x}}(t)) dt, & \hat{\bm{x}}(t_{k-1}) = {}^+\hat{\bm{x}}_{k-1} \label{nonlinear estimate propagation (first EKF equation)} \\
         {}^-P_k &= \Phi(t_k, t_{k-1}) {}^+P_{k-1} \Phi^\top(t_k, t_{k-1}) + Q_{k-1}\\
-        \Phi(t_k, t_{k-1}) &= \int_{t_{k-1}}^{t_k} F(\hat{\bm{x}}(\tau))\Phi(\tau, t_{k-1}) d\tau, & \Phi(t_{k-1}, t_{k-1}) = I_{n\times n}
+        \Phi(t_k, t_{k-1}) &= \int_{t_{k-1}}^{t_k} F(\hat{\bm{x}}(\tau))\Phi(\tau, t_{k-1}) d\tau, & \Phi(t_{k-1}, t_{k-1}) = I_{n\times n} \label{eq:STM-propagation}
     \end{align}
     Additionally, the nonlinear measurement equation $\bm{z} = \bm{h}(\bm{x})$ is applied to the prior estimate ${}^-\hat{\bm{x}}_k$ to obtain the predicted measurement, $\bm{\hat{z}}_k$.
     \begin{align}
@@ -114,7 +121,7 @@ The ubiquitous Extended Kalman Filter (EKF) is an recursive estimation algorithm
     
     After the time update, ${}^-\bm{\hat{x}}_k$ and ${}^-P_k$ are updated with the new measurement $\bm{z}_k = \bm{h}_k(\bm{x}_k) + \bm{w}_k$ to obtain the posterior estimate and covariance, ${}^-\bm{x}_k$ and ${}^+P_k$. Mathematically,
     \begin{align}
-        ^+\bm{\hat{x}}_k &= K_k (\bm{z}_k - \bm{\hat{z}}_k)\\
+        ^+\bm{\hat{x}}_k &= K_k (\bm{z}_k - \bm{\hat{z}}_k) \label{eq:posterior-estimate-update}\\
         ^+P_k &= {}^-P_k - C_k K_k^\top - K_k C_k ^\top + K_k W_k K_k^\top \\
         K_k &= C_k W_k^{-1} \\
         C_k &= {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) \\
@@ -128,7 +135,7 @@ At the completion of the measurement update, one iteration of the EKF is complet
 
 \subsection{Interacting Multiple Model (IMM) Estimator}
 
-The interacting multiple model (IMM) estimator is well-suited for tracking maneuvering targets because of its ability to incorporate multiple dynamics models into a single filter \cite{bar2004estimation}. These different dynamics models can capture the discrete ``modes" of a maneuvering target which yields a more accurate estimate. 
+The interacting multiple model (IMM) estimator is well-suited for tracking maneuvering targets because of its ability to incorporate multiple dynamics models into a single filter \cite{blom1988interacting,bar1989tracking,genovese2001interacting}. These different dynamics models can capture the discrete ``modes" of a maneuvering target which yields a more accurate estimate. 
 
 Mathematically, the IMM assumes that the target's mode $\tau_k$ at time $t_k$ is one of $s$ discrete modes in the set of all modes $M = \{1, \cdots, s\}$, such that $\tau_k \in M $. Each mode $j \in M$ is associated with a dynamics model $\dot{\bm{x}} = \bm{f}^{(j)}(\bm{x})$, process noise covariance $Q^{(j)}$, posterior state estimate ${}^+\hat{\bm{x}}_k^{(j)}$, posterior estimate error covariance ${}^+P_k^{(j)}$, and mode probability $\mu^{(j)}_k = \P{\tau_k = j}$. The time evolution of these modes are modeled as a discrete-time Markov chain with associated row-stochastic transition matrix $\Pi \in \R_{s \times s}$, where element $\Pi_{i, j} = \P{\tau_k=j | \tau_{k-1} = i}$ .
 
@@ -139,8 +146,8 @@ One iteration of the IMM consists of three steps: probabilistic mixing, mode-dep
 
     The posterior state estimates ${}^+\hat{\bm{x}}_{k-1}^{(j)}$ and covariances ${}^+P_{k-1}^{(j)}$ are probabilistically combined to create mode-matched initial conditions for the mode-dependent filtering in the following step. The mode-matched estimate and covariance for each mode $j$ is denoted as ${}^{+}\hat{\bm{x}}_{k-1}^{0j}$ and ${}^+P_{k-1}^{0j}$, respectively, and are obtained with
     \begin{align}
-        {}^+\hat{\bm{x}}_{k-1}^{0j} &= \sum_{i=1}^r {}^+\hat{\bm{x}}_{k-1}^{(i)} \mu_{k-1}^{i|j} \\
-        {}^+P_{k-1}^{0j} &= \sum_{i=1}^r  \mu_{k-1}^{i|j} [{}^+P_{k-1}^{(i)} + ({}^+\bm{\hat{x}}_{k-1}^{(i)} - {}^+\bm{\hat{x}}_{k-1}^{0j})({}^+\bm{\hat{x}}_{k-1}^{(i)} - {}^+\bm{\hat{x}}_{k-1}^{0j})^\top ]
+        {}^+\hat{\bm{x}}_{k-1}^{0j} &= \sum_{i=1}^r {}^+\hat{\bm{x}}_{k-1}^{(i)} \mu_{k-1}^{i|j} \label{eq:mixed-initial-mean}\\
+        {}^+P_{k-1}^{0j} &= \sum_{i=1}^r  \mu_{k-1}^{i|j} [{}^+P_{k-1}^{(i)} + ({}^+\bm{\hat{x}}_{k-1}^{(i)} - {}^+\bm{\hat{x}}_{k-1}^{0j})({}^+\bm{\hat{x}}_{k-1}^{(i)} - {}^+\bm{\hat{x}}_{k-1}^{0j})^\top ] \label{eq:mixed-initial-covariance}
     \end{align}
     \noindent where $\mu_k^{i|j}$ is the mixing probability, which captures how much of mode $i$'s posterior estimate should be mixed into mode $j$'s initial conditions. The mixing probabilities $\mu_k^{i|j}$ are computed as
     \begin{align}
@@ -157,11 +164,11 @@ One iteration of the IMM consists of three steps: probabilistic mixing, mode-dep
 
     In addition to obtaining ${}^+\hat{\bm{x}}_k^{(j)}$ and ${}^+P_k^{(j)}$, the mode probabilities are updated according to the innovations likelihoods $\Lambda_k^{(j)}$ given by
     \begin{align}
-        \Lambda_k^{(j)} = \dfrac{1}{\sqrt{|2\pi W_k^{(j)}|}} \exp[-\frac{1}{2} (\bm{z}_k - \bm{\hat{z}}_k^{(j)})^\top (W_k^{(j)})^{-1} (\bm{z}_k - \bm{\hat{z}}_k^{(j)})]
+        \Lambda_k^{(j)} = \dfrac{1}{\sqrt{|2\pi W_k^{(j)}|}} \exp[-\frac{1}{2} (\bm{z}_k - \bm{\hat{z}}_k^{(j)})^\top (W_k^{(j)})^{-1} (\bm{z}_k - \bm{\hat{z}}_k^{(j)})] \label{eq:innovations-likelihoods}
     \end{align}
     where $W_k^{(j)}$ is mode $j$'s innovations covariance defined in Eq. \ref{eq:innovations covariance (last EKF eq)}, and $\hat{\bm{z}}_k^{(j)}$ is mode $j$'s predicted measurement defined in Eq. \ref{eq:predicted measurement}. The mode probability update is 
     \begin{align}
-    \mu_k^{(j)} & = \frac{1}{c_k} \Lambda_k^{(j)} \bar{c}_{k-1}^{(j)} \\
+    \mu_k^{(j)} & = \frac{1}{c_k} \Lambda_k^{(j)} \bar{c}_{k-1}^{(j)} \label{eq:mode-probability-update} \\
     c_k &= \sum_{i=1}^r \Lambda_k^{(i)} \bar{c}_{k-1}^{(i)} 
     \end{align}
     where $\bar{c}_{k-1}^{(j)}$ is defined in Eq. \ref{mixing probability constant} and $c_k$ is a normalization constant such that $\sum_{j=1}^r \mu_k^{(j)} = 1$. The computation of the mode probabilities concludes a single iteration of the IMM, and the next iteration begins after setting $t_k \rightarrow t_{k-1}$.
@@ -276,45 +283,55 @@ The coasting mode ($\tau=1$) has assumed ballistic CR3BP dynamics for the state,
     \bm{f}^{(1)}(\bm{x}) &= \begin{bmatrix}
         \bm{g}(\bm{\xi}) \\
         -A \bm{\lambda}
-    \end{bmatrix}, \quad A = aI_{6 \times 6}
+    \end{bmatrix}, \quad A = aI_{6 \times 6} \label{eq:OCIMM-coasting-dynamics}
 \end{align}
 \noindent where $a$ is the exponential decay rate. The purpose of the exponential decay is to "reset" the costates before the beginning of the next maneuver, so that the estimation of the new maneuver is unaffected by the estimation of the previous maneuver.
 
-One drawback of assuming time-optimal control for the maneuvering mode is that the propagation from the maneuvering mode will always be thrusting. In other words, even if the target spacecraft is truly thrusting, the a priori estimate of the maneuvering mode $^-\hat{\bm{x}}_k^{(2)}$ may not match the true spacecraft state. This causes delays in maneuver detection, as the thrusting direction must be updated until $\bm{h}_k(^-\hat{\bm{x}}_k^{(2)})$ is close enough to the true measurement $\bm{z}_k$ and $\Lambda_k^{(2)}$ is larger than $\Lambda_k^{(1)}$. 
+One drawback of assuming time-optimal control for the maneuvering mode is that the dynamics of the maneuvering mode are always thrusting with $\norm{\bm{u}}_2 = u_\text{max}$, given by Eq. \ref{eq:min-time-control}. Therefore, even if the target spacecraft is truly thrusting, the maneuvering mode may propagate with an incorrect thrusting direction which could cause its predicted state to be even further from the truth than the coasting mode's predicted state. This causes delays in maneuver detection, as the thrusting direction must be updated until $\bm{h}_k(^-\hat{\bm{x}}_k^{(2)})$ is close enough to the true measurement $\bm{z}_k$ and $\Lambda_k^{(2)}$ is larger than $\Lambda_k^{(1)}$. 
 
 A simple method to solve this is to increase the process noise associated with the maneuvering mode, $Q^{(2)}$, such that any deviation from the coasting mode is captured by the innovations covariance of the maneuvering mode. However, this decreases the steady-state estimation performance of the maneuvering mode by being overconservative. 
 
 The solution presented in this paper is to scale the maximum control in the filter by the mode probability, such that
 \begin{align}
-    u_\text{max} = \mu_k^{(2)} u_{\text{max}, 0}
+    u_\text{max} = \mu_k^{(2)} u_{\text{max}, 0} \label{eq:umax-scaling}
 \end{align}
-where $u_{\text{max}, 0}$ is the true maximum control limit of the spacecraft. This method ensures that the a priori estimate of the maneuvering mode $^-\hat{\bm{x}}_k^{(2)}$ is never too far from the a priori estimate of the coasting mode $^-\hat{\bm{x}}_k^{(1)}$ at the beginning of a coasting arc when the coasting mode probability $\mu_k^{(1)}$ is close to unity. Thus, a smaller process noise covariance $Q^{(2)}$ can capture deviations from a ballistic trajectory at the beginning of a maneuver while not decreasing the steady-state estimation performance of the maneuvering mode. 
+where $u_{\text{max}, 0}$ is the true maximum control limit of the spacecraft. This method ensures that the a priori estimate of the maneuvering mode $^-\hat{\bm{x}}_k^{(2)}$ is never too far from the a priori estimate of the coasting mode $^-\hat{\bm{x}}_k^{(1)}$ at the beginning of a coasting arc when the coasting mode probability $\mu_k^{(1)}$ is close to unity. Thus, a smaller process noise covariance $Q^{(2)}$ can capture deviations from a ballistic trajectory at the beginning of a maneuver while not decreasing the steady-state estimation performance of the maneuvering mode. The proposed algorithm is described in Algorithm \ref{alg:OCIMM-step}.
 
-\begin{algorithmic}[1]
-    \BeginBox
-    \State $u_\text{max} \gets \mu_k^{(2)} u_\text{max, 0}$
-    \EndBox
-\end{algorithmic}
+\begin{algorithm}[H]
+    \caption{Single step of OCIMM}
+    \begin{algorithmic}
+        \State $u_\text{max} \gets \mu_{k-1}^{(2)} u_\text{max,0}$ (Eq. \ref{eq:umax-scaling})
+        \For{$j \in [1, 2]$}
+            \State Compute mixed initial condition ${}^+ \hat{\bm{x}}_{k-1}^{0j}$ and ${}^+P_{k-1}^{0j}$ (Eqs. \ref{eq:mixed-initial-mean}-\ref{eq:mixed-initial-covariance})
+            \State Compute a priori estimate and covariance ${}^- \hat{\bm{x}}_k^{(j)}$ and ${}^-P_{k}^{(j)}$ with new $u_\text{max}$ (Eqs. \ref{nonlinear estimate propagation (first EKF equation)}-\ref{eq:STM-propagation})
+            \State Compute posterior estimate and covariance ${}^+ \hat{\bm{x}}_k^{(j)}$ and ${}^+P_{k}^{(j)}$ (Eqs. \ref{eq:posterior-estimate-update}-\ref{eq:innovations covariance (last EKF eq)})
+        \EndFor
+        \State Compute $\mu_k^{(1)}$ and $\mu_k^{(2)}$ (Eq. \ref{eq:mode-probability-update})
+        \State $k-1 \gets k$ 
+    \end{algorithmic}
+    \label{alg:OCIMM-step}
+\end{algorithm}
 
 The key benefit of assuming optimal maneuvers is that given some observation of the beginning of a maneuver, it is possible to somewhat predict the rest of the maneuver. Thus, if an observation gap were to occur over the rest of the maneuver due to either natural causes (e.g. Moon occultation) or artificial causes (e.g. sensor re-tasking), the estimator can obtain a more accurate estimate. 
 
 \subsection{Acceleration IMM}
 
-For a baseline, we compare the performance of the OCIMM to an IMM with assumed third order dynamics, denoted as the ``acceleration IMM." The acceleration IMM has two modes: a coasting mode ($\tau = 1$) and a maneuvering mode ($\tau = 2$). To make a fair comparison with the OCIMM, the acceleration IMM also has knowledge of $u_\text{max}$, so its maneuvering mode is only estimating the direction of the control acceleration, $\bm{\eta} \in \R^3$, such that $\norm{\bm{\eta}}_2 = 1$ and $\bm{u} = \bm{\eta} u_\text{max}$. Thus, the acceleration IMM's state vector is defined as $\bm{x}_a = [\bm{\xi}^\top, \bm{\eta}^\top]^\top$. The dynamics of the acceleration IMM are given in Eq. 
+For a baseline, we compare the performance of the OCIMM to an IMM with assumed third order dynamics, denoted as the ``acceleration IMM." The acceleration IMM has two modes: a coasting mode ($\tau = 1$) and a maneuvering mode ($\tau = 2$). To make a fair comparison with the OCIMM, the acceleration IMM also has knowledge of $u_\text{max}$ and assumes maximum all maneuvers are bang-bang, so its maneuvering mode is only estimating the direction of the control acceleration, $\bm{\eta} \in \R^3$, such $\bm{u} = u_\text{max} \bm{\eta}/\norm{\bm{\eta}}_2 $. Thus, the acceleration IMM's state vector is defined as $\bm{x}_a = [\bm{\xi}^\top, \bm{\eta}^\top]^\top$. The dynamics of the acceleration IMM are given in Eq. 
 \begin{align}
     \bm{f}^{(1)}_a (\bm{x}_a) &= \begin{bmatrix}
         \bm{g}(\bm{\xi}) \\
-        \bm{0}_{3 \times 1}
-    \end{bmatrix} \\
+        -A_a \bm{\eta}
+    \end{bmatrix}, \quad A_a = a_a I_{3 \times 3} \\
     \bm{f}^{(2)}_a (\bm{x}_a) &= \begin{bmatrix}
         \bm{g}(\bm{\xi}) + B \bm{\eta}u_\text{max} \\
         \bm{0}_{3 \times 1}
     \end{bmatrix}
 \end{align}
+where $a_a$ is the exponential decay rate for the acceleration IMM. This serves the same purpose as $a$ in Eq. \ref{eq:OCIMM-coasting-dynamics}, resetting the estimation of the thrusting direction during the coasting period before the beginning of the next maneuver. The same scaling of $u_\text{max}$ in Eq. \ref{eq:umax-scaling} is also applied in the acceleration IMM.
 
 \subsection{Observation Strategy}
 
-Because of the difficulty of observing cislunar spacecraft from Earth, angles-only measurements are obtained from a constellation of $m$ observer spacecraft in a 1:1 resonant DRO every one hour \cite{gupta2023constellation}. It is assumed that the positions of the observer satellites are known deterministically. The azimuth and elevation measurements $\theta_k^{(i)}$ and $\phi_k^{(i)}$ from observer spacecraft $i \in [1, \cdots, m]$ at time $t_k$ are given by
+Because of the difficulty of observing cislunar spacecraft from Earth, angles-only measurements are obtained from a constellation of $m$ observer spacecraft in a distant retrograde orbit every one hour \cite{gupta2023constellation}. It is assumed that the positions of the observer satellites are known deterministically. The azimuth and elevation measurements $\theta_k^{(i)}$ and $\phi_k^{(i)}$ from observer spacecraft $i \in [1, \cdots, m]$ at time $t_k$ are given by
 \begin{align}
     \begin{bmatrix}
         \theta_k^{(i)} \\
@@ -382,34 +399,35 @@ To test the tracking performance of the OCIMM, we simulate the tracking of a low
     \label{fig:truth_trajectory}
 \end{figure}
 
-We perform simulations for two scenarios: one with measurements available at all times, and another with an artificial observation gap from $t \in [15, 20]$ days to assess the ability of the OCIMM to predict control. Each scenario is ran with 100 Monte Carlo simulations, where each simulation differs in the initial state estimate ${}^+\hat{\bm{x}}_0$ and measurement noise values $\bm{w}_k^{(i)}$. The parameters of the OCIMM and acceleration IMM are included in Table \ref{tab:truth-parameters}.
+We perform simulations for two scenarios: one with measurements available at all times, and another with an artificial observation gap from $t \in [15, 20]$ days to assess the ability of the OCIMM to predict control. Each scenario is ran with 100 Monte Carlo simulations, where each simulation differs in the initial state estimate ${}^+\hat{\bm{x}}_0$ and measurement noise values $\bm{w}_k^{(i)}$. The initial estimates for the state ${}^+\hat{\bm{\xi}}_0 \sim \mathcal{N}(\bm{\xi}(0), \text{blkdiag}(\sigma_{\bm{r}}I_3, \sigma_{\bm{v}}I_3))$ are drawn from a normal distribution with mean of the truth state and covariance of the initial state covariance. The estimates of the costates and acceleration directions are both initialized as ones, such that $\hat{\bm{\lambda}}_0 = \bm{1}_{6 \times 1}$ and $\hat{\bm{\eta}}_0 = \bm{1}_{3\times1}$ The simulation parameters are listed in Table \ref{tab:truth-parameters}.
 
 \begin{table}
     \centering
     \caption{Simulation parameters}
-    \begin{tabular}{c|c|c}
-        Parameter & Value & Unit \\
+    \begin{tabular}{c|c}
+        Parameter & Value \\
         \hline
-        $\rho$ & $10^{-4}$ & n.d. \\
-        $\mu$ & $1.215059\times 10^{-2}$ & n.d. \\
-        $u_\text{max, 0}$ & $0.4$ & mm/s$^2$ \\
-        $t_f$ & 35 & days \\
-        $\sigma_\theta = \sigma_\phi$ & 0.001 & deg \\
-        $\sigma_\text{scl}$ & 100 & n.d. \\
-        $[\mu_0^{(1)}, \mu_0^{(2)}]$ & $[0.99, 0.01]$ & n.d. \\
-        $\sigma_r(0)$ & $50$ & km \\
-        $\sigma_v(0)$ & 1 & m/s \\
-        $\sigma_{\lambda}(0)$ & 0.01 & n.d. \\
-        $\Pi$ & $\begin{bmatrix}
+        Smoothing Parameter, $\rho$, [n.d.] & $10^{-4}$ \\
+        CR3BP Mass Ratio, $\mu$, [n.d.] & $1.215059\times 10^{-2}$ \\
+        Max Control Acceleration, $u_\text{max, 0}$, [mm/s$^2$] & $0.4$ \\
+        Measurement Angle S.D., $\sigma_\theta=\sigma_\phi$, [deg] & 0.001 \\
+        Range Uncertainty, $\sigma_\text{scl}$, [n.d.] & 100 \\
+        Iniital Mode Probabilities, $[\mu_0^{(1)}, \mu_0^{(2)}]$, [n.d.] & $[0.99, 0.01]$ \\
+        Initial Position S.D., $\sigma_r(0)$, [km] & $50$ \\
+        Initial Velocity S.D., $\sigma_v(0)$, [m/s] & 1 \\
+        Initial Costate S.D., $\sigma_{\bm{\lambda}}(0)$, [n.d.] & 0.01  \\
+        Initial Acceleration Direction S.D., $\sigma_{\bm{\eta}}(0)$, [n.d.] & 0.01 \\
+        Mode Transition Matrix, $\Pi$, [n.d.] & $\begin{bmatrix}
             0.99 & 0.01 \\
             0.01 & 0.99
-        \end{bmatrix}$ & n.d. \\
-        $Q^{(1)}$ & $\text{blkdiag}(10^{-30}I_6, 10^{-4}I_6)$ & n.d. \\
-        $Q^{(2)}$ & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 10^{-2}I_3, 10^{-4}I_3)$ & n.d.
+        \end{bmatrix}$ \\
+        OCIMM Coasting Process Noise, $Q^{(1)}$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-4}I_6)$ \\
+        OCIMM Maneuvering Process Noise, $Q^{(2)}$, [n.d.] & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 10^{-2}I_3, 10^{-4}I_3)$ \\
+        Acceleration IMM Coasting Process Noise, $Q^{(1)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-6}I_3)$ \\
+        Acceleration IMM Maneuvering Process Noise, $Q^{(2)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 50^{-3}I_3)$
     \end{tabular}
     \label{tab:truth-parameters}
 \end{table}
-
 
 \section{Results}
 \subsection{Fully-Observed Scenario}
