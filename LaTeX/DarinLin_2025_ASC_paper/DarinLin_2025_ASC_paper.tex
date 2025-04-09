@@ -90,14 +90,27 @@ The units of the system are normalized such that the unit length is the distance
         u_y \\
         u_z
     \end{bmatrix} \\
-    d &= \sqrt{(x+\mu)^2 + y^2 + z^2}, \quad r = \sqrt{(x + \mu - 1)^2 + y^2 + z^2}
+    d &= \sqrt{(x+\mu)^2 + y^2 + z^2}, \quad r = \sqrt{(x + \mu - 1)^2 + y^2 + z^2} \label{eq:CR3BP-dynamics}
 \end{aligned}
 \end{align}
 \noindent where $\mu = m_2/(m_1 + m_2)$ is the ratio of the second body's mass to the total mass of the system \cite{zimovan2017characteristics}.
 
 \subsection{Periodic Orbits in the CR3BP}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/orbits.png}
+    \caption{Representative L1 Lyapunov and L1 Halo Periodic Orbits}
+    \label{fig:orbits}
+\end{figure}
 
+It is desirable to obtain periodic solutions $\bm{\gamma}$ to the CR3BP dynamics (Eq. \ref{eq:CR3BP-dynamics}), such that
+\begin{align}
+    \bm{\gamma}(t + T) = \bm{\gamma}(t)
+\end{align}
+\noindent where $T$ is the period of the solution. These periodic orbits enable geometries impossible when only considering a single body's gravity. However, the dynamics of the CR3BP (Eq. \ref{eq:CR3BP-dynamics}) have no analytical closed-form solution, so these orbits are typically obtained using numerical methods.
+
+Once a periodic solution has been obtained, continuation strategies can be employed to obtain a family of similar solutions \cite{williams2024dynamics}. The orbits of interest in this paper are those belonging to the L1 Lyapunov and L1 Halo families. These families are associated with the L1 Lagrange point, with the L1 Lyapunov family lying in the xy-plane and the L1 Halo family being three dimensional. These solutions are unstable, increasing the difficulty of the tracking problem, as small estimation errors caused by perturbations or maneuvers quickly expand during periods without observations. The representative orbits of interest are plotted in Figure \ref{fig:orbits}.
 
 \subsection{Extended Kalman Filter (EKF)}
 
@@ -486,12 +499,6 @@ The mode probabilities of the OCIMM in the observation gap scenario are plotted 
     \label{fig:mode-probabilities}
 \end{figure}
 
-Lastly, to assess the consistency of the OCIMM, its estimation error and estimation error $3\sigma$ bounds from the observation gap scenario are plotted in Figure \ref{fig:three-sigmas}. Since the OCIMM is estimating the costate, the covariance of the control must be obtained by linearly transforming the costate covariance. This transformation is described in Eq. \ref{eq:covariance-transform},
-\begin{align}
-    P_{u, k} = U_kP_{\bm{\lambda}_v, k}U_k^\top, \quad U_k = \left. \frac{\partial \bm{u}(\bm{\lambda})}{\partial{\bm{\lambda}}} \right|_{\bm{\lambda}=\hat{\bm{\lambda}}_k}, \quad \bm{u}(\bm{\lambda}) = -u_\text{max} \frac{B^\top \bm{\lambda}}{\norm{B^\top \bm{\lambda}}_2} \label{eq:covariance-transform}
-\end{align}
-\noindent where $P_{u,k} \approx \E[(\bm{u} - \hat{\bm{u}})(\bm{u} - \hat{\bm{u}})^\top] \in \R^{3 \times 3}$ is the control covariance matrix, and $P_{\bm{\lambda}_v} \in \R^{3 \times 3}$ is the portion of ${}^+P_k$ corresponding to the estimate of $\bm{\lambda}_v$. 
-
 \begin{figure}
     \centering
     \includegraphics[width=0.85\linewidth]{Figures/position_3sigmas.png}
@@ -500,6 +507,12 @@ Lastly, to assess the consistency of the OCIMM, its estimation error and estimat
     \caption{Position, velocity, and control estimation errors (black lines) and estimation error $3\sigma$ bounds (red lines) of the OCIMM over 100 Monte-Carlo simulations of the observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gap.}
     \label{fig:three-sigmas}
 \end{figure}
+
+Lastly, to assess the consistency of the OCIMM, its estimation error and estimation error $3\sigma$ bounds from the observation gap scenario are plotted in Figure \ref{fig:three-sigmas}. Since the OCIMM is estimating the costate, the covariance of the control must be obtained by linearly transforming the costate covariance. This transformation is described in Eq. \ref{eq:covariance-transform},
+\begin{align}
+    P_{u, k} = U_kP_{\bm{\lambda}_v, k}U_k^\top, \quad U_k = \left. \frac{\partial \bm{u}(\bm{\lambda})}{\partial{\bm{\lambda}}} \right|_{\bm{\lambda}=\hat{\bm{\lambda}}_k}, \quad \bm{u}(\bm{\lambda}) = -u_\text{max} \frac{B^\top \bm{\lambda}}{\norm{B^\top \bm{\lambda}}_2} \label{eq:covariance-transform}
+\end{align}
+\noindent where $P_{u,k} \approx \E[(\bm{u} - \hat{\bm{u}})(\bm{u} - \hat{\bm{u}})^\top] \in \R^{3 \times 3}$ is the control covariance matrix, and $P_{\bm{\lambda}_v} \in \R^{3 \times 3}$ is the portion of ${}^+P_k$ corresponding to the estimate of $\bm{\lambda}_v$. 
 
 It can be seen that the OCIMM is able to maintain convergence when directly estimating the costate, even in periods of rapidly changing control and after observation gaps. This demonstrates the validity of an estimation approach which directly implements the costate in the state vector.
 

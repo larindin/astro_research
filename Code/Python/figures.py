@@ -390,6 +390,89 @@ fig.align_ylabels(axs=[ax_dict["x"], ax_dict["y"], ax_dict["z"], ax_dict["norm"]
 
 plt.savefig("figures/truth_trajectory.png", dpi=600, bbox_inches="tight")
 
+close_bool = np.linalg.norm([(1 - mu) - final_orbit_prop[0], -final_orbit_prop[1], -final_orbit_prop[2]], axis=0) < 40000/NONDIM_LENGTH
+
+fig = plt.figure(figsize=(7.75, 7.75/2))
+ax = fig.add_subplot(121, projection="3d")
+ax.plot_wireframe(x, y, z, color="grey", label="Moon")
+ax.scatter(L1*NONDIM_LENGTH, 0, 0, color="black", marker="+", label="L1")
+ax.plot(initial_orbit_prop[0]*NONDIM_LENGTH, initial_orbit_prop[1]*NONDIM_LENGTH, initial_orbit_prop[2]*NONDIM_LENGTH, label="L1 Halo", color="c")
+ax.plot(final_orbit_prop[0]*NONDIM_LENGTH, final_orbit_prop[1]*NONDIM_LENGTH, final_orbit_prop[2]*NONDIM_LENGTH, label="L1 Lyapunov", color="magenta")
+ax.set_aspect("equal")
+ax.grid(True, linewidth=0.5, alpha=0.5)
+ax.tick_params(axis="both", which="major", labelsize=8)
+ax.ticklabel_format(axis="both", style="sci", scilimits=(0, 0))
+ax.set_xlabel("$x$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_ylabel("$y$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_zlabel("$z$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_zlim(-5e4, 5e4)
+ax.set_zticks((-5e4, 0, 5e4))
+ax.xaxis.pane.fill = False
+ax.yaxis.pane.fill = False
+ax.zaxis.pane.fill = False
+ax.xaxis.pane.set_edgecolor('w')
+ax.yaxis.pane.set_edgecolor('w')
+ax.zaxis.pane.set_edgecolor('w')
+ax.set_aspect("equal")
+ax.get_xaxis().get_offset_text().set_fontname("Times New Roman")
+ax.get_yaxis().get_offset_text().set_fontname("Times New Roman")
+ax.get_zaxis().get_offset_text().set_fontname("Times New Roman")
+ax.get_xaxis().get_offset_text().set_fontsize(8)
+ax.get_yaxis().get_offset_text().set_fontsize(8)
+ax.get_zaxis().get_offset_text().set_fontsize(8)
+ax.get_zaxis().get_offset_text().set_position((0, 0, 1))
+for tick in ax.get_xticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_yticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_zticklabels():
+    tick.set_fontname("Times New Roman")
+ax.view_init(elev=25, azim=-110, roll=0)
+
+ax = fig.add_subplot(122, projection="3d")
+ax.plot_wireframe(x, y, z, color="grey", label="Moon")
+ax.scatter(L1*NONDIM_LENGTH, 0, 0, color="black", marker="+", label="L1")
+ax.plot(initial_orbit_prop[0]*NONDIM_LENGTH, initial_orbit_prop[1]*NONDIM_LENGTH, initial_orbit_prop[2]*NONDIM_LENGTH, label="L1 Halo", color="c")
+ax.plot(final_orbit_prop[0, close_bool]*NONDIM_LENGTH, final_orbit_prop[1, close_bool]*NONDIM_LENGTH, final_orbit_prop[2, close_bool]*NONDIM_LENGTH, label="L1 Lyapunov", color="magenta")
+ax.set_xlim(300000, 400000)
+ax.set_ylim(-20000, 20000)
+ax.set_aspect("equal")
+ax.grid(True, linewidth=0.5, alpha=0.5)
+ax.tick_params(axis="both", which="major", labelsize=8)
+ax.ticklabel_format(axis="both", style="sci", scilimits=(0, 0))
+ax.set_xlabel("$x$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_ylabel("$y$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_zlabel("$z$ [km]", fontname="Times New Roman", fontsize=8)
+ax.set_zlim(-2e4, 2e4)
+ax.set_zticks((-2e4, 0, 2e4))
+ax.set_yticks((-2e4, -1e4, 0, 1e4, 2e4))
+ax.xaxis.pane.fill = False
+ax.yaxis.pane.fill = False
+ax.zaxis.pane.fill = False
+ax.xaxis.pane.set_edgecolor('w')
+ax.yaxis.pane.set_edgecolor('w')
+ax.zaxis.pane.set_edgecolor('w')
+ax.set_aspect("equal")
+ax.get_xaxis().get_offset_text().set_fontname("Times New Roman")
+ax.get_yaxis().get_offset_text().set_fontname("Times New Roman")
+ax.get_zaxis().get_offset_text().set_fontname("Times New Roman")
+ax.get_xaxis().get_offset_text().set_fontsize(8)
+ax.get_yaxis().get_offset_text().set_fontsize(8)
+ax.get_zaxis().get_offset_text().set_fontsize(8)
+ax.get_zaxis().get_offset_text().set_position((0, 0, 1))
+for tick in ax.get_xticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_yticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_zticklabels():
+    tick.set_fontname("Times New Roman")
+handles, labels = ax.get_legend_handles_labels()
+handles[0] = myhandle[0]
+ax.legend(handles, labels, prop={"family":"Times New Roman", "size":8}, fancybox=False, bbox_to_anchor=(0.1, 1))
+ax.view_init(elev=23, azim=-140, roll=0)
+
+plt.savefig("figures/orbits.png", dpi=600, bbox_inches="tight")
+
 coasting_truth[:, check_results==1] = np.nan
 thrusting_truth[:, check_results==1] = np.nan
 
