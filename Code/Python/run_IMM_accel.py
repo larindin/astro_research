@@ -76,9 +76,8 @@ def coasting_acceleration_ODE(t, X, mu, umax):
     STM = X[9:90].reshape((9, 9))
 
     ddt_state = CR3BP_DEs(0, state[0:6], mu)
-    K = np.diag(np.full(3, 1e1))
-    ddt_accel = -K @ state[6:9]
-    ddt_STM = coasting_acceleration_umax_jacobian(state, mu, K) @ STM
+    ddt_accel = np.zeros(3)
+    ddt_STM = coasting_acceleration_jacobian(state, mu) @ STM
 
     return np.concatenate((ddt_state, ddt_accel, ddt_STM.flatten()))
 
@@ -87,8 +86,8 @@ def acceleration_ODE(t, X, mu, umax):
     state = X[0:9]
     STM = X[9:90].reshape((9, 9))
 
-    ddt_state = CR3BP_accel_umax_DEs(0, state, mu, umax)
-    ddt_STM = CR3BP_accel_umax_jacobian(state, mu, umax) @ STM
+    ddt_state = CR3BP_accel_DEs(0, state, mu)
+    ddt_STM = CR3BP_accel_jacobian(state, mu) @ STM
 
     return np.concatenate((ddt_state, ddt_STM.flatten()))
 
@@ -165,14 +164,14 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 coasting_dynamics_equation = coasting_acceleration_ODE
 maneuvering_dynamics_equation = acceleration_ODE
 initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_acceleration_covariance)
-initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(3)))
-process_noise_covariances = [coasting_accel_umax_process_noise_covariance, accel_umax_process_noise_covariance]
+initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(3)))
+process_noise_covariances = [coasting_accel_process_noise_covariance, accel_process_noise_covariance]
 
 initial_estimates = []
 measurements = []
 for run_index in range(num_runs):
 
-    initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(3)*1e0)))
+    initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(3))))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
     measurement_vals = angles2PV(measurement_vals)
     measurements.append(measurement_vals.measurements)
@@ -210,16 +209,21 @@ estimated_controls = []
 control_errors = []
 control_covariances = []
 for run_index in range(num_runs):
-    posterior_control = get_accel_umax_control(output_estimates[run_index][6:9], umax)
-    for index in range(3):
-        posterior_control[index, :] *= mode_probabilities[run_index][1, :]
+    coasting_bool = mode_probabilities[run_index][0] > 0.5
+    posterior_control = output_estimates[run_index][6:9]
+    posterior_control[:, coasting_bool] *= mode_probabilities[run_index][1, coasting_bool]
     estimated_controls.append(posterior_control)
     control_errors.append(posterior_control - truth_control)
-    control_covariances.append(get_accel_umax_ctrl_cov(output_estimates[run_index][6:9], output_covariances[run_index], umax))
+    control_covariance = output_covariances[run_index][6:9, 6:9]
+    control_covariances.append(control_covariance)
 
 estimation_errors = compute_estimation_errors(truth_vals, output_estimates, (0, 9))
 three_sigmas = compute_3sigmas(output_covariances, (0, 9))
 control_3sigmas = compute_3sigmas(control_covariances, (0, 3))
+
+for run_index in range(num_runs):
+    for ax_index in range(3):
+        control_3sigmas[run_index][ax_index, coasting_bool] *= mode_probabilities[run_index][1, coasting_bool]
 
 position_norm_errors = compute_norm_errors(estimation_errors, (0, 3))
 velocity_norm_errors = compute_norm_errors(estimation_errors, (3, 6))
@@ -243,28 +247,28 @@ avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_err
 
 if save == True:
     if gap == True:
-        np.save("data/accel_IMM_est_control1.npy", output_estimated_control)
-        np.save("data/accel_IMM_avg_error1.npy", avg_error_vals)
-        np.save("data/accel_IMM_avg_norm_error1.npy", avg_norm_error_vals)
-        np.save("data/accel_IMM_est_errors1.npy", estimation_errors)
-        np.save("data/accel_IMM_est_3sigmas1.npy", three_sigmas)
-        np.save("data/accel_IMM_ctrl_errors1.npy", control_errors)
-        np.save("data/accel_IMM_ctrl_3sigmas1.npy", control_3sigmas)
+        np.save("data/accel_est_control1.npy", output_estimated_control)
+        np.save("data/accel_avg_error1.npy", avg_error_vals)
+        np.save("data/accel_avg_norm_error1.npy", avg_norm_error_vals)
+        np.save("data/accel_est_errors1.npy", estimation_errors)
+        np.save("data/accel_est_3sigmas1.npy", three_sigmas)
+        np.save("data/accel_ctrl_errors1.npy", control_errors)
+        np.save("data/accel_ctrl_3sigmas1.npy", control_3sigmas)
     elif gap == False:
-        np.save("data/accel_IMM_est_control.npy", output_estimated_control)
-        np.save("data/accel_IMM_avg_error.npy", avg_error_vals)
-        np.save("data/accel_IMM_avg_norm_error.npy", avg_norm_error_vals)
-        np.save("data/accel_IMM_est_errors.npy", estimation_errors)
-        np.save("data/accel_IMM_est_3sigmas.npy", three_sigmas)
-        np.save("data/accel_IMM_ctrl_errors.npy", control_errors)
-        np.save("data/accel_IMM_ctrl_3sigmas.npy", control_3sigmas)
+        np.save("data/accel_est_control.npy", output_estimated_control)
+        np.save("data/accel_avg_error.npy", avg_error_vals)
+        np.save("data/accel_avg_norm_error.npy", avg_norm_error_vals)
+        np.save("data/accel_est_errors.npy", estimation_errors)
+        np.save("data/accel_est_3sigmas.npy", three_sigmas)
+        np.save("data/accel_ctrl_errors.npy", control_errors)
+        np.save("data/accel_ctrl_3sigmas.npy", control_3sigmas)
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=1/num_runs, scale="linear")
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=1/num_runs, scale="linear")
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=1/num_runs, scale="linear", ylim=(-0.25, 0.25))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=1/num_runs, ylim=(1e-4, 1e5))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=1/num_runs, ylim=(1e-5, 1e3))
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=1/num_runs, ylim=(1e-8, 1e4))
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=1/num_runs, scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=1/num_runs)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=1/num_runs)
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=1/num_runs)
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
@@ -323,6 +327,11 @@ for ax_index in range(3):
     ax.set_ylabel(control_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
+
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.plot(plot_time, mode_probabilities[run_index][0], c="tab:blue", alpha=0.2)
+    ax.plot(plot_time, mode_probabilities[run_index][1], c="tab:red", alpha=0.2)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)

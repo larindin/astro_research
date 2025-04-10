@@ -66,8 +66,10 @@ IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
 coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-2)**2)
 min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-2)**2)
-coasting_acceleration_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-6)**2)
-acceleration_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
+coasting_accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-6)**2)
+accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
+coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(0)**2)
+accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(umax)**2)
 initial_mode_probabilities = np.array([0.99, 0.01])
 mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])

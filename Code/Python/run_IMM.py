@@ -206,6 +206,9 @@ for run_index in range(num_runs):
     measurement_vals = angles2PV(measurement_vals)
     measurements.append(measurement_vals.measurements)
 
+print(np.count_nonzero(np.isnan(measurement_vals.measurements)))
+quit()
+
 # filter_measurement_function = angles_measurement_equation
 filter_measurement_function = PV_measurement_equation
 
