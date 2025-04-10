@@ -93,11 +93,10 @@ def coasting_costate_dynamics_equation(t, X, mu, umax):
     STM = X[12:156].reshape((12, 12))
 
     ddt_state = CR3BP_DEs(t, state, mu)
-    # ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
-    # jacobian = minimum_energy_jacobian(state, costate, mu, umax)
-    K = np.diag(np.full(6, 1e2))
-    jacobian = coasting_costate_jacobian(state, mu, K)
-    ddt_costate = -K @ costate
+    ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
+    jacobian = coasting_costate_jacobian(state, costate, mu)
+    # K = np.diag(np.full(6, 1e2))
+    # ddt_costate = -K @ costate
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
@@ -201,13 +200,10 @@ initial_estimates = []
 measurements = []
 for run_index in range(num_runs):
 
-    initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e0)))
+    initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e-12)))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
     measurement_vals = angles2PV(measurement_vals)
     measurements.append(measurement_vals.measurements)
-
-print(np.count_nonzero(np.isnan(measurement_vals.measurements)))
-quit()
 
 # filter_measurement_function = angles_measurement_equation
 filter_measurement_function = PV_measurement_equation
@@ -351,6 +347,16 @@ for ax_index in range(3):
     ax.set_ylabel(control_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
+
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.plot(plot_time, mode_probabilities[run_index][0], c="tab:blue", alpha=0.2)
+    ax.plot(plot_time, mode_probabilities[run_index][1], c="tab:red", alpha=0.2)
+
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.plot(plot_time, np.linalg.norm(output_estimates[run_index][9:12], axis=0), c="tab:blue", alpha=0.2)
+ax.set_ylim(0, 10)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
