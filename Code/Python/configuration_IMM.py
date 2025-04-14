@@ -7,9 +7,13 @@ from catalogue import *
 from helper_functions import *
 
 # Monte-carlo parameters
-seed = 0
+seed = 1
 generator = np.random.default_rng(seed)
+<<<<<<< Updated upstream
 num_runs = 10
+=======
+num_runs = 100
+>>>>>>> Stashed changes
 save = False
 gap = True
 
@@ -65,7 +69,11 @@ initial_acceleration_covariance = np.eye(3)*1e-2**2
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
 coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-2)**2)
+<<<<<<< Updated upstream
 min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-2)**2)
+=======
+min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2, np.eye(3)*(1e-2)**2)
+>>>>>>> Stashed changes
 coasting_accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-6)**2)
 accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
 coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(0)**2)
