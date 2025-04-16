@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex DarinLin_2025_ASC_paper"] 1744660328.59217 "DarinLin_2025_ASC_paper.aux" "DarinLin_2025_ASC_paper.bbl" "DarinLin_2025_ASC_paper" 1744660335.57619 0
+["bibtex DarinLin_2025_ASC_paper"] 1744817881.3201 "DarinLin_2025_ASC_paper.aux" "DarinLin_2025_ASC_paper.bbl" "DarinLin_2025_ASC_paper" 1744818684.92716 0
   "./AAS_publication.bst" 1744216145.94351 17438 b0110560a858beeea248ed6fbdc49cd1 ""
-  "./references.bib" 1744657305.3998 8001 ca5d4fc871751c055ff5af1e9bf5f76a ""
-  "DarinLin_2025_ASC_paper.aux" 1744660335.38642 12916 be9ff761d0a6ba2da2eae40b0736a742 "pdflatex"
+  "./references.bib" 1744812306.89016 8001 ca5d4fc871751c055ff5af1e9bf5f76a ""
+  "DarinLin_2025_ASC_paper.aux" 1744818684.73771 12916 30fb323643815048166828b9ac3acd4e "pdflatex"
   (generated)
   "DarinLin_2025_ASC_paper.bbl"
   "DarinLin_2025_ASC_paper.blg"
   (rewritten before read)
-["pdflatex"] 1744660328.66516 "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" "DarinLin_2025_ASC_paper.pdf" "DarinLin_2025_ASC_paper" 1744660335.57629 0
-  "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" 1744660321.52728 50851 7182b7045a661d98c5bef77abde7b4ea ""
+["pdflatex"] 1744818678.10513 "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" "DarinLin_2025_ASC_paper.pdf" "DarinLin_2025_ASC_paper" 1744818684.92727 0
+  "/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_2025_ASC_paper/DarinLin_2025_ASC_paper.tex" 1744818677.88974 52436 cf206c3fcfa947b4b7ef4cfbc0590056 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/helvetic/phvb7t.tfm" 1136768653 2240 eb56c13537f4d8a0bd3fafc25572b1bd ""
@@ -238,15 +238,15 @@
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
   "AAS.cls" 1744216145.9432 24466 06c89235df8688b294c4ecb0d9debe6f ""
-  "DarinLin_2025_ASC_paper.aux" 1744660335.38642 12916 be9ff761d0a6ba2da2eae40b0736a742 "pdflatex"
-  "DarinLin_2025_ASC_paper.bbl" 1744660328.66285 5175 daed7dbd6e5fdd9aab1034506c1aee77 "bibtex DarinLin_2025_ASC_paper"
-  "DarinLin_2025_ASC_paper.out" 1744660335.38722 3225 10e4ffe4a05bac51a2716a694c60a184 "pdflatex"
-  "DarinLin_2025_ASC_paper.tex" 1744660321.52728 50851 7182b7045a661d98c5bef77abde7b4ea ""
+  "DarinLin_2025_ASC_paper.aux" 1744818684.73771 12916 30fb323643815048166828b9ac3acd4e "pdflatex"
+  "DarinLin_2025_ASC_paper.bbl" 1744817881.39032 5175 daed7dbd6e5fdd9aab1034506c1aee77 "bibtex DarinLin_2025_ASC_paper"
+  "DarinLin_2025_ASC_paper.out" 1744818684.73851 3225 10e4ffe4a05bac51a2716a694c60a184 "pdflatex"
+  "DarinLin_2025_ASC_paper.tex" 1744818677.88974 52436 cf206c3fcfa947b4b7ef4cfbc0590056 ""
   "Figures/CR3BP.png" 1744216146.00822 98372 9f3619dedbcb044a09a8d9d39c90d413 ""
-  "Figures/MAE_gap.png" 1744216146.00926 413464 8517f3ca80c20fddbe2d6008701add63 ""
-  "Figures/MAE_normal.png" 1744216146.01064 548432 4b43c5a5f05c7b8fd2952dbadb04fd8e ""
+  "Figures/MAE_gap.png" 1744812249.85932 343108 9ae2f1548c7dba4c4a67e82f01d2ab99 ""
+  "Figures/MAE_normal.png" 1744811833.56839 556378 c479ddc8d82ddc2faf67b09ea6ecad7f ""
   "Figures/closeup.png" 1744216146.01104 136086 195b0d1b22c0f681b5ddfae89f54065a ""
-  "Figures/control.png" 1744216146.01666 1170052 48dbba7a6c25e68f5073f858450d3096 ""
+  "Figures/control.png" 1744812251.18405 1074677 c7838a934a0f5f220de4f7e9bbfbbfda ""
   "Figures/control_3sigmas.png" 1744216146.02625 3068889 5c98a521dc96aa37d9aeedc136f87c03 ""
   "Figures/mode_probabilities.png" 1744216146.03354 1786311 27d9b598d14997e5e2b158f606942b74 ""
   "Figures/orbits.png" 1744216146.03469 470147 80e569775381cecc1c81045f9eb503cc ""

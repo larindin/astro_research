@@ -9,9 +9,9 @@ from helper_functions import *
 # Monte-carlo parameters
 seed = 1
 generator = np.random.default_rng(seed)
-num_runs = 10
-save = False
-gap = False
+num_runs = 100
+save = True
+gap = True
 
 #10, 13, 31, 32 are good
 
@@ -68,8 +68,8 @@ coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1
 min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-2)**2)
 coasting_accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-6)**2)
 accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
-coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(0)**2)
-accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(umax)**2)
+coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
+accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2)
 initial_mode_probabilities = np.array([0.99, 0.01])
 mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])

@@ -14,6 +14,7 @@
 \usepackage{algorithm}
 \usepackage{algpseudocodex}
 \usepackage{subfigure}
+\usepackage{float}
 %\usepackage[notref,notcite]{showkeys}  % use this to temporarily show labels
 \usepackage[colorlinks=true, pdfstartview=FitV, linkcolor=black, citecolor= black, urlcolor= black]{hyperref}
 \usepackage{overcite}
@@ -47,7 +48,7 @@ Tracking maneuvering cislunar spacecraft is a difficult task due to the highly n
 
 %This is going to be pretty similar to most other papers on cislunar SDA. Will need to cite many papers here, including Iannamorelli, Holzinger, Scheeres, Wishnek, and Lubey. Discuss other efforts in cislunar SDA, optimal-control based estimation, cislunar initial orbit determination, and maneuver reconstruction.
 
-International interest in cislunar space has increased significantly in the recent decade \cite{nelson2024moon}. Space domain awareness (SDA) will be critical for the future sustainable development of cislunar space. Compared to SDA near Earth, cislunar SDA faces significant challenges due to highly nonlinear cislunar dynamics, extreme distances, and frequent observation gaps. To add to this complexity, active cislunar spacecraft have the ability to maneuver, which in combintation with the chaotic cislunar dynamics further compounds the extreme nonlinearity of the tracking problem. Additionally, low-thrust propulsion has become an increasingly popular choice for spacecraft because of its high specific impulse, allowing for longer mission durations and smaller fuel fractions. Thus, methods for tracking low-thrust maneuvering spacecraft in cislunar space are of interest. 
+International interest in cislunar space has increased significantly in the recent decade \cite{nelson2024moon}. Space domain awareness (SDA) will be critical for the future sustainable development of cislunar space. Compared to SDA near Earth, cislunar SDA faces significant challenges due to highly nonlinear cislunar dynamics, extreme distances, and frequent observation gaps. To add to this complexity, active cislunar spacecraft have the ability to maneuver, which in combintation with the chaotic cislunar dynamics further compounds the extreme nonlinearity of the tracking problem. Additionally, low-thrust propulsion has become an increasingly popular choice for spacecraft because of its high specific impulse, allowing for longer mission durations and smaller fuel fractions. Thus, tracking low-thrust maneuvering spacecraft in cislunar space is a problem of interest. 
 
 Significant research effort has been dedicated to the general maneuvering target tracking problem. Bar-Shalom et al. presents several sequential algorithms to account for the discrete nature of maneuvering objects, most notably the interacting multiple model estimator \cite{bar1989tracking} (IMM) and the variable state dimension estimator \cite{bar2007variable} (VSD). Goff et al. implements a combination of these algorithms specifically for tracking low-thrust maneuvering spacecraft in geocentric orbits \cite{goff2015orbit}. Wetterer et al. utilizes an IMM to track impulsively maneuvering spacecraft in cislunar space \cite{wetterer2022cislunar}.
 
@@ -60,7 +61,7 @@ Other research efforts have been dedicated to manage the nonlinearity of the pro
     \label{fig:CR3BP}
 \end{figure}
 
-Iannamorelli and LeGrand combine the adaptive Gaussian mixture and multiple model estimation approaches to simultaneously combat the extreme nonlinearity of cislunar dynamics while also accounting for the maneuvers of an active spacecraft \cite{iannamorelli2025adaptive}. Their adaptive Gaussian mixture interacting multiple model estimator (AGMIMM) models maneuvers as zero-mean, Gaussian process noise, so if this process noise is properly tuned to capture all possible spacecraft maneuvers, the AGMIMM is able to accurately determine where the spacecraft \textit{could} be. However, it is reasonable to assume that the maneuvers of the target spacecraft will be optimal, in which case modeling maneuvers as zero-mean process noise would be overly-conservative. If instead some optimal control law is assumed, given observations of the beginning of a maneuver, it is possible to predict where the spacecraft \textit{should} be at some future time with less uncertainty than by modeling maneuvers as zero-mean process noise. As the number of cislunar spacecraft increase, decreasing this uncertainty will gain more importance for track correlation problems for multiple maneuvering targets.
+Iannamorelli and LeGrand combine the adaptive Gaussian mixture and multiple model estimation approaches to simultaneously combat the extreme nonlinearity of cislunar dynamics while also accounting for the maneuvers of an active spacecraft \cite{iannamorelli2025adaptive}. Their adaptive Gaussian mixture interacting multiple model estimator (AGMIMM) models maneuvers as zero-mean, Gaussian process noise, so if properly tuned to capture all possible spacecraft maneuvers, the AGMIMM is able to accurately determine where the spacecraft \textit{could} be. However, it is reasonable to assume that the maneuvers of the target spacecraft will be optimal, in which case modeling maneuvers as zero-mean process noise would be overly-conservative. If instead some optimal control law is assumed, given observations of the beginning of a maneuver, it is possible to predict where the spacecraft \textit{should} be at some future time with less uncertainty than by modeling maneuvers as zero-mean process noise. As cislunar SDA becomes more complex with more cislunar spacecraft, decreasing this uncertainty will be critical for correlating tracks of multiple maneuvering targets and allocating limited observational resources.
 
 The concept of using optimal control to improve tracking is explored by Holzinger et al., resulting in the development of the control-distance metric \cite{holzinger2012object}. The control-distance metric characterizes the amount of control effort required to connect two spacecraft states assuming some optimal control, thus allowing the correlation of tracks which are separated by smaller control distances. Lubey and Scheeres apply this framework to develop a sequential estimator, resulting in the Optimal Control-Based Estimator (OCBE) \cite{lubey2013optimal}. The OCBE models any deviation in the state dynamics as an optimal control, which allows both control inputs and mismodeled dynamics to be reconstructed from these deviations. The OCBE is applied by Greaves and Scheeres to the cislunar tracking problem for maneuver detection and reconstruction \cite{greaves2021observation}. These approaches, however, are for the posterior reconstruction and detection of maneuvers rather than for the prior prediction of maneuvers. 
 
@@ -285,6 +286,9 @@ Applying the necessary condition for the costate dynamics given in Eq. \ref{PMP 
 To track maneuvering low-thrust spacecraft in cislunar space, we utilize an IMM with two modes: a coasting mode ($\tau=1$) and a maneuvering mode ($\tau=2$). The state vector of the estimator includes the original CR3BP state as well as the costate, written as $\bm{x} = [\bm{\xi}^\top, \bm{\lambda}^\top]^\top \in \R^{12}$. The costate can further be subdivided to be written as $\bm{\lambda} = [\bm{\lambda}_r^\top, \bm{\lambda}_v^\top]^\top$, where $\bm{\lambda}_r \in \R^3$ and $\bm{\lambda}_v \in \R^3$ are the vectors of costates corresponding to the vector of states $\bm{r}$ and $\bm{v}$, respectively. The dynamics of the maneuvering mode are a spacecraft operating under an assumed minimum-time optimal control policy:
 \begin{align}
     \bm{f}^{(2)}(\bm{x}) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\lambda}}
+    \end{bmatrix} = \begin{bmatrix}
         \bm{g}(\bm{\xi}) + B \bm{u}^*_{MT} \\
         -G(\bm{\xi})^\top \bm{\lambda}
     \end{bmatrix}
@@ -294,11 +298,14 @@ The justification behind assuming time-optimal dynamics is that the costates dur
 The coasting mode ($\tau=1$) has assumed ballistic CR3BP dynamics for the state, and exponential decay dynamics for the costate:
 \begin{align}
     \bm{f}^{(1)}(\bm{x}) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\lambda}}
+    \end{bmatrix} = \begin{bmatrix}
         \bm{g}(\bm{\xi}) \\
         -A \bm{\lambda}
     \end{bmatrix}, \quad A = aI_{6 \times 6} \label{eq:OCIMM-coasting-dynamics}
 \end{align}
-\noindent where $a$ is the exponential decay rate. The purpose of the exponential decay is to "reset" the costates before the beginning of the next maneuver, so that the estimation of the new maneuver is unaffected by the estimation of the previous maneuver.
+\noindent where $a$ is the exponential decay rate. The purpose of the exponential decay is to ``reset" the costates before the beginning of the next maneuver, so that the estimation of the new maneuver is unaffected by the estimation of the previous maneuver. Additionally, filter consistency is improved, as the estimator tends to diverge if the estimates of multiple maneuvers are accumulated without this reset. Further research work will seek to replace or improve this ad hoc technique.
 
 One drawback of assuming time-optimal control for the maneuvering mode is that the dynamics of the maneuvering mode are always thrusting with $\norm{\bm{u}}_2 = u_\text{max}$, given by Eq. \ref{eq:min-time-control}. Therefore, even if the target spacecraft is truly thrusting, the maneuvering mode may propagate with an incorrect thrusting direction which could cause its predicted state to be even further from the truth than the coasting mode's predicted state. This causes delays in maneuver detection, as the thrusting direction must be updated until $\bm{h}_k(^-\hat{\bm{x}}_k^{(2)})$ is close enough to the true measurement $\bm{z}_k$ and $\Lambda_k^{(2)}$ is larger than $\Lambda_k^{(1)}$. 
 
@@ -332,10 +339,16 @@ The key benefit of assuming optimal maneuvers is that given some observation of 
 For a baseline, we compare the performance of the OCIMM to an IMM with assumed third order dynamics, denoted as the ``acceleration IMM." The acceleration IMM has two modes: a coasting mode ($\tau = 1$) and a maneuvering mode ($\tau = 2$). The acceleration IMM estimates the control (acceleration) of the spacecraft $\bm{\eta}$ in addition to its position and velocity, such that its state vector is defined as $\bm{x}_a = [\bm{\xi}^\top, \bm{\eta}^\top]^\top$. The dynamics of the acceleration IMM are given in Eq. 
 \begin{align}
     \bm{f}^{(1)}_a (\bm{x}_a) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\eta}}
+    \end{bmatrix} = \begin{bmatrix}
         \bm{g}(\bm{\xi}) \\
         \bm{0}_{3 \times 1}
     \end{bmatrix} \label{eq:accel-IMM-coasting-dynamics} \\
     \bm{f}^{(2)}_a (\bm{x}_a) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\eta}}
+    \end{bmatrix} = \begin{bmatrix}
         \bm{g}(\bm{\xi}) + B \bm{\eta} \\
         \bm{0}_{3 \times 1}
     \end{bmatrix} \label{eq:accel-IMM-thrusting-dynamics}
@@ -347,7 +360,7 @@ It should be noted that the the OCIMM requires an assumption of knowledge of $u_
 
 \subsection{Observation Strategy}
 
-Because of the difficulty of observing cislunar spacecraft from Earth, angles-only measurements are obtained from a constellation of $m$ observer spacecraft in a distant retrograde orbit every one hour \cite{gupta2023constellation}. It is assumed that the positions of the observer satellites are known deterministically. The azimuth and elevation measurements $\theta_k^{(i)}$ and $\phi_k^{(i)}$ from observer spacecraft $i \in [1, \cdots, m]$ at time $t_k$ are given by
+Because of the difficulty of observing cislunar spacecraft from Earth, angles-only measurements are obtained from a constellation of $m$ observer spacecraft in a distant retrograde orbit at a frequency of once per hour \cite{gupta2023constellation}. It is assumed that the positions of the observer satellites are known deterministically. The azimuth and elevation measurements $\theta_k^{(i)}$ and $\phi_k^{(i)}$ from observer spacecraft $i \in [1, \cdots, m]$ at time $t_k$ are given by
 \begin{align}
     \begin{bmatrix}
         \theta_k^{(i)} \\
@@ -415,7 +428,7 @@ To test the tracking performance of the OCIMM, we simulate the tracking of a low
     \label{fig:truth_trajectory}
 \end{figure}
 
-We perform simulations for two scenarios: one with measurements available at all times, and another with an artificial observation gap from $t \in [15, 20]$ days to assess the ability of the OCIMM to predict control. Each scenario is ran with 100 Monte Carlo simulations, where each simulation differs in the initial state estimate ${}^+\hat{\bm{x}}_0$ and measurement noise values $\bm{w}_k^{(i)}$. The initial estimates for the state ${}^+\hat{\bm{\xi}}_0 \sim \mathcal{N}(\bm{\xi}(0), \text{blkdiag}(\sigma_{\bm{r}}I_3, \sigma_{\bm{v}}I_3))$ are drawn from a normal distribution with mean of the truth state and covariance of the initial state covariance. The estimates of the costates and acceleration directions are both initialized as ones, such that $\hat{\bm{\lambda}}_0 = \bm{1}_{6 \times 1}$ and $\hat{\bm{\eta}}_0 = \bm{1}_{3\times1}$ The simulation parameters are listed in Table \ref{tab:truth-parameters}.
+We perform simulations for two scenarios: one with measurements available at all times, and another with an artificial observation gap from $t \in [15, 20]$ days to assess the ability of the OCIMM to predict control. Each scenario is ran with 100 Monte Carlo simulations, where each simulation differs in the initial state estimate ${}^+\hat{\bm{x}}_0$ and measurement noise values $\bm{w}_k^{(i)}$. The initial estimates for the state ${}^+\hat{\bm{\xi}}_0 \sim \mathcal{N}(\bm{\xi}(0), \text{blkdiag}(\sigma_{\bm{r}}I_3, \sigma_{\bm{v}}I_3))$ are drawn from a normal distribution with mean of the truth state and covariance of the initial state covariance. The estimates of the costates are initialized as ones, and the estimates of the acceleration IMM's control are initialized as zeros , such that $\bm{\lambda}_0 = \bm{1}_{6 \times 1}$ and $\bm{\eta}_0 = \bm{0}_{3\times1}$. The simulation parameters are listed in Table \ref{tab:truth-parameters}.
 
 \begin{table}
     \centering
@@ -432,15 +445,16 @@ We perform simulations for two scenarios: one with measurements available at all
         Initial Position S.D., $\sigma_r(0)$, [km] & $50$ \\
         Initial Velocity S.D., $\sigma_v(0)$, [m/s] & 1 \\
         Initial Costate S.D., $\sigma_{\bm{\lambda}}(0)$, [n.d.] & 0.01  \\
-        Initial Acceleration Direction S.D., $\sigma_{\bm{\eta}}(0)$, [n.d.] & 0.01 \\
+        Initial Acceleration S.D., $\sigma_{\bm{\eta}}(0)$, [mm/s$^2$] & 1 \\
         Mode Transition Matrix, $\Pi$, [n.d.] & $\begin{bmatrix}
             0.99 & 0.01 \\
             0.01 & 0.99
         \end{bmatrix}$ \\
+        Costate Exponential Decay Factor, $a$, [n.d.] & 100 \\
         OCIMM Coasting Process Noise, $Q^{(1)}$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-4}I_6)$ \\
         OCIMM Maneuvering Process Noise, $Q^{(2)}$, [n.d.] & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 10^{-2}I_3, 10^{-4}I_3)$ \\
-        Acceleration IMM Coasting Process Noise, $Q^{(1)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-6}I_3)$ \\
-        Acceleration IMM Maneuvering Process Noise, $Q^{(2)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 50^{-3}I_3)$
+        Acceleration IMM Coasting Process Noise, $Q^{(1)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-4}I_3)$ \\
+        Acceleration IMM Maneuvering Process Noise, $Q^{(2)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 10^{-4}I_3)$
     \end{tabular}
     \label{tab:truth-parameters}
 \end{table}
@@ -462,28 +476,26 @@ We perform simulations for two scenarios: one with measurements available at all
     \label{fig:closeup}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{Figures/MAE_gap.png}
-    \caption{Mean absolute position, velocity, and acceleration estimation errors of acceleration IMM (black dashed lines) and OCIMM (red lines) for observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gap.}
-    \label{fig:MAE-gap}
-\end{figure}
-
 To assess the estimation performance of the OCIMM, the mean absolute errors (MAEs) of  the OCIMM and acceleration IMM for the fully observed scenario are plotted in Figure \ref{fig:MAE-normal}. In general, the OCIMM and acceleration IMM have similar performance over the entire trajectory. As expected, the MAEs of both filters spike at the starts and ends of maneuvers, as the filters cannot predict when the mode will switch and must ``catch-up" to the sudden change from no control to maximum control (or vice versa) caused by the true bang-bang control profile.
 
-The one difference in performance occurs during the flyby maneuver at $t\approx 10$ days, where the OCIMM outperforms the acceleration IMM. This is due to the high rate of change of the truth control associated with the rapidly changing geometry near the Moon, pictured in Figure \ref{fig:closeup}. Because the OCIMM estimates the entire costate, it has some predictive power of how the control will evolve with respect to the state dynamics, so long as the true control is well-approximated by the OCIMM's assumed optimal control policy. In contrast, the acceleration IMM assumes that the control is constant (i.e. $\dot{\hat{\bm{a}}} = \bm{0}$), and so it has no predictive power, resulting in a lagging estimation during periods when the truth control has a high rate of change. The result is that the OCIMM outperforms the IMM during the flyby maneuver. 
+The two largest differences in performance occur during the second maneuver starting at $t\approx 8$ days and during the third maneuver starting at $t\approx 13$ days. These differences in performance are caused by the difference in assumed control dynamics of the two filters. The OCIMM has worse position MAE during the third maneuver which is due to a slighly overconfident estimate, causing the OCIMM to not update its position estimate to match the measurements. This demonstrates a drawback of assuming optimal control dynamics.
 
-
+On the other hand, the OCIMM has better MAE performance during the second maneuver. This is due to the high rate of change of the truth control associated with the rapidly changing geometry near the Moon, pictured in Figure \ref{fig:closeup}, as the second maneuver is a flyby maneuver. Because the OCIMM estimates the entire costate, it has some predictive power of how the control will evolve with respect to the state dynamics, so long as the true control is well-approximated by the OCIMM's assumed optimal control policy. In contrast, the acceleration IMM assumes that the control is constant (i.e. $\dot{\hat{\bm{\mu}}} = \bm{0}$), and so it has no predictive power, resulting in a lagging estimation during periods when the truth control has a high rate of change. The result is that the OCIMM outperforms the acceleration IMM during the flyby maneuver. 
 
 \subsection{Observation Gap Scenario}
-
-Next, to test the performance of the OCIMM during observation gaps, the MAE of position, velocity, and acceleration of the OCIMM and IMM in the observation gap scenario are plotted in Figure \ref{fig:MAE-gap}. The geometry of the observation gap is plotted in Figure \ref{fig:unobserved_trajectory}. During the observation gap from $t \in [15, 20]$ days, the OCIMM significantly outperforms the IMM. The reason for this is the ability of the OCIMM to predict the future control given some estimate of the current control. Since the observation gap occurs after the beginning of the third maneuver at $t \approx 13$ days, the OCIMM has been able to obtain some estimate of the costates given observations of the control. After the beginning of the observation gap, it is then possible to propagate the spacecraft under the assumed optimal control dynamics. This propagation is not perfectly accurate because the control $\bm{u}$ is only a function of $\bm{\lambda}_v$, so it is difficult to obtain an accurate estimate of $\bm{\lambda}_r$. Nevertheless, the general shape of the control profile is still accurately predicted by the OCIMM.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.5\linewidth]{Figures/unobserved_trajectory.png}
     \caption{Geometry of transfer trajectory and observers in observation gap scenario. Marked observer positions are positions of observers at beginning of the observation gap.}
     \label{fig:unobserved_trajectory}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{Figures/MAE_gap.png}
+    \caption{Mean absolute position, velocity, and acceleration estimation errors of acceleration IMM (black dashed lines) and OCIMM (red lines) for observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gap.}
+    \label{fig:MAE-gap}
 \end{figure}
 
 \begin{figure}
@@ -509,7 +521,11 @@ Next, to test the performance of the OCIMM during observation gaps, the MAE of p
     \label{fig:three-sigmas}
 \end{figure}
 
-This predictive power is demonstrated by comparing the assumed control of the OCIMM and acceleration IMM with the truth control during the observation gap, plotted in Figure \ref{fig:control}. Because of its assumed constant control, the acceleration IMM maintains its last estimated value of the control after the beginning of the observation gap at $t=15$ days. In contrast, the OCIMM is able to accurately estimate the general shape of the truth control even after the beginning of the observation gap because of the inclusion of optimal control in its maneuvering mode dynamics. The result is that the OCIMM IMM accumulates less estimation error than the acceleration IMM over the observation gap, as evidenced by their MAEs in Figure \ref{fig:MAE-gap}. 
+Next, to test the performance of the OCIMM during observation gaps, the MAE of position, velocity, and acceleration of the OCIMM and IMM in the observation gap scenario are plotted in Figure \ref{fig:MAE-gap}. The geometry of the observation gap is plotted in Figure \ref{fig:unobserved_trajectory}. During the observation gap from $t \in [15, 20]$ days, the OCIMM significantly outperforms the IMM. The reason for this is the ability of the OCIMM to predict the future control given some estimate of the current control. Since the observation gap occurs after the beginning of the third maneuver at $t \approx 13$ days, the OCIMM has been able to obtain some estimate of the costates given observations of the control. After the beginning of the observation gap, it is then possible to propagate the spacecraft under the assumed minimum-time optimal control dynamics. This propagation is not perfectly accurate because the control $\bm{u}$ is only a function of $\bm{\lambda}_v$, so it is difficult to obtain an accurate estimate of $\bm{\lambda}_r$. Nevertheless, the general shape of the control profile is still accurately predicted by the OCIMM.
+
+This predictive power is demonstrated by comparing the assumed control of the OCIMM and acceleration IMM with the truth control during the observation gap, plotted in Figure \ref{fig:control}. Because of its assumed constant control, the acceleration IMM maintains its last estimated value of the control after the beginning of the observation gap at $t=15$ days. In contrast, the OCIMM is able to accurately estimate the general shape of the truth control even after the beginning of the observation gap because of the inclusion of optimal control in its maneuvering mode dynamics. The result is that the OCIMM accumulates less estimation error than the acceleration IMM over the observation gap, as evidenced by their MAEs in Figure \ref{fig:MAE-gap}. 
+
+After the end of the observation gap, it can be seen that the acceleration IMM's control estimate behaves erratically. This is because the acceleration IMM does not assume a maximum possible control $u_\text{max}$, so the large innovations at the end of the observation gap often causes fiter divergence.
 
 The mode probabilities of the OCIMM in the observation gap scenario are plotted in Figure \ref{fig:mode-probabilities}. Overall, the OCIMM's mode switching behaves as expected, with the correct mode's probability increasing suddenly after a short delay at the starts and ends of maneuvers. The mode probabilities remain constant at the commencement of the observation gap, as no measurements are available to update the mode probability. At the end of the observation gap, there is some noisy behavior as the estimators recover from the large innovations caused by the lack of measurements. The noisy behavior starting at $t \approx 25$ days is due to the geometry of the observers during that period, as their alignment relative to the target yields poor range information. This is also exhibited by a corresponding increase in position MAE as seen in Figure \ref{fig:MAE-normal}.
 
