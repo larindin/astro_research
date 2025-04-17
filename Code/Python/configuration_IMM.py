@@ -7,10 +7,10 @@ from catalogue import *
 from helper_functions import *
 
 # Monte-carlo parameters
-seed = 1
+seed = 0
 generator = np.random.default_rng(seed)
-num_runs = 100
-save = True
+num_runs = 10
+save = False
 gap = True
 
 #10, 13, 31, 32 are good
