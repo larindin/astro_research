@@ -11,7 +11,7 @@ seed = 0
 generator = np.random.default_rng(seed)
 num_runs = 10
 save = False
-gap = True
+gap = False
 
 #10, 13, 31, 32 are good
 

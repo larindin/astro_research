@@ -3,7 +3,7 @@
 import numpy as np
 import scipy
 
-np.set_printoptions(suppress=True, precision=18, linewidth=500)
+# np.set_printoptions(suppress=True, precision=5, linewidth=500)
 
 NONDIM_LENGTH = 3.844e5 # kilometers
 NONDIM_TIME = 3.751903e5 # seconds
