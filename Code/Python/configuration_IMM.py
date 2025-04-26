@@ -23,8 +23,10 @@ initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
 final_time = 25*24 / NONDIM_TIME_HR
 # final_time *= 0.8
+# final_time = 0.55
 # final_time = 1
 backprop_time = 5 * 24 / NONDIM_TIME_HR
+# backprop_time = 0.2 * 24 / NONDIM_TIME_HR
 additional_time = 5 * 24 / NONDIM_TIME_HR
 dt = 1/NONDIM_TIME_HR
 # dt = 0.01
@@ -64,12 +66,16 @@ initial_acceleration_covariance = np.eye(3)*1e-2**2
 # initial_estimate = initial_truth
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
+
 coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-2)**2)
 min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-2)**2)
+
 coasting_accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-6)**2)
 accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
+
 coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
 accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2)
+
 initial_mode_probabilities = np.array([0.99, 0.01])
 mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])

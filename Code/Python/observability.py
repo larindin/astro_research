@@ -44,11 +44,10 @@ truth_vals = forward_propagation
 
 # sensor_initial_conditions = sensor_initial_conditions[0:2, :]
 sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
+# sensor_position_vals = sensor_position_vals[0:3, :]
 # sensor_position_vals = np.zeros((6, len(time_vals)))
 # sensor_position_vals[0] = L2
 # sensor_position_vals[3] = L1
-print(dt)
-print(len(time_vals))
 
 num_sensors = int(np.size(sensor_position_vals, 0)/3)
 earth_vectors = np.empty((3*num_sensors, len(time_vals)))
@@ -199,7 +198,7 @@ STM_ICs = np.concatenate((initial_truth, np.eye(12).flatten()))
 STM_propagation = scipy.integrate.solve_ivp(min_time_dynamics_equation, forprop_tspan, STM_ICs, args=(mu, umax), t_eval=forprop_time_vals, atol=1e-12, rtol=1e-12).y
 
 num_measurements = len(time_vals)
-num_measurements = 3
+num_measurements = 4
 noises = []
 STMs = np.empty((12, 12, num_measurements))
 products = []
@@ -210,6 +209,8 @@ for time_index in range(num_measurements):
                                                                                                   sensor_position_vals,
                                                                                                   check_results)
     
+    print(np.shape(measurement_jacobian))
+    
     noises.append(np.linalg.inv(measurement_noise_covariance))
     STMs[:, :, time_index] = STM_propagation[12:156, time_index].reshape((12, 12))
     products.append(measurement_jacobian @ STMs[:, :, time_index])
@@ -219,8 +220,6 @@ noises = tuple(noises)
 weight_matrix = scipy.linalg.block_diag(*noises)
 observability_matrix = np.vstack(products)
 
-print(weight_matrix.shape)
-print(observability_matrix.shape)
 information_matrix = observability_matrix.T @ weight_matrix @ observability_matrix
 
 print(f"CN = {np.max(np.diag(information_matrix))/np.min(np.diag(information_matrix)):e}")

@@ -26,6 +26,12 @@ additional_propagation = np.vstack((additional_propagation, np.full(np.shape(add
 truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation, additional_propagation[:, 1:]), axis=1)
 time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, additional_time_vals[1:])) + abs(backprop_time_vals[-1])
 
+# truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation), axis=1)
+# time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals)) + abs(backprop_time_vals[-1])
+
+# truth_vals = back_propagation[:, :-1]
+# time_vals = np.flip(backprop_time_vals[1:]) + abs(backprop_time_vals[-1])
+
 # ax = plt.figure().add_subplot(projection="3d")
 # ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 # plot_moon(ax, mu)
@@ -93,11 +99,22 @@ def coasting_costate_dynamics_equation(t, X, mu, umax):
     STM = X[12:156].reshape((12, 12))
 
     ddt_state = CR3BP_DEs(t, state, mu)
+
+    # natural costate dynamics
     # ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
-    # jacobian = minimum_energy_jacobian(state, costate, mu, umax)
-    K = np.diag(np.full(6, 1e2))
+    # jacobian = minimum_time_jacobian(state, costate, mu, umax)
+    # jacobian[0:6, 6:12] = 0
+
+    # zero costate dynamics
+    # K = np.diag(np.full(6, 0))
+    # jacobian = coasting_costate_jacobian(state, mu, K)
+    # ddt_costate = np.zeros(6)
+
+    # # exponential decay
+    K = np.diag(np.full(6, 1e1))
     jacobian = coasting_costate_jacobian(state, mu, K)
     ddt_costate = -K @ costate
+    
     ddt_STM = jacobian @ STM
 
     return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
@@ -293,17 +310,19 @@ if save == True:
 
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15, ylim=(-50, 50))
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15, ylim=(-0.4, 0.4))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdar", scale="linear", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15, ylim=(1e-4, 1e5))
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15, ylim=(1e-5, 1e3))
 plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, ylim=(1e-8, 1e4))
-# plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
-# plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdar", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", alpha=0.15)
 
 plot_time = time_vals * NONDIM_TIME_HR/24
-plot_time = time_vals
+# plot_time = time_vals
 
 ax = plt.figure().add_subplot()
 ax.plot(plot_time, anees_vals)
@@ -356,6 +375,18 @@ for run_index in range(num_runs):
 plot_moon(ax, mu)
 ax.set_aspect("equal")
 
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.scatter(plot_time, mode_probabilities[run_index][0], color="black", alpha=0.15, s=4)
+    ax.scatter(plot_time, mode_probabilities[run_index][1], color="red", alpha=0.15, s=4)
+
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.plot(plot_time, np.linalg.norm(output_estimates[run_index][6:9], axis=0))
+
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.plot(plot_time, np.linalg.norm(output_estimates[run_index][9:12], axis=0))
 
 plt.show(block=False)
 plt.pause(0.001) # Pause for interval seconds.

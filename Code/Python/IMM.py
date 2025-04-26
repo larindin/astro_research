@@ -185,9 +185,11 @@ class IMM_filter():
         dynamics_eq = self.dynamics_functions[mode_index]
         args = self.dynamics_functions_args[mode_index]
 
-        if mode_index != 0:
-            args = list(args)
-            args[1] *= mode_probability
+        # print(time_index)
+
+        # if mode_index != 0:
+        #     args = list(args)
+        #     args[1] *= mode_probability
 
         ICs = np.concatenate((mixed_initial_conditions, np.eye(state_size).flatten()))
         propagation = scipy.integrate.solve_ivp(dynamics_eq, [0,timespan], ICs, args=args, atol=1e-12, rtol=1e-12).y[:, -1]
