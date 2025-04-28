@@ -65,7 +65,6 @@ class IMM_filter():
                  dynamics_functions,
                  dynamics_functions_args,
                  measurement_function,
-                 measurement_function_args,
                  process_noise_covariances,
                  mode_transition_matrix
                  ):
@@ -73,11 +72,10 @@ class IMM_filter():
         self.dynamics_functions = dynamics_functions
         self.dynamics_functions_args = dynamics_functions_args
         self.measurement_function = measurement_function
-        self.measurement_function_args = measurement_function_args
         self.process_noise_covariances = process_noise_covariances
         self.mode_transition_matrix = mode_transition_matrix
     
-    def run(self, initial_estimate, initial_covariance, initial_mode_probabilities, time_vals, measurement_vals):
+    def run(self, initial_estimate, initial_covariance, initial_mode_probabilities, time_vals, measurement_vals, measurement_function_args):
 
         state_size = np.size(initial_estimate, 0)
         num_modes = np.size(initial_mode_probabilities, 0)
@@ -102,7 +100,7 @@ class IMM_filter():
             anterior_covariance_vals[:, :, 0, mode_index] = initial_covariance
 
         for mode_index in range(num_modes):
-            posterior_estimate, posterior_covariance, denominator, exponent  = self.measurement_update(0, initial_estimate, initial_covariance, measurement_vals[:, 0])
+            posterior_estimate, posterior_covariance, denominator, exponent  = self.measurement_update(0, initial_estimate, initial_covariance, measurement_function_args, measurement_vals[:, 0])
             posterior_estimate_vals[:, 0, mode_index] = posterior_estimate
             posterior_covariance_vals[:, :, 0, mode_index] = posterior_covariance
             denominators[mode_index], exponents[mode_index] = denominator, exponent
@@ -129,7 +127,7 @@ class IMM_filter():
 
                 anterior_estimate, anterior_covariance = self.time_update(time_index, mixed_state, mixed_covariance, timespan, mode_index, previous_mode_probabilities[mode_index])
 
-                posterior_estimate, posterior_covariance, denominator, exponent = self.measurement_update(time_index, anterior_estimate, anterior_covariance, current_measurement)
+                posterior_estimate, posterior_covariance, denominator, exponent = self.measurement_update(time_index, anterior_estimate, anterior_covariance, measurement_function_args, current_measurement)
 
                 anterior_estimate_vals[:, time_index, mode_index] = anterior_estimate
                 anterior_covariance_vals[:, :, time_index, mode_index] = anterior_covariance
@@ -151,7 +149,7 @@ class IMM_filter():
         
         return IMM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, output_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, output_covariance_vals, 0, mode_probability_vals)
 
-    def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement):
+    def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
 
         measurement = measurement[np.isnan(measurement) == False]
         if len(measurement) == 0:
@@ -160,7 +158,7 @@ class IMM_filter():
         posterior_estimate = np.full(len(anterior_estimate), np.nan)
         posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
 
-        predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *self.measurement_function_args)
+        predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *measurement_function_args)
 
         innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
         innovations_covariance = enforce_symmetry(innovations_covariance)
@@ -252,13 +250,13 @@ class IMM_filter():
         
         return mixed_state, mixed_covariance
     
-    def run_MC(self, initial_estimates, initial_covariance, initial_mode_probabilities, time_vals, measurements):
+    def run_MC(self, initial_estimates, initial_covariance, initial_mode_probabilities, time_vals, measurements, measurement_args):
 
         num_runs = len(initial_estimates)
         results = []
 
         with parallel_config(verbose=100, n_jobs=-1):
-            results = Parallel()(delayed(self.run)(initial_estimates[run_index], initial_covariance, initial_mode_probabilities, time_vals, measurements[run_index]) for run_index in range(num_runs))
+            results = Parallel()(delayed(self.run)(initial_estimates[run_index], initial_covariance, initial_mode_probabilities, time_vals, measurements[run_index], measurement_args[run_index]) for run_index in range(num_runs))
         
         return IMM_MCResults(results)
 

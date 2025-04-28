@@ -216,18 +216,19 @@ process_noise_covariances = [coasting_costate_process_noise_covariance, min_time
 
 initial_estimates = []
 measurements = []
+measurement_args = []
 for run_index in range(num_runs):
 
     initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e0)))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
     measurement_vals = angles2PV(measurement_vals)
+    measurement_args.append((measurement_variances, sensor_position_vals, check_results))
     measurements.append(measurement_vals.measurements)
 
 # filter_measurement_function = angles_measurement_equation
 filter_measurement_function = PV_measurement_equation
 
 dynamics_args = (mu, umax)
-measurement_args = (measurement_variances, sensor_position_vals, check_results)
 dynamics_functions = (coasting_dynamics_equation, maneuvering_dynamics_equation)
 dynamics_functions_args = (dynamics_args, dynamics_args)
 
@@ -235,7 +236,6 @@ dynamics_functions_args = (dynamics_args, dynamics_args)
 IMM = IMM_filter(dynamics_functions,
                  dynamics_functions_args,
                  filter_measurement_function,
-                 measurement_args,
                  process_noise_covariances,
                  mode_transition_matrix)
 
@@ -243,7 +243,8 @@ results = IMM.run_MC(initial_estimates,
                      initial_covariance,
                      initial_mode_probabilities,
                      time_vals,
-                     measurements)
+                     measurements,
+                     measurement_args)
 
 filter_time = results.t
 output_estimates = results.output_estimates
