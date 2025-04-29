@@ -53,10 +53,12 @@ sensor_initial_conditions1 = np.array([[212171.440, 224189.013, 0, 0.1618*NONDIM
 sensor_initial_conditions = np.array([[5.539207919986701700e-01, 0, 0, 0, 1.045674089930031636e+00, 0], 
                                       [0.5459235236258585, 0.23317978705332257, 0, -0.05449366983979726, 0.9513225041719617, 0], 
                                       [0.5382931241100969, 0.43100528150170114, 0, 0.007423897208115144, 0.7621824790096972, 0]])
+sensor_period = 5.82
 sensor_dynamics_equation = CR3BP_DEs
-earth_exclusion_angle = np.deg2rad(5)
+earth_exclusion_angle = np.deg2rad(10)
+moon_exclusion_angle = np.deg2rad(10)
 moon_additional_angle = np.deg2rad(5)
-sun_exclusion_angle = np.deg2rad(20)
+sun_exclusion_angle = np.deg2rad(30)
 
 
 # IMM parameters

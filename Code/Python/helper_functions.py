@@ -2,6 +2,7 @@
 
 import numpy as np
 import scipy
+import scipy.integrate
 
 # np.set_printoptions(suppress=True, precision=5, linewidth=500)
 
@@ -47,13 +48,24 @@ def generate_earth_vectors(time_vals, sensor_pos_vals):
     
     return earth_vector_vals
 
-def generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, args, t_eval):
+def generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, args, t_eval, phasing=0, period=0):
 
     num_sensors = np.size(sensor_initial_conditions, 0)
     sensor_positions = np.empty((num_sensors*3, len(t_eval)))
     tspan = np.array([t_eval[0], t_eval[-1]])
+
+    modified_ICs = np.empty(np.shape(sensor_initial_conditions))
+    if period:
+        offset = period*phasing
+        for sensor_index in range(num_sensors):
+            initial_conditions = sensor_initial_conditions[sensor_index, :]
+            propagation = scipy.integrate.solve_ivp(sensor_dynamics_equation, [0, offset], initial_conditions, args=args, atol=1e-12, rtol=1e-12)
+            modified_ICs[sensor_index] = propagation.y[:, -1]
+    else:
+        modified_ICs = sensor_initial_conditions
+
     for sensor_index in range(num_sensors):
-        initial_conditions = sensor_initial_conditions[sensor_index, :]
+        initial_conditions = modified_ICs[sensor_index, :]
         sensor_positions[sensor_index*3:(sensor_index + 1)*3] = scipy.integrate.solve_ivp(sensor_dynamics_equation, tspan, initial_conditions, args=args, t_eval=t_eval, atol=1e-12, rtol=1e-12).y[0:3, :]
     
     return sensor_positions

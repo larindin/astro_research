@@ -26,50 +26,6 @@ additional_propagation = np.vstack((additional_propagation, np.full(np.shape(add
 truth_vals = np.concatenate((back_propagation[:, :-1], forward_propagation, additional_propagation[:, 1:]), axis=1)
 time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, additional_time_vals[1:])) + abs(backprop_time_vals[-1])
 
-sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
-# sensor_position_vals = np.zeros((3, len(time_vals)))
-# sensor_position_vals[0] = L2
-
-num_sensors = int(np.size(sensor_position_vals, 0)/3)
-earth_vectors = np.empty((3*num_sensors, len(time_vals)))
-moon_vectors = np.empty((3*num_sensors, len(time_vals)))
-sun_vectors = np.empty((3*num_sensors, len(time_vals)))
-for sensor_index in range(num_sensors):
-    sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
-    earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
-    moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
-    sun_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_sun_vectors(time_vals, 0)
-
-earth_results = np.empty((num_sensors, len(time_vals)))
-moon_results = np.empty((num_sensors, len(time_vals)))
-sun_results = np.empty((num_sensors, len(time_vals)))
-check_results = np.empty((num_sensors, len(time_vals)))
-for sensor_index in range(num_sensors):
-    sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
-    earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
-    moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion_dynamic, (9.0400624349e-3, moon_additional_angle))
-    sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
-    check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
-
-# check_results[0, -100:] = 0
-# check_results[1, -100:] = 0
-
-# check_results[0, :25] = 0
-# check_results[1, :25] = 1
-
-# check_results[:, 0:100] = 1
-# check_results[:, 100:] = 0
-
-check_results[:, :] = 1
-
-if gap == True:
-    check_results[:, 15*24:20*24] = 0
-
-# check_results[:, 215:] = 0
-# check_results[:, 300:] = 1
-# check_results[:, 350:] = 0
-# check_results[:, 450:] = 1
-
 def coasting_acceleration_ODE(t, X, mu, umax):
     
     state = X[0:9]
@@ -164,13 +120,38 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 coasting_dynamics_equation = coasting_acceleration_ODE
 maneuvering_dynamics_equation = acceleration_ODE
 initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_acceleration_covariance)
-initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(3)))
 process_noise_covariances = [coasting_accel_process_noise_covariance, accel_process_noise_covariance]
 
 initial_estimates = []
 measurements = []
 measurement_args = []
 for run_index in range(num_runs):
+
+    sensor_phase = generator.uniform(0, 1)
+    sun_phase = generator.uniform(0, 2*np.pi)
+
+    sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals, sensor_phase, sensor_period)
+
+    num_sensors = int(np.size(sensor_position_vals, 0)/3)
+    earth_vectors = np.empty((3*num_sensors, len(time_vals)))
+    moon_vectors = np.empty((3*num_sensors, len(time_vals)))
+    sun_vectors = np.empty((3*num_sensors, len(time_vals)))
+    for sensor_index in range(num_sensors):
+        sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+        earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
+        moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
+        sun_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_sun_vectors(time_vals, sun_phase)
+
+    earth_results = np.empty((num_sensors, len(time_vals)))
+    moon_results = np.empty((num_sensors, len(time_vals)))
+    sun_results = np.empty((num_sensors, len(time_vals)))
+    check_results = np.empty((num_sensors, len(time_vals)))
+    for sensor_index in range(num_sensors):
+        sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+        earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
+        moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
+        sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
+        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
 
     initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(3))))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
@@ -272,22 +253,12 @@ plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=max(1/n
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 
-
-# ax = plt.figure().add_subplot(projection="3d")
-# ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
-# ax.plot(output_estimate_vals[0], output_estimate_vals[1], output_estimate_vals[2])
-# plot_moon(ax, mu)
-# plot_L2(ax)
-# ax.set_aspect("equal")
-
-# plot_mode_probabilities(time_vals, mode_probability_vals, truth_control)
-
 plot_time = time_vals * NONDIM_TIME_HR/24
 
-ax = plt.figure().add_subplot()
-ax.plot(plot_time, anees_vals)
-ax.set_ylim(0, 50)
-ax.hlines(6, 0, plot_time[-1])
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.step(plot_time, np.sum(measurement_args[run_index][2], axis=0), alpha=0.25)
+ax.set_ylabel("num sensors")
 
 rmse_r_fig = plt.figure()
 rmse_ax_labels = ["$x$", "$y$", "$z$"]

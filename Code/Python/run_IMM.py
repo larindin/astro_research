@@ -45,53 +45,6 @@ time_vals = np.concatenate((np.flip(backprop_time_vals[1:]), forprop_time_vals, 
 # truth_propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, initial_truth, args=truth_dynamics_args, t_eval=time_vals, atol=1e-12, rtol=1e-12)
 # truth_vals = truth_propagation.y
 
-sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals)
-# sensor_position_vals = np.zeros((6, len(time_vals)))
-# sensor_position_vals[0] = L2
-# sensor_position_vals[3] = L1
-print(dt)
-print(len(time_vals))
-
-num_sensors = int(np.size(sensor_position_vals, 0)/3)
-earth_vectors = np.empty((3*num_sensors, len(time_vals)))
-moon_vectors = np.empty((3*num_sensors, len(time_vals)))
-sun_vectors = np.empty((3*num_sensors, len(time_vals)))
-for sensor_index in range(num_sensors):
-    sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
-    earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
-    moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
-    sun_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_sun_vectors(time_vals, 0)
-
-earth_results = np.empty((num_sensors, len(time_vals)))
-moon_results = np.empty((num_sensors, len(time_vals)))
-sun_results = np.empty((num_sensors, len(time_vals)))
-check_results = np.empty((num_sensors, len(time_vals)))
-for sensor_index in range(num_sensors):
-    sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
-    earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
-    moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion_dynamic, (9.0400624349e-3, moon_additional_angle))
-    sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
-    check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
-
-# check_results[0, -100:] = 0
-# check_results[1, -100:] = 0
-
-# check_results[0, :25] = 0
-# check_results[1, :25] = 1
-
-# check_results[:, 0:100] = 1
-# check_results[:, 100:] = 0
-
-check_results[:, :] = 1
-
-if gap == True:
-    check_results[:, 15*24:20*24] = 0
-
-# check_results[:, 215:] = 0
-# check_results[:, 300:] = 1
-# check_results[:, 350:] = 0
-# check_results[:, 450:] = 1
-
 def coasting_costate_dynamics_equation(t, X, mu, umax):
 
     state = X[0:6]
@@ -111,7 +64,7 @@ def coasting_costate_dynamics_equation(t, X, mu, umax):
     # ddt_costate = np.zeros(6)
 
     # # exponential decay
-    K = np.diag(np.full(6, 1e1))
+    K = np.diag(np.full(6, 5e0))
     jacobian = coasting_costate_jacobian(state, mu, K)
     ddt_costate = -K @ costate
     
@@ -219,6 +172,32 @@ measurements = []
 measurement_args = []
 for run_index in range(num_runs):
 
+    sensor_phase = generator.uniform(0, 1)
+    sun_phase = generator.uniform(0, 2*np.pi)
+
+    sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals, sensor_phase, sensor_period)
+
+    num_sensors = int(np.size(sensor_position_vals, 0)/3)
+    earth_vectors = np.empty((3*num_sensors, len(time_vals)))
+    moon_vectors = np.empty((3*num_sensors, len(time_vals)))
+    sun_vectors = np.empty((3*num_sensors, len(time_vals)))
+    for sensor_index in range(num_sensors):
+        sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+        earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
+        moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
+        sun_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_sun_vectors(time_vals, sun_phase)
+
+    earth_results = np.empty((num_sensors, len(time_vals)))
+    moon_results = np.empty((num_sensors, len(time_vals)))
+    sun_results = np.empty((num_sensors, len(time_vals)))
+    check_results = np.empty((num_sensors, len(time_vals)))
+    for sensor_index in range(num_sensors):
+        sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+        earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
+        moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
+        sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
+        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
+
     initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e0)))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
     measurement_vals = angles2PV(measurement_vals)
@@ -311,24 +290,24 @@ if save == True:
 
 anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15, ylim=(-50, 50))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15, ylim=(-0.4, 0.4))
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdar", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", scale="linear", alpha=0.15)
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15, ylim=(1e-4, 1e5))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15, ylim=(1e-5, 1e3))
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, ylim=(1e-8, 1e4))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
+plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdar", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", alpha=0.15)
 
 plot_time = time_vals * NONDIM_TIME_HR/24
 # plot_time = time_vals
 
-ax = plt.figure().add_subplot()
-ax.plot(plot_time, anees_vals)
-ax.set_ylim(0, 50)
-ax.hlines(6, 0, plot_time[-1])
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.step(plot_time, np.sum(measurement_args[run_index][2], axis=0), alpha=0.25)
+ax.set_ylabel("num sensors")
 
 rmse_r_fig = plt.figure()
 rmse_ax_labels = ["$x$", "$y$", "$z$"]
@@ -372,7 +351,7 @@ control_fig.legend(["Truth", "Estimated"])
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
 for run_index in range(num_runs):
-    ax.plot(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.15)
+    ax.plot(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.25)
 plot_moon(ax, mu)
 ax.set_aspect("equal")
 
@@ -384,10 +363,12 @@ for run_index in range(num_runs):
 ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
     ax.plot(plot_time, np.linalg.norm(output_estimates[run_index][6:9], axis=0))
+ax.set_yscale("log")
 
 ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
     ax.plot(plot_time, np.linalg.norm(output_estimates[run_index][9:12], axis=0))
+ax.set_yscale("log")
 
 plt.show(block=False)
 plt.pause(0.001) # Pause for interval seconds.
