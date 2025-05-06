@@ -182,14 +182,14 @@ innovations = filter_output.innovations_vals
 posterior_estimates = [posterior_estimate_vals]
 posterior_covariances = [posterior_covariance_vals]
 
-estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, 6)
-three_sigmas = compute_3sigmas(posterior_covariances, 6)
+estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, (0, 6))
+three_sigmas = compute_3sigmas(posterior_covariances, (0, 6))
 
 # plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position")
 # plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity")
 
-plot_3sigma(time_vals, [estimation_errors[0][0:3]], [three_sigmas[0][0:3]], "position", scale="linear")
-plot_3sigma(time_vals, [estimation_errors[0][3:6]], [three_sigmas[0][3:6]], "velocity", scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear")
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])

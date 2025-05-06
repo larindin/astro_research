@@ -53,7 +53,7 @@ class IMM_MCResults:
         self.posterior_estimates = posterior_estimates
         self.output_estimates = output_estimates
         self.anterior_covariances = anterior_covariances
-        self.posterior_covariance = posterior_covariances
+        self.posterior_covariances = posterior_covariances
         self.output_covariances = output_covariances
         self.innovations = innovations
         self.mode_probabilities = mode_probabilities
@@ -66,14 +66,18 @@ class IMM_filter():
                  dynamics_functions_args,
                  measurement_function,
                  process_noise_covariances,
-                 mode_transition_matrix
+                 mode_transition_matrix,
+                 underweighting_ratio = 1.
                  ):
         
+        assert underweighting_ratio > 0 and underweighting_ratio <= 1
+
         self.dynamics_functions = dynamics_functions
         self.dynamics_functions_args = dynamics_functions_args
         self.measurement_function = measurement_function
         self.process_noise_covariances = process_noise_covariances
         self.mode_transition_matrix = mode_transition_matrix
+        self.underweighting_ratio = underweighting_ratio
     
     def run(self, initial_estimate, initial_covariance, initial_mode_probabilities, time_vals, measurement_vals, measurement_function_args):
 
@@ -94,13 +98,19 @@ class IMM_filter():
         denominators = np.empty(num_modes)
         exponents = np.empty(num_modes)
 
+        if self.underweighting_ratio < 1:
+            # measurement_update = self.underweighted_update
+            measurement_update = self.constrained_measurement_update
+        else:
+            measurement_update = self.measurement_update
+
         mode_probability_vals[:, 0] = initial_mode_probabilities
         for mode_index in range(num_modes):
             anterior_estimate_vals[:, 0, mode_index] = initial_estimate
             anterior_covariance_vals[:, :, 0, mode_index] = initial_covariance
 
         for mode_index in range(num_modes):
-            posterior_estimate, posterior_covariance, denominator, exponent  = self.measurement_update(0, initial_estimate, initial_covariance, measurement_function_args, measurement_vals[:, 0])
+            posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(0, initial_estimate, initial_covariance, measurement_function_args, measurement_vals[:, 0])
             posterior_estimate_vals[:, 0, mode_index] = posterior_estimate
             posterior_covariance_vals[:, :, 0, mode_index] = posterior_covariance
             denominators[mode_index], exponents[mode_index] = denominator, exponent
@@ -127,7 +137,7 @@ class IMM_filter():
 
                 anterior_estimate, anterior_covariance = self.time_update(time_index, mixed_state, mixed_covariance, timespan, mode_index, previous_mode_probabilities[mode_index])
 
-                posterior_estimate, posterior_covariance, denominator, exponent = self.measurement_update(time_index, anterior_estimate, anterior_covariance, measurement_function_args, current_measurement)
+                posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(time_index, anterior_estimate, anterior_covariance, measurement_function_args, current_measurement)
 
                 anterior_estimate_vals[:, time_index, mode_index] = anterior_estimate
                 anterior_covariance_vals[:, :, time_index, mode_index] = anterior_covariance
@@ -176,6 +186,76 @@ class IMM_filter():
         denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)
 
         return posterior_estimate, posterior_covariance, denominator, exponent
+    
+    def constrained_measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
+
+        measurement = measurement[np.isnan(measurement) == False]
+        if len(measurement) == 0:
+            return anterior_estimate, anterior_covariance, 1, 1
+        
+        posterior_estimate = np.full(len(anterior_estimate), np.nan)
+        posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
+
+        lr_norm = np.linalg.norm(anterior_estimate[6:9])
+        lv_norm = np.linalg.norm(anterior_estimate[9:12])
+
+        predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *measurement_function_args)
+
+        if np.trace(measurement_jacobian @ np.linalg.inv(anterior_covariance) @ measurement_jacobian.T) < (1 - self.underweighting_ratio)/self.underweighting_ratio * np.trace(np.linalg.inv(measurement_noise_covariance)):
+            innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T/self.underweighting_ratio + measurement_noise_covariance
+            # print(f"{time_index/24} underweighting")
+        else:
+            innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
+        innovations_covariance = enforce_symmetry(innovations_covariance)
+        cross_covariance = anterior_covariance @ measurement_jacobian.T
+        gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
+
+        innovations = measurement - predicted_measurement
+        # innovations = check_innovations(innovations)
+        for sensor_index, r in enumerate(rs):
+            innovations[sensor_index*3:(sensor_index+1)*3]*= r
+
+        posterior_estimate = anterior_estimate + gain_matrix @ innovations
+        posterior_estimate[6:9] /= np.linalg.norm(posterior_estimate[6:9])*lr_norm
+        posterior_estimate[9:12] /= np.linalg.norm(posterior_estimate[9:12])*lv_norm
+        posterior_covariance= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
+
+        denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)
+
+        return posterior_estimate, posterior_covariance, denominator, exponent
+
+    
+    def underweighted_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
+
+        measurement = measurement[np.isnan(measurement) == False]
+        if len(measurement) == 0:
+            return anterior_estimate, anterior_covariance, 1, 1
+        
+        posterior_estimate = np.full(len(anterior_estimate), np.nan)
+        posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
+
+        predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *measurement_function_args)
+
+        if np.trace(measurement_jacobian @ np.linalg.inv(anterior_covariance) @ measurement_jacobian.T) < (1 - self.underweighting_ratio)/self.underweighting_ratio * np.trace(np.linalg.inv(measurement_noise_covariance)):
+            innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T/self.underweighting_ratio + measurement_noise_covariance
+            # print(f"{time_index/24} underweighting")
+        else:
+            innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
+        innovations_covariance = enforce_symmetry(innovations_covariance)
+        cross_covariance = anterior_covariance @ measurement_jacobian.T
+        gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
+
+        innovations = measurement - predicted_measurement
+        # innovations = check_innovations(innovations)
+        for sensor_index, r in enumerate(rs):
+            innovations[sensor_index*3:(sensor_index+1)*3]*= r
+
+        posterior_estimate = anterior_estimate + gain_matrix @ innovations
+        posterior_covariance= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
+
+        denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)
+
+        return posterior_estimate, posterior_covariance, denominator, exponent
 
     def time_update(self, time_index, mixed_initial_conditions, mixed_initial_covariance, timespan, mode_index, mode_probability):
 
@@ -200,8 +280,8 @@ class IMM_filter():
     
     def mode_probability_update(self, previous_mode_probabilities, denominators, exponents, current_measurement):
 
-        if len(current_measurement[np.isnan(current_measurement) == False]) == 0:
-            return previous_mode_probabilities
+        # if len(current_measurement[np.isnan(current_measurement) == False]) == 0:
+        #     return previous_mode_probabilities
         
         num_modes = len(denominators)
         new_mode_probabilities = np.empty(num_modes)

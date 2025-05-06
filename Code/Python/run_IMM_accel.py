@@ -244,12 +244,12 @@ if save == True:
         np.save("data/accel_ctrl_errors.npy", control_errors)
         np.save("data/accel_ctrl_3sigmas.npy", control_3sigmas)
 
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=max(1/num_runs, 0.1), scale="linear")
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=max(1/num_runs, 0.1), scale="linear")
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=max(1/num_runs, 0.1), scale="linear")
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=max(1/num_runs, 0.1))
-plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=max(1/num_runs, 0.1))
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=max(1/num_runs, 0.1))
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15, scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15, scale="linear")
+# plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, scale="linear")
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
+plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
+# plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
 # plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
 # plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
 

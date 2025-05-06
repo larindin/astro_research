@@ -125,3 +125,20 @@ def get_thrusting_arc_indices(control_history):
             thrusting_arc_indices.append((start_index, end_index))
     
     return thrusting_arc_indices
+
+def assess_measurement(measurement, individual_measurement_size):
+
+    measurement_size = np.size(measurement, 0)
+    num_measurements = int(measurement_size/individual_measurement_size)
+    new_measurement = np.array([])
+    valid_indices = []
+
+    for checking_index in range(num_measurements):
+        
+        to_be_checked = measurement[checking_index*individual_measurement_size:(checking_index + 1)*individual_measurement_size]
+        
+        if not np.array_equal(to_be_checked, np.empty(individual_measurement_size)*np.nan, equal_nan=True):
+            new_measurement = np.concatenate((new_measurement, to_be_checked))
+            valid_indices.append(checking_index)
+    
+    return new_measurement, valid_indices

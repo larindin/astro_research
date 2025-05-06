@@ -12,12 +12,13 @@ generator = np.random.default_rng(seed)
 num_runs = 10
 save = False
 gap = False
+vary_scenarios = False
 
 #10, 13, 31, 32 are good
 
 # Truth parameters
-initial_orbit_index = 3
-final_orbit_index = 1
+initial_orbit_index = 1
+final_orbit_index = 3
 initial_state = boundary_states[initial_orbit_index][0:6]
 initial_costate = costates[initial_orbit_index][final_orbit_index]
 initial_truth = np.concatenate((initial_state, initial_costate))
@@ -56,7 +57,7 @@ sensor_initial_conditions = np.array([[5.539207919986701700e-01, 0, 0, 0, 1.0456
 sensor_period = 5.82
 sensor_dynamics_equation = CR3BP_DEs
 earth_exclusion_angle = np.deg2rad(10)
-moon_exclusion_angle = np.deg2rad(10)
+moon_exclusion_angle = np.deg2rad(5)
 moon_additional_angle = np.deg2rad(5)
 sun_exclusion_angle = np.deg2rad(30)
 
@@ -69,14 +70,16 @@ initial_acceleration_covariance = np.eye(3)*1e-2**2
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
 
-coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-2)**2)
-min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-2)**2)
+coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-1)**2)
+min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-1)**2)
 
 coasting_accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-6)**2)
 accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
 
 coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
 accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2)
+
+CR3BP_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(5e-3)**2)
 
 initial_mode_probabilities = np.array([0.99, 0.01])
 mode_transition_matrix = np.array([[0.99, 0.01],
