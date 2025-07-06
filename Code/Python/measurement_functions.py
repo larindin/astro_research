@@ -194,6 +194,17 @@ def check_exclusion_dynamic(time, target_pos, sensor_pos, exclusion_vector, diam
 
     return (conjunction_angle > exclusion_angle)
 
+def check_shadow(time, target_pos, sensor_pos, sun_vector):
+
+    mu = 1.215059e-2
+    moon_sc_vec = target_pos - np.array([1 - mu, 0, 0])
+    earth_sc_vec = target_pos - np.array([-mu, 0, 0])
+
+    moon_projection = sun_vector * np.sum(moon_sc_vec * sun_vector)
+    earth_projection = sun_vector * np.sum(earth_sc_vec * sun_vector)
+
+    return (np.linalg.norm(moon_sc_vec - moon_projection) > 0.004521331946 and np.linalg.norm(earth_sc_vec - earth_projection) > 0.01659209157)
+
 def check_brightness(time, target_pos, sensor_pos, sun_vector, reflectivity, object_radius, ):
 
     object_flux = 1.79161566e9
@@ -207,7 +218,6 @@ def check_brightness(time, target_pos, sensor_pos, sun_vector, reflectivity, obj
 
     sun_vector = 385.17 * sun_vector  - 0
     moon_vector = np.array([1 - 1.215059e-2, 0, 0]) - sensor_pos
-
 
 def check_validity(time_vals: np.ndarray, target_pos_vals: np.ndarray, sensor_pos_vals: np.ndarray, exclusion_vector_vals, check_function: Callable, check_parameters: tuple):
     
@@ -223,6 +233,7 @@ def check_validity(time_vals: np.ndarray, target_pos_vals: np.ndarray, sensor_po
         check_results[time_index] = check_function(time, target_pos, sensor_pos, exclusion_vector, *check_parameters)
 
     return check_results
+
 
 def angles2PV(measurements):
     angles = measurements.measurements

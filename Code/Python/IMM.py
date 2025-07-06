@@ -216,8 +216,8 @@ class IMM_filter():
             innovations[sensor_index*3:(sensor_index+1)*3]*= r
 
         posterior_estimate = anterior_estimate + gain_matrix @ innovations
-        posterior_estimate[6:9] /= np.linalg.norm(posterior_estimate[6:9])*lr_norm
-        posterior_estimate[9:12] /= np.linalg.norm(posterior_estimate[9:12])*lv_norm
+        # posterior_estimate[6:9] *= lr_norm/np.linalg.norm(posterior_estimate[6:9])
+        posterior_estimate[9:12] *= lv_norm/np.linalg.norm(posterior_estimate[9:12])
         posterior_covariance= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
 
         denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)

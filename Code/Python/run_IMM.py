@@ -190,12 +190,13 @@ if vary_scenarios == False:
     moon_results = np.empty((num_sensors, len(time_vals)))
     sun_results = np.empty((num_sensors, len(time_vals)))
     check_results = np.empty((num_sensors, len(time_vals)))
+    shadow_results = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[0:3, :], check_shadow, ())
     for sensor_index in range(num_sensors):
         sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
         earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
         moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
-        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
+        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
 
 for run_index in range(num_runs):
 
@@ -219,12 +220,13 @@ for run_index in range(num_runs):
         moon_results = np.empty((num_sensors, len(time_vals)))
         sun_results = np.empty((num_sensors, len(time_vals)))
         check_results = np.empty((num_sensors, len(time_vals)))
+        shadow_results = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[0:3, :], check_shadow)
         for sensor_index in range(num_sensors):
             sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
             earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
             moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
             sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
-            check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
+            check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
     
     # check_results[:, :] = 1
 
@@ -382,7 +384,7 @@ control_fig.legend(["Truth", "Estimated"])
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
 for run_index in range(num_runs):
-    ax.scatter(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.25, s=4)
+    ax.plot(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.25)
 plot_moon(ax, mu)
 ax.set_aspect("equal")
 
