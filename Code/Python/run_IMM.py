@@ -249,7 +249,7 @@ IMM = IMM_filter(dynamics_functions,
                  filter_measurement_function,
                  process_noise_covariances,
                  mode_transition_matrix,
-                 0.5)
+                 underweighting_ratio)
 
 results = IMM.run_MC(initial_estimates,
                      initial_covariance,
@@ -301,6 +301,10 @@ output_estimated_control = np.array(estimated_controls) * NONDIM_LENGTH*1e6/NOND
 avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
 avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
 
+lambda_ratios = np.empty((6, len(time_vals), num_runs))
+for run_index in range(num_runs):
+    lambda_ratios[:, :, run_index] = abs(estimation_errors[run_index][6:12, :] / three_sigmas[run_index][6:12, :])
+
 if save == True:
     if gap == True:
         np.save("data/OCIMM_est_control1.npy", output_estimated_control)
@@ -320,8 +324,6 @@ if save == True:
         np.save("data/OCIMM_ctrl_errors.npy", control_errors)
         np.save("data/OCIMM_ctrl_3sigmas.npy", control_3sigmas)
         np.save("data/OCIMM_mode_probabilities.npy", mode_probabilities)
-
-anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
@@ -386,6 +388,8 @@ ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
 for run_index in range(num_runs):
     ax.plot(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.25)
 plot_moon(ax, mu)
+for sensor_index in range(3):
+    ax.scatter(sensor_position_vals[sensor_index*3, 0], sensor_position_vals[sensor_index*3+1, 0], sensor_position_vals[sensor_index*3+2, 0])
 ax.set_aspect("equal")
 
 ax = plt.figure(layout="constrained").add_subplot()
@@ -402,6 +406,10 @@ ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
     ax.plot(plot_time, np.linalg.norm(output_estimates[run_index][9:12], axis=0))
 ax.set_yscale("log")
+
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.plot(plot_time, lambda_ratios[0, :, run_index])
 
 ax = plt.figure(layout="constrained").add_subplot()
 # ax.plot(plot_time, truth_vals[6])

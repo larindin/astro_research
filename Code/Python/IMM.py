@@ -99,8 +99,8 @@ class IMM_filter():
         exponents = np.empty(num_modes)
 
         if self.underweighting_ratio < 1:
-            # measurement_update = self.underweighted_update
-            measurement_update = self.constrained_measurement_update
+            measurement_update = self.underweighted_update
+            # measurement_update = self.constrained_measurement_update
         else:
             measurement_update = self.measurement_update
 
@@ -230,7 +230,7 @@ class IMM_filter():
         measurement = measurement[np.isnan(measurement) == False]
         if len(measurement) == 0:
             return anterior_estimate, anterior_covariance, 1, 1
-        
+
         posterior_estimate = np.full(len(anterior_estimate), np.nan)
         posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
 
