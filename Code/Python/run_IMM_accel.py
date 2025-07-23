@@ -125,8 +125,7 @@ process_noise_covariances = [coasting_accel_process_noise_covariance, accel_proc
 initial_estimates = []
 measurements = []
 measurement_args = []
-for run_index in range(num_runs):
-
+if vary_scenarios == False:
     sensor_phase = generator.uniform(0, 1)
     sun_phase = generator.uniform(0, 2*np.pi)
 
@@ -146,19 +145,51 @@ for run_index in range(num_runs):
     moon_results = np.empty((num_sensors, len(time_vals)))
     sun_results = np.empty((num_sensors, len(time_vals)))
     check_results = np.empty((num_sensors, len(time_vals)))
+    shadow_results = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[0:3, :], check_shadow, ())
     for sensor_index in range(num_sensors):
         sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
         earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
         moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
-        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
+        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
+
+for run_index in range(num_runs):
+
+    if vary_scenarios == True:
+        sensor_phase = generator.uniform(0, 1)
+        sun_phase = generator.uniform(0, 2*np.pi)
+
+        sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals, sensor_phase, sensor_period)
+
+        num_sensors = int(np.size(sensor_position_vals, 0)/3)
+        earth_vectors = np.empty((3*num_sensors, len(time_vals)))
+        moon_vectors = np.empty((3*num_sensors, len(time_vals)))
+        sun_vectors = np.empty((3*num_sensors, len(time_vals)))
+        for sensor_index in range(num_sensors):
+            sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+            earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
+            moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
+            sun_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_sun_vectors(time_vals, sun_phase)
+
+        earth_results = np.empty((num_sensors, len(time_vals)))
+        moon_results = np.empty((num_sensors, len(time_vals)))
+        sun_results = np.empty((num_sensors, len(time_vals)))
+        check_results = np.empty((num_sensors, len(time_vals)))
+        shadow_results = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[0:3, :], check_shadow)
+        for sensor_index in range(num_sensors):
+            sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+            earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
+            moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
+            sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
+            check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
+    
+    # check_results[:, :] = 1
 
     initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.zeros(3))))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
     measurement_vals = angles2PV(measurement_vals)
     measurement_args.append((measurement_variances, sensor_position_vals, check_results))
     measurements.append(measurement_vals.measurements)
-
 # filter_measurement_function = angles_measurement_equation
 filter_measurement_function = PV_measurement_equation
 
@@ -171,7 +202,8 @@ IMM = IMM_filter(dynamics_functions,
                  dynamics_functions_args,
                  filter_measurement_function,
                  process_noise_covariances,
-                 mode_transition_matrix)
+                 mode_transition_matrix,
+                 underweighting_ratio)
 
 results = IMM.run_MC(initial_estimates,
                      initial_covariance,
@@ -301,8 +333,8 @@ control_fig.legend(["Truth", "Estimated"])
 
 ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
-    ax.plot(plot_time, mode_probabilities[run_index][0], c="tab:blue", alpha=0.2)
-    ax.plot(plot_time, mode_probabilities[run_index][1], c="tab:red", alpha=0.2)
+    ax.scatter(plot_time, mode_probabilities[run_index][0], c="black", alpha=0.2, s=4)
+    ax.scatter(plot_time, mode_probabilities[run_index][1], c="red", alpha=0.2, s=4)
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
