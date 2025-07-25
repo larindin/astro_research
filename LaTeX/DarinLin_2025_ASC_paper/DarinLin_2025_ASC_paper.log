@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  24 JUL 2025 21:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  24 JUL 2025 22:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -668,7 +668,7 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 38
  (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-<Figures/CR3BP.png, id=94, 1470.49374pt x 436.63126pt>
+<Figures/CR3BP.png, id=98, 1470.49374pt x 436.63126pt>
 File: Figures/CR3BP.png Graphic file (type png)
 <use Figures/CR3BP.png>
 Package pdftex.def Info: Figures/CR3BP.png  used on input line 59.
@@ -680,7 +680,7 @@ Package pdftex.def Info: Figures/CR3BP.png  used on input line 59.
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}]
 
 [2 <./Figures/CR3BP.png>]
-<Figures/orbits.png, id=130, 448.43535pt x 211.7511pt>
+<Figures/orbits.png, id=134, 448.43535pt x 211.7511pt>
 File: Figures/orbits.png Graphic file (type png)
 <use Figures/orbits.png>
 Package pdftex.def Info: Figures/orbits.png  used on input line 103.
@@ -705,108 +705,107 @@ Underfull \vbox (badness 1622) has occurred while \output is active []
 [9]
 
 [10]
-<Figures/truth_trajectory.png, id=273, 436.029pt x 258.4857pt>
+
+[11]
+<Figures/truth_trajectory.png, id=286, 436.029pt x 258.4857pt>
 File: Figures/truth_trajectory.png Graphic file (type png)
 <use Figures/truth_trajectory.png>
-Package pdftex.def Info: Figures/truth_trajectory.png  used on input line 407.
+Package pdftex.def Info: Figures/truth_trajectory.png  used on input line 419.
 (pdftex.def)             Requested size: 433.62pt x 257.07304pt.
 
-Overfull \hbox (44.25717pt too wide) in paragraph at lines 417--441
+Overfull \hbox (44.25717pt too wide) in paragraph at lines 429--453
  [][] 
  []
 
-<Figures/MAE_normal.png, id=275, 568.40355pt x 324.13095pt>
+<Figures/MAE_normal.png, id=288, 568.40355pt x 324.13095pt>
 File: Figures/MAE_normal.png Graphic file (type png)
 <use Figures/MAE_normal.png>
-Package pdftex.def Info: Figures/MAE_normal.png  used on input line 448.
+Package pdftex.def Info: Figures/MAE_normal.png  used on input line 460.
 (pdftex.def)             Requested size: 433.62pt x 247.28177pt.
-<Figures/closeup.png, id=276, 279.9258pt x 287.99596pt>
+<Figures/closeup.png, id=289, 279.9258pt x 287.99596pt>
 File: Figures/closeup.png Graphic file (type png)
 <use Figures/closeup.png>
-Package pdftex.def Info: Figures/closeup.png  used on input line 455.
+Package pdftex.def Info: Figures/closeup.png  used on input line 467.
 (pdftex.def)             Requested size: 173.44534pt x 178.44577pt.
 
 
-[11]
-
 [12 <./Figures/truth_trajectory.png>]
 
-[13 <./Figures/MAE_normal.png> <./Figures/closeup.png>]
-<Figures/unobserved_trajectory.png, id=301, 268.8444pt x 229.69815pt>
+[13 <./Figures/MAE_normal.png>]
+<Figures/unobserved_trajectory.png, id=307, 268.8444pt x 229.69815pt>
 File: Figures/unobserved_trajectory.png Graphic file (type png)
 <use Figures/unobserved_trajectory.png>
-Package pdftex.def Info: Figures/unobserved_trajectory.png  used on input line 470.
+Package pdftex.def Info: Figures/unobserved_trajectory.png  used on input line 482.
 (pdftex.def)             Requested size: 216.81pt x 185.23782pt.
-<Figures/MAE_gap.png, id=302, 568.40355pt x 324.13095pt>
+<Figures/MAE_gap.png, id=308, 568.40355pt x 324.13095pt>
 File: Figures/MAE_gap.png Graphic file (type png)
 <use Figures/MAE_gap.png>
-Package pdftex.def Info: Figures/MAE_gap.png  used on input line 477.
+Package pdftex.def Info: Figures/MAE_gap.png  used on input line 489.
 (pdftex.def)             Requested size: 433.62pt x 247.28177pt.
-<Figures/control.png, id=303, 568.40355pt x 324.13095pt>
+<Figures/control.png, id=309, 568.40355pt x 324.13095pt>
 File: Figures/control.png Graphic file (type png)
 <use Figures/control.png>
-Package pdftex.def Info: Figures/control.png  used on input line 484.
+Package pdftex.def Info: Figures/control.png  used on input line 496.
 (pdftex.def)             Requested size: 433.62pt x 247.28177pt.
-<Figures/mode_probabilities.png, id=304, 568.40355pt x 287.99596pt>
+<Figures/mode_probabilities.png, id=310, 568.40355pt x 287.99596pt>
 File: Figures/mode_probabilities.png Graphic file (type png)
 <use Figures/mode_probabilities.png>
-Package pdftex.def Info: Figures/mode_probabilities.png  used on input line 491.
+Package pdftex.def Info: Figures/mode_probabilities.png  used on input line 503.
 (pdftex.def)             Requested size: 433.62pt x 219.71413pt.
-<Figures/position_3sigmas.png, id=305, 568.40355pt x 324.13095pt>
+<Figures/position_3sigmas.png, id=311, 568.40355pt x 324.13095pt>
 File: Figures/position_3sigmas.png Graphic file (type png)
 <use Figures/position_3sigmas.png>
-Package pdftex.def Info: Figures/position_3sigmas.png  used on input line 498.
+Package pdftex.def Info: Figures/position_3sigmas.png  used on input line 510.
 (pdftex.def)             Requested size: 368.57964pt x 210.18802pt.
-<Figures/velocity_3sigmas.png, id=306, 568.40355pt x 324.13095pt>
+<Figures/velocity_3sigmas.png, id=312, 568.40355pt x 324.13095pt>
 File: Figures/velocity_3sigmas.png Graphic file (type png)
 <use Figures/velocity_3sigmas.png>
-Package pdftex.def Info: Figures/velocity_3sigmas.png  used on input line 499.
+Package pdftex.def Info: Figures/velocity_3sigmas.png  used on input line 511.
 (pdftex.def)             Requested size: 368.57964pt x 210.18802pt.
-<Figures/control_3sigmas.png, id=307, 568.40355pt x 324.13095pt>
+<Figures/control_3sigmas.png, id=313, 568.40355pt x 324.13095pt>
 File: Figures/control_3sigmas.png Graphic file (type png)
 <use Figures/control_3sigmas.png>
-Package pdftex.def Info: Figures/control_3sigmas.png  used on input line 500.
+Package pdftex.def Info: Figures/control_3sigmas.png  used on input line 512.
 (pdftex.def)             Requested size: 368.57964pt x 210.18802pt.
 
 
-LaTeX Warning: Float too large for page by 52.23648pt on input line 503.
+LaTeX Warning: Float too large for page by 52.23648pt on input line 515.
 
 
 
-[14 <./Figures/unobserved_trajectory.png>]
+[14 <./Figures/closeup.png>]
 
-[15 <./Figures/MAE_gap.png> <./Figures/control.png>]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+[15 <./Figures/unobserved_trajectory.png> <./Figures/MAE_gap.png>]
 
+[16 <./Figures/control.png> <./Figures/mode_probabilities.png>]
 
+[17 <./Figures/position_3sigmas.png> <./Figures/velocity_3sigmas.png> <./Figures/control_3sigmas.png>]
 
-[16 <./Figures/mode_probabilities.png>]
+[18] (./DarinLin_2025_ASC_paper.bbl
 
-[17 <./Figures/position_3sigmas.png> <./Figures/velocity_3sigmas.png> <./Figures/control_3sigmas.png>] (./DarinLin_2025_ASC_paper.bbl
+[19])
 
-[18])
-
-[19] (./DarinLin_2025_ASC_paper.aux)
+[20] (./DarinLin_2025_ASC_paper.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `DarinLin_2025_ASC_paper.out' has not changed.
-(rerunfilecheck)             Checksum: A4CFD25D8766A728308A80297A965F37;3374.
+(rerunfilecheck)             Checksum: 66ADEFDF4EF41664CAABF5905C783947;3500.
  ) 
 Here is how much of TeX's memory you used:
- 23468 strings out of 473190
- 432412 string characters out of 5715801
- 825479 words of memory out of 5000000
- 46126 multiletter control sequences out of 15000+600000
+ 23475 strings out of 473190
+ 432515 string characters out of 5715801
+ 825561 words of memory out of 5000000
+ 46129 multiletter control sequences out of 15000+600000
  596220 words of font info for 126 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 99i,22n,105p,1421b,580s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,22n,105p,1421b,582s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on DarinLin_2025_ASC_paper.pdf (19 pages, 18910378 bytes).
+Output written on DarinLin_2025_ASC_paper.pdf (20 pages, 18914135 bytes).
 PDF statistics:
- 464 PDF objects out of 1000 (max. 8388607)
- 377 compressed objects within 4 object streams
- 125 named destinations out of 1000 (max. 500000)
- 233 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 477 PDF objects out of 1000 (max. 8388607)
+ 389 compressed objects within 4 object streams
+ 129 named destinations out of 1000 (max. 500000)
+ 241 words of extra memory for PDF output out of 10000 (max. 10000000)
 

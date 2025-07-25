@@ -396,7 +396,19 @@ The measurements of $m$ spacecraft at the same time $t_k$ are processed in the m
 
 \subsection{Observation Checks}
 
-To simulate realistic observation conditions, we implement two types of observation condition checks: exclusion angles and Moon shadows. The exclusion angles check whether the line of sight from the sensor to the target spacecraft is too close to the line of sight to an astronomical body. The check is given mathematically as
+To simulate realistic observation conditions, we implement two types of observation condition checks: exclusion angles and Moon shadows. The exclusion angles check whether the line of sight from the sensor to the target spacecraft is too close to the line of sight to an astronomical body. The three astronomical bodies considered are the Earth, Sun, and Moon. Mathematically, the sensor is unable to obtain a measurement of the target spacecraft if $\psi_{E/M/S}^{(i)} < \psi_{E/M/S}^{\text{min}}$, where $\psi_{E/M/S}^{(i)}$ is the angle between sensor $i$'s line of sight vectors to the target spacecraft and the body, $\psi_{E/M/S}^{\text{min}}$ is the minimum allowed separation angle, and subscripts $E$, $M$, and $S$ correspond to the Earth, Moon, or Sun, respectively.
+
+\subsection{Underweighting}
+
+Since the dynamics of the OCIMM are highly nonlinear and the magnitude of $\bm{\lambda}$ is not well known, a common issue is that the costate error covariance reduces too quickly at the end of observation gaps due to highly accurate measurements. This causes the OCIMM to become overconfident and unresponsive to changes in control. To alleviate this issue, we apply underweighting which applies a smaller update when there is a large difference between the predicted measurement error covariance and the actual measurement error covariance \cite{craig2024robust}. Underweighting is applied when the following condition is met:
+\begin{align}\label{eq:underweighting-check}
+    \tr(H_k {}^-P_k H_k^\top) > \frac{p}{1 - p} \tr(R_k)
+\end{align}
+In the case when underweighting is applied, the innovations covariance (originally given by Eq. \ref{eq:innovations covariance (last EKF eq)}) is modified to take the form
+\begin{align}\label{eq:underweighted-update}
+    W_k = \frac{1}{p} H_k^\top({}^-\bm{\hat{x}}_k) {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) + R_k 
+\end{align}
+The rest of the measurement update proceeds as normal. Implementing underweighting allows the OCIMM to gradually adjust its estimate as new measurements are processed at the end of observation gaps. 
 
 \section{Simulation}
 
