@@ -9,8 +9,8 @@ from helper_functions import *
 # Monte-carlo parameters
 seed = 2
 generator = np.random.default_rng(seed)
-num_runs = 50
-save = False
+num_runs = 100
+save = True
 gap = True
 vary_scenarios = False
 
@@ -69,7 +69,7 @@ initial_acceleration_covariance = np.eye(3)*1e-2**2
 # initial_estimate = initial_truth
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
-underweighting_ratio = 0.25
+underweighting_ratio = 0.5
 
 coasting_costate_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(6)*(1e-1)**2)
 min_time_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-1)**2, np.eye(3)*(1e-1)**2)

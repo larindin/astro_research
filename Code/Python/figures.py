@@ -75,11 +75,38 @@ elif gap == True:
     OCIMM_ctrl_3sigmas = np.load("data/OCIMM_ctrl_3sigmas1.npy")
     OCIMM_mode_probabilities = np.load("data/OCIMM_mode_probabilities1.npy")
 
-check_results = np.ones(len(time_vals))
-check_results[15*24:20*24] = 0
-check_results = check_results == 0
+if vary_scenarios == False:
+    sensor_phase = generator.uniform(0, 1)
+    sun_phase = generator.uniform(0, 2*np.pi)
 
+    sensor_position_vals = generate_sensor_positions(sensor_dynamics_equation, sensor_initial_conditions, (mu,), time_vals, sensor_phase, sensor_period)
+
+    num_sensors = int(np.size(sensor_position_vals, 0)/3)
+    earth_vectors = np.empty((3*num_sensors, len(time_vals)))
+    moon_vectors = np.empty((3*num_sensors, len(time_vals)))
+    sun_vectors = np.empty((3*num_sensors, len(time_vals)))
+    for sensor_index in range(num_sensors):
+        sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+        earth_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_earth_vectors(time_vals, sensor_positions)
+        moon_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_moon_vectors(time_vals, sensor_positions)
+        sun_vectors[sensor_index*3:(sensor_index + 1)*3, :] = generate_sun_vectors(time_vals, sun_phase)
+
+    earth_results = np.empty((num_sensors, len(time_vals)))
+    moon_results = np.empty((num_sensors, len(time_vals)))
+    sun_results = np.empty((num_sensors, len(time_vals)))
+    check_results = np.empty((num_sensors, len(time_vals)))
+    shadow_results = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[0:3, :], check_shadow, ())
+    for sensor_index in range(num_sensors):
+        sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
+        earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
+        moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
+        sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
+        check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
+
+num_observers = np.sum(check_results, axis=0)
+check_results = (np.sum(check_results, axis=0) == 0) #+ (np.sum(check_results, axis=0) == 1)
 observation_arc_indices = get_thrusting_arc_indices(check_results[None, :])
+num_sensors = np.sum(check_results, axis=0)
 print(observation_arc_indices)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)*NONDIM_LENGTH*1e6/NONDIM_TIME**2
@@ -91,9 +118,18 @@ umax_dim = umax*NONDIM_LENGTH*1e6/NONDIM_TIME**2
 coasting_truth = truth_vals.copy()
 thrusting_truth = truth_vals.copy()
 unobserved_truth = truth_vals.copy()
+observed_thrusting_truth = truth_vals.copy()
+observed_coasting_truth = truth_vals.copy()
+unobserved_thrusting_truth = truth_vals.copy()
+unobserved_coasting_truth = truth_vals.copy()
 coasting_truth[:, thrusting_bool] = np.nan
 thrusting_truth[:, thrusting_bool==0] = np.nan
 unobserved_truth[:, check_results==0] = np.nan
+observed_thrusting_truth[:, ((num_observers!=0) & (thrusting_bool)) == 0] = np.nan
+observed_coasting_truth[:, ((num_observers!=0) & (thrusting_bool==0)) == 0] = np.nan
+unobserved_thrusting_truth[:, ((num_observers==0) & (thrusting_bool)) == 0] = np.nan
+unobserved_coasting_truth[:, ((num_observers==0) & (thrusting_bool==0)) == 0] = np.nan
+
 
 final_state = boundary_states[final_orbit_index][0:6]
 
@@ -129,7 +165,8 @@ for run_index in range(num_runs):
 for arc in thrusting_arc_indices:
     ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
 if gap == True:
-    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    for arc in observation_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
 ax.set_ylabel("Mode Probability", fontname="Times New Roman", fontsize=10)
 ax.set_xlabel("Time [days]", fontname="Times New Roman", fontsize=10)
 for tick in ax.get_xticklabels():
@@ -154,7 +191,8 @@ for ax_index in range(3):
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
     if gap == True:
-        ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+        for arc in observation_arc_indices:
+            ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
     for tick in ax.get_xticklabels():
         tick.set_fontname("Times New Roman")
     for tick in ax.get_yticklabels():
@@ -184,7 +222,8 @@ for ax_index in range(3):
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
     if gap == True:
-        ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+        for arc in observation_arc_indices:
+            ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
     for tick in ax.get_xticklabels():
         tick.set_fontname("Times New Roman")
     for tick in ax.get_yticklabels():
@@ -214,7 +253,8 @@ for ax_index in range(3):
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
     if gap == True:
-        ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+        for arc in observation_arc_indices:
+            ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
     for tick in ax.get_xticklabels():
         tick.set_fontname("Times New Roman")
     for tick in ax.get_yticklabels():
@@ -242,7 +282,8 @@ for ax_index in range(3):
     ax.plot(plot_time, accel_IMM_avg_norm_error_vals[ax_index], alpha=1, c="black", ls="--")
     ax.set_ylabel(MAE_fig_labels[ax_index], fontname="Times New Roman")
     if gap == True:
-        ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--")
+        for arc in observation_arc_indices:
+            ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--")
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
     for tick in ax.get_xticklabels():
@@ -278,7 +319,8 @@ for ax_index in range(3):
         ax.step(plot_time[start_index:end_index], OCIMM_est_control_vals[run_index, ax_index, start_index:end_index], alpha=0.1, c="red", label="Estimated")
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
-    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    for arc in observation_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
     ax.set_ylabel(control_ax_labels[ax_index], fontname="Times New Roman", fontsize=10)
     ax.grid(axis="y", which="both", linestyle="--")
     for tick in ax.get_xticklabels():
@@ -296,7 +338,8 @@ for ax_index in range(3):
         ax.step(plot_time[start_index:end_index], accel_IMM_est_control_vals[run_index, ax_index, start_index:end_index], alpha=0.1, c="tab:blue", label="Estimated")
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--", label="Maneuver")
-    ax.axvspan(plot_time[observation_arc_indices[0][0]], plot_time[observation_arc_indices[0][1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
+    for arc in observation_arc_indices:
+        ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--", label="Observation Gap")
     # ax.set_ylabel(control_ax_labels[ax_index], fontname="Times New Roman", fontsize=10)
     ax.grid(axis="y", which="both", linestyle="--")
     for tick in ax.get_xticklabels():
@@ -496,13 +539,17 @@ thrusting_truth[:, check_results==1] = np.nan
 
 ax = plt.figure(layout="constrained", figsize=(7.75, 7.75/2)).add_subplot(projection="3d")
 ax.plot_wireframe(x, y, z, color="grey", label="Moon")
-ax.plot(coasting_truth[0]*NONDIM_LENGTH, coasting_truth[1]*NONDIM_LENGTH, coasting_truth[2]*NONDIM_LENGTH, c="black", label="Coasting Arc")
-ax.plot(thrusting_truth[0]*NONDIM_LENGTH, thrusting_truth[1]*NONDIM_LENGTH, thrusting_truth[2]*NONDIM_LENGTH, c="red", label="Thrusting Arc")
-ax.plot(unobserved_truth[0]*NONDIM_LENGTH, unobserved_truth[1]*NONDIM_LENGTH, unobserved_truth[2]*NONDIM_LENGTH, c="red", label="Observation Gap", ls=(0, (1, 1.2)))
+# ax.plot(coasting_truth[0]*NONDIM_LENGTH, coasting_truth[1]*NONDIM_LENGTH, coasting_truth[2]*NONDIM_LENGTH, c="black", label="Coasting Arc")
+# ax.plot(thrusting_truth[0]*NONDIM_LENGTH, thrusting_truth[1]*NONDIM_LENGTH, thrusting_truth[2]*NONDIM_LENGTH, c="red", label="Thrusting Arc")
+# ax.plot(unobserved_truth[0]*NONDIM_LENGTH, unobserved_truth[1]*NONDIM_LENGTH, unobserved_truth[2]*NONDIM_LENGTH, c="red", label="Observation Gap", ls=(0, (1, 1.2)))
+ax.plot(observed_coasting_truth[0]*NONDIM_LENGTH, observed_coasting_truth[1]*NONDIM_LENGTH, observed_coasting_truth[2]*NONDIM_LENGTH, c="black", label="Coasting Arc")
+ax.plot(observed_thrusting_truth[0]*NONDIM_LENGTH, observed_thrusting_truth[1]*NONDIM_LENGTH, observed_thrusting_truth[2]*NONDIM_LENGTH, c="red", label="Thrusting Arc")
+ax.plot(unobserved_coasting_truth[0]*NONDIM_LENGTH, unobserved_coasting_truth[1]*NONDIM_LENGTH, unobserved_coasting_truth[2]*NONDIM_LENGTH, c="black", label="Observation Gap", ls=(0, (1, 1.2)))
+ax.plot(unobserved_thrusting_truth[0]*NONDIM_LENGTH, unobserved_thrusting_truth[1]*NONDIM_LENGTH, unobserved_thrusting_truth[2]*NONDIM_LENGTH, c="red", ls=(0, (1, 1.2)))
 ax.scatter(truth_vals[0, 0]*NONDIM_LENGTH, truth_vals[1, 0]*NONDIM_LENGTH, truth_vals[2, 0]*NONDIM_LENGTH, marker="^", label="Initial Point", color="c")
 ax.scatter(truth_vals[0, -1]*NONDIM_LENGTH, truth_vals[1, -1]*NONDIM_LENGTH, truth_vals[2, -1]*NONDIM_LENGTH, marker="v", label="Terminal Point", color="magenta")
 ax.plot(sensor_position_vals[0]*NONDIM_LENGTH, sensor_position_vals[1]*NONDIM_LENGTH, sensor_position_vals[2]*NONDIM_LENGTH, c="blue", label="Observer Orbit")
-ax.scatter(sensor_position_vals[(0, 3, 6), 15*24]*NONDIM_LENGTH, sensor_position_vals[(1, 4, 7), 15*24]*NONDIM_LENGTH, sensor_position_vals[(2, 5, 8), 15*24]*NONDIM_LENGTH, c="blue", label="Obs. Positions", alpha=1)
+ax.scatter(sensor_position_vals[(0, 3, 6), 221]*NONDIM_LENGTH, sensor_position_vals[(1, 4, 7), 221]*NONDIM_LENGTH, sensor_position_vals[(2, 5, 8), 221]*NONDIM_LENGTH, c="blue", label="Obs. Positions", alpha=1)
 ax.grid(False)
 ax.tick_params(axis="both", which="major", labelsize=8)
 ax.ticklabel_format(axis="both", style="sci", scilimits=(0, 0))

@@ -283,7 +283,7 @@ Applying the necessary condition for the costate dynamics given in Eq. \ref{PMP 
 
 \subsection{Optimal Control IMM (OCIMM)}
 
-To track maneuvering low-thrust spacecraft in cislunar space, we utilize an IMM with two modes: a coasting mode ($\tau=1$) and a maneuvering mode ($\tau=2$). The state vector of the estimator includes the original CR3BP state as well as the costate, written as $\bm{x} = [\bm{\xi}^\top, \bm{\lambda}^\top]^\top \in \R^{12}$. The costate can further be subdivided to be written as $\bm{\lambda} = [\bm{\lambda}_r^\top, \bm{\lambda}_v^\top]^\top$, where $\bm{\lambda}_r \in \R^3$ and $\bm{\lambda}_v \in \R^3$ are the vectors of costates corresponding to the vector of states $\bm{r}$ and $\bm{v}$, respectively. The dynamics of the maneuvering mode are a spacecraft operating under an assumed minimum-time optimal control policy:
+To track maneuvering low-thrust spacecraft in cislunar space, we utilize an IMM with two modes: a coasting mode ($\tau=1$) and a maneuvering mode ($\tau=2$). The state vector of the estimator includes the original CR3BP state as well as the costate, written as $\bm{x} = [\bm{\xi}^\top, \bm{\lambda}^\top]^\top \in \R^{12}$. The costate can further be subdivided to be written as $\bm{\lambda} = [\bm{\lambda}_r^\top, \bm{\lambda}_v^\top]^\top$, where $\bm{\lambda}_r \in \R^3$ and $\bm{\lambda}_v \in \R^3$ are the vectors of costates corresponding to the vectors of states $\bm{r}$ and $\bm{v}$, respectively. The dynamics of the maneuvering mode are a spacecraft operating under an assumed minimum-time optimal control policy:
 \begin{align}
     \bm{f}^{(2)}(\bm{x}) &= \begin{bmatrix}
         \dot{\bm{\xi}} \\
@@ -295,42 +295,19 @@ To track maneuvering low-thrust spacecraft in cislunar space, we utilize an IMM 
 \end{align}
 The justification behind assuming time-optimal dynamics is that the costates during a thrusting arc of a fuel-optimal control policy would produce an identical control profile under a time-optimal control policy. This is known by comparing the expressions for $\bm{u}^*_{MF}$ and $\dot{\bm{\lambda}}_{MF}^*$ (Eqs. \ref{eq:min-fuel control}, \ref{eq:min-fuel-costate-dynamics}) with the expressions for $\bm{u}^*_{MT}$ and $\dot{\bm{\lambda}}_{MT}^*$ (Eqs. \ref{eq:min-time-control}, \ref{eq:min-time-costate-dynamics}). While it is possible to directly implement an assumed fuel-optimal control policy into the OCIMM, the extreme nonlinearity resulting from the bang-bang control (even with hyperbolic tangent smoothing given in Eq. \ref{hyperbolic tangent smoothing}) causes divergence problems when used in a sequential filter, as observed from numerical experiments. Further research to enable direct implementation of assumed minimum-fuel control may prove beneficial for improved trajectory prediction, even in the presence of extended observation gaps. 
 
-The coasting mode ($\tau=1$) has assumed ballistic CR3BP dynamics for the state, and exponential decay dynamics for the costate:
+The coasting mode ($\tau=1$) has assumed ballistic CR3BP dynamics for the state, and the same time-optimal dynamics for the costate:
 \begin{align}
     \bm{f}^{(1)}(\bm{x}) &= \begin{bmatrix}
         \dot{\bm{\xi}} \\
         \dot{\bm{\lambda}}
     \end{bmatrix} = \begin{bmatrix}
         \bm{g}(\bm{\xi}) \\
-        -A \bm{\lambda}
-    \end{bmatrix}, \quad A = aI_{6 \times 6} \label{eq:OCIMM-coasting-dynamics}
+        -G(\bm{\xi})^\top \bm{\lambda}
+    \end{bmatrix}\label{eq:OCIMM-coasting-dynamics}
 \end{align}
-\noindent where $a$ is the exponential decay rate. The purpose of the exponential decay is to ``reset" the costates before the beginning of the next maneuver, so that the estimation of the new maneuver is unaffected by the estimation of the previous maneuver. Additionally, filter consistency is improved, as the estimator tends to diverge if the estimates of multiple maneuvers are accumulated without this reset. Further research work will seek to replace or improve this ad hoc technique.
+\noindent By having the costate dynamics of the coasting mode be the same time-optimal costate dynamics, we can track the dynamics of a fuel-optimal trajectory with greater numerical stability. 
 
-One drawback of assuming time-optimal control for the maneuvering mode is that the dynamics of the maneuvering mode are always thrusting with $\norm{\bm{u}}_2 = u_\text{max}$, given by Eq. \ref{eq:min-time-control}. Therefore, even if the target spacecraft is truly thrusting, the maneuvering mode may propagate with an incorrect thrusting direction which could cause its predicted state to be even further from the truth than the coasting mode's predicted state. This causes delays in maneuver detection, as the thrusting direction must be updated until $\bm{h}_k(^-\hat{\bm{x}}_k^{(2)})$ is close enough to the true measurement $\bm{z}_k$ and $\Lambda_k^{(2)}$ is larger than $\Lambda_k^{(1)}$. 
-
-A simple method to solve this is to increase the process noise associated with the maneuvering mode, $Q^{(2)}$, such that any deviation from the coasting mode is captured by the innovations covariance of the maneuvering mode. However, this decreases the steady-state estimation performance of the maneuvering mode by being overconservative. 
-
-The solution presented in this paper is to scale the maximum control in the filter by the mode probability, such that
-\begin{align}
-    u_\text{max} = \mu_k^{(2)} u_{\text{max}, 0} \label{eq:umax-scaling}
-\end{align}
-where $u_{\text{max}, 0}$ is the true maximum control limit of the spacecraft. This method ensures that the a priori estimate of the maneuvering mode $^-\hat{\bm{x}}_k^{(2)}$ is never too far from the a priori estimate of the coasting mode $^-\hat{\bm{x}}_k^{(1)}$ at the beginning of a coasting arc when the coasting mode probability $\mu_k^{(1)}$ is close to unity. Thus, a smaller process noise covariance $Q^{(2)}$ can capture deviations from a ballistic trajectory at the beginning of a maneuver while not decreasing the steady-state estimation performance of the maneuvering mode. The proposed algorithm is described in Algorithm \ref{alg:OCIMM-step}.
-
-\begin{algorithm}[H]
-    \caption{Single step of OCIMM}
-    \begin{algorithmic}
-        \State $u_\text{max} \gets \mu_{k-1}^{(2)} u_\text{max,0}$ (Eq. \ref{eq:umax-scaling})
-        \For{$j \in [1, 2]$}
-            \State Compute mixed initial condition ${}^+ \hat{\bm{x}}_{k-1}^{0j}$ and ${}^+P_{k-1}^{0j}$ (Eqs. \ref{eq:mixed-initial-mean}-\ref{eq:mixed-initial-covariance})
-            \State Compute a priori estimate and covariance ${}^- \hat{\bm{x}}_k^{(j)}$ and ${}^-P_{k}^{(j)}$ with new $u_\text{max}$ (Eqs. \ref{nonlinear estimate propagation (first EKF equation)}-\ref{eq:STM-propagation})
-            \State Compute posterior estimate and covariance ${}^+ \hat{\bm{x}}_k^{(j)}$ and ${}^+P_{k}^{(j)}$ (Eqs. \ref{eq:posterior-estimate-update}-\ref{eq:innovations covariance (last EKF eq)})
-        \EndFor
-        \State Compute $\mu_k^{(1)}$ and $\mu_k^{(2)}$ (Eq. \ref{eq:mode-probability-update})
-        \State $k-1 \gets k$ 
-    \end{algorithmic}
-    \label{alg:OCIMM-step}
-\end{algorithm}
+Consider a spacecraft maneuvering under a fuel-optimal trajectory. Since the costate dynamics of fuel-optimal and time-optimal trajectories are the same, the OCIMM's assumed time-optimal costate dynamics are precisely correct. However, the problem with tracking this spacecraft is its bang-bang control law. From the perspective of an outside observer attempting to discern $\bm{\lambda}$, the only information available would be the spacecraft's state and control inputs. From this information, even if highly accurate, it is extremely difficult to obtain $\bm{\lambda}$, as many costates can produce the same control. This is demonstrated by examining the fuel-optimal control law (Eq. \ref{eq:min-fuel control}). During periods of coasting, the only information known is that $\norm{\bm{\lambda}_v}_2 < 1$, and during periods of thrusting, the only information known is the direction of $\bm{\lambda}_v$ and that $\norm{\bm{\lambda}_v}_2 > 1$. Then, even assuming a decent estimate of $\bm{\lambda}$ can be obtained, a slight error could be the difference between thrusting and coasting for a filter assuming fuel-optimal control. The proposed solution is to use an IMM with two modes, where the control during the thrusting arcs is modeled using the more well-behaved time-optimal dynamics.
 
 The key benefit of assuming optimal maneuvers is that given some observation of the beginning of a maneuver, it is possible to somewhat predict the rest of the maneuver. Thus, if an observation gap were to occur over the rest of the maneuver due to either natural causes (e.g. Moon occultation) or artificial causes (e.g. sensor re-tasking), the estimator can obtain a more accurate estimate. 
 
@@ -417,6 +394,10 @@ The measurements of $m$ spacecraft at the same time $t_k$ are processed in the m
 \end{aligned}
 \end{align}
 
+\subsection{Observation Checks}
+
+To simulate realistic observation conditions, we implement two types of observation condition checks: exclusion angles and Moon shadows. The exclusion angles check whether the line of sight from the sensor to the target spacecraft is too close to the line of sight to an astronomical body. The check is given mathematically as
+
 \section{Simulation}
 
 To test the tracking performance of the OCIMM, we simulate the tracking of a low-thrust spacecraft maneuvering from an L1 halo orbit to an L1 Lyapunov orbit under a minimum-fuel control policy, detailed in Figure \ref{fig:truth_trajectory}. The justification for a minimum-fuel trajectory is that fuel is a finite resource for a spacecraft, so to conserve this finite resource a minimum-fuel control policy is a likely choice.
@@ -446,11 +427,11 @@ We perform simulations for two scenarios: one with measurements available at all
         Initial Velocity S.D., $\sigma_v(0)$, [m/s] & 1 \\
         Initial Costate S.D., $\sigma_{\bm{\lambda}}(0)$, [n.d.] & 0.01  \\
         Initial Acceleration S.D., $\sigma_{\bm{\eta}}(0)$, [mm/s$^2$] & 1 \\
+        Damping Ratio, $p$, [n.d.] & 0.5 \\
         Mode Transition Matrix, $\Pi$, [n.d.] & $\begin{bmatrix}
             0.99 & 0.01 \\
             0.01 & 0.99
         \end{bmatrix}$ \\
-        Costate Exponential Decay Factor, $a$, [n.d.] & 100 \\
         OCIMM Coasting Process Noise, $Q^{(1)}$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-4}I_6)$ \\
         OCIMM Maneuvering Process Noise, $Q^{(2)}$, [n.d.] & $\text{blkdiag}(10^{-30}I_3, 10^{-18}I_3, 10^{-2}I_3, 10^{-4}I_3)$ \\
         Acceleration IMM Coasting Process Noise, $Q^{(1)}_a$, [n.d.] & $\text{blkdiag}(10^{-30}I_6, 10^{-4}I_3)$ \\
