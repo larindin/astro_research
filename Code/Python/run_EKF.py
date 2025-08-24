@@ -201,6 +201,12 @@ avg_error_vals = compute_avg_error(estimation_errors, (0, 6))
 avg_error_vals[0:3] *= NONDIM_LENGTH
 avg_error_vals[3:6] *= NONDIM_LENGTH*1e3/NONDIM_TIME
 
+position_norm_errors = compute_norm_errors(estimation_errors, (0, 3))
+velocity_norm_errors = compute_norm_errors(estimation_errors, (3, 6))
+
+avg_position_norm_errors = compute_avg_error(position_norm_errors, (0, 1)) * NONDIM_LENGTH
+avg_velocity_norm_errors = compute_avg_error(velocity_norm_errors, (0, 1)) * NONDIM_LENGTH*1e3/NONDIM_TIME
+
 plot_time = time_vals * NONDIM_TIME_HR/24
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.25)
@@ -225,6 +231,12 @@ for ax_index in range(3):
     ax.plot(plot_time, avg_error_vals[ax_index+3], alpha=0.75)
     ax.set_ylabel(rmse_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
+
+mae_fig = plt.figure()
+ax = mae_fig.add_subplot(211)
+ax.plot(plot_time, avg_position_norm_errors[0])
+ax = mae_fig.add_subplot(212)
+ax.plot(plot_time, avg_velocity_norm_errors[0])
 
 ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):

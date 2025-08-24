@@ -103,10 +103,10 @@ if vary_scenarios == False:
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
         check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
 
+sum_sensors = np.sum(check_results, axis=0)
 num_observers = np.sum(check_results, axis=0)
 check_results = (np.sum(check_results, axis=0) == 0) #+ (np.sum(check_results, axis=0) == 1)
 observation_arc_indices = get_thrusting_arc_indices(check_results[None, :])
-num_sensors = np.sum(check_results, axis=0)
 print(observation_arc_indices)
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)*NONDIM_LENGTH*1e6/NONDIM_TIME**2
@@ -278,12 +278,15 @@ MAE_fig, axes = plt.subplots(3, 1, layout="constrained", figsize=((7.75, 7.75/2+
 MAE_fig_labels = [r"$||\boldsymbol{r} - \hat{\boldsymbol{r}}||_2$  [km]", r"$||\boldsymbol{v} - \hat{\boldsymbol{v}}||_2$  [m/s]", r"$||\boldsymbol{a} - \hat{\boldsymbol{a}}||_2$  [mm/s$^2$]"]
 for ax_index in range(3):
     ax = axes[ax_index]
-    ax.plot(plot_time, OCIMM_avg_norm_error_vals[ax_index], alpha=1, c="red")
-    ax.plot(plot_time, accel_IMM_avg_norm_error_vals[ax_index], alpha=1, c="black", ls="--")
+    ax.plot(plot_time, OCIMM_avg_norm_error_vals[ax_index], alpha=1, c="black")
+    ax.plot(plot_time, accel_IMM_avg_norm_error_vals[ax_index], alpha=1, c="red")
+    # ax.plot(plot_time, OCIMM_avg_norm_error_vals[ax_index], alpha=1, c="red")
+    # ax.plot(plot_time, accel_IMM_avg_norm_error_vals[ax_index], alpha=1, c="black", ls="--")
     ax.set_ylabel(MAE_fig_labels[ax_index], fontname="Times New Roman")
     if gap == True:
         for arc in observation_arc_indices:
             ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="red", alpha=0.15, ls="--")
+            break
     for arc in thrusting_arc_indices:
         ax.axvspan(plot_time[arc[0]], plot_time[arc[1]], color="black", alpha=0.15, ls="--")
     for tick in ax.get_xticklabels():
@@ -295,7 +298,7 @@ for ax_index in range(3):
 ax.set_xlabel("Time [days]", fontname="Times New Roman")
 MAE_fig.align_ylabels()
 # MAE_fig.legend(["OCIMM", "IMM", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
-# MAE_fig.legend(["OCIMM", "IMM", "Observation Gap", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
+MAE_fig.legend(["Estimation Error", r"$3\sigma$ Bounds", "Observation Gap", "Maneuver"], prop={"family":"Times New Roman", "size":"small"}, fancybox=False, loc="upper right", bbox_to_anchor=(1.2, 1), bbox_transform=axes[0].transAxes)
 if gap == True:
     plt.savefig("figures/MAE_gap.png", dpi=600, bbox_inches="tight")
 elif gap == False:
@@ -381,8 +384,8 @@ ax.plot(final_orbit_prop[0]*NONDIM_LENGTH, final_orbit_prop[1]*NONDIM_LENGTH, fi
 ax.scatter(truth_vals[0, -1]*NONDIM_LENGTH, truth_vals[1, -1]*NONDIM_LENGTH, truth_vals[2, -1]*NONDIM_LENGTH, marker="v", label="Terminal Point", color="magenta")
 ax.plot(coasting_truth[0]*NONDIM_LENGTH, coasting_truth[1]*NONDIM_LENGTH, coasting_truth[2]*NONDIM_LENGTH, c="black", label="Coasting Arc")
 ax.plot(thrusting_truth[0]*NONDIM_LENGTH, thrusting_truth[1]*NONDIM_LENGTH, thrusting_truth[2]*NONDIM_LENGTH, c="red", label="Thrusting Arc")
-ax.plot(sensor_position_vals[0]*NONDIM_LENGTH, sensor_position_vals[1]*NONDIM_LENGTH, sensor_position_vals[2]*NONDIM_LENGTH, c="blue", label="Observer Orbit")
-ax.scatter(sensor_position_vals[(0, 3, 6), 0]*NONDIM_LENGTH, sensor_position_vals[(1, 4, 7), 0]*NONDIM_LENGTH, sensor_position_vals[(2, 5, 8), 0]*NONDIM_LENGTH, c="blue", label="Obs. Init. Pos.", alpha=1)
+# ax.plot(sensor_position_vals[0]*NONDIM_LENGTH, sensor_position_vals[1]*NONDIM_LENGTH, sensor_position_vals[2]*NONDIM_LENGTH, c="blue", label="Observer Orbit")
+# ax.scatter(sensor_position_vals[(0, 3, 6), 0]*NONDIM_LENGTH, sensor_position_vals[(1, 4, 7), 0]*NONDIM_LENGTH, sensor_position_vals[(2, 5, 8), 0]*NONDIM_LENGTH, c="blue", label="Obs. Init. Pos.", alpha=1)
 ax.grid(False)
 ax.tick_params(axis="both", which="major", labelsize=8)
 ax.ticklabel_format(axis="both", style="sci", scilimits=(0, 0))
@@ -537,7 +540,19 @@ plt.savefig("figures/orbits.png", dpi=600, bbox_inches="tight")
 coasting_truth[:, check_results==1] = np.nan
 thrusting_truth[:, check_results==1] = np.nan
 
-ax = plt.figure(layout="constrained", figsize=(7.75, 7.75/2)).add_subplot(projection="3d")
+ax = plt.figure().add_subplot(projection="3d")
+ax.scatter(0, 0, 0, color="grey", s=6, label="Moon")
+myhandle, labels = ax.get_legend_handles_labels()
+
+mosaic = [["trajectory", ".", "."],
+          ["trajectory", ".", "sensors"],
+          ["trajectory", ".", "sensors"],
+          ["trajectory", ".", "sensors"],
+          ["trajectory", ".", "."]]
+fig = plt.figure(layout="constrained", figsize=((7.75, 7.75/2+0.5)))
+ax_dict = fig.subplot_mosaic(mosaic, per_subplot_kw={"trajectory":{"projection":"3d"}}, width_ratios=(0.3, 0, 0.7), height_ratios=(0.2, 0.2, 0.2, 0.2, 0.2), empty_sentinel=".")
+ax = ax_dict["trajectory"]
+
 ax.plot_wireframe(x, y, z, color="grey", label="Moon")
 # ax.plot(coasting_truth[0]*NONDIM_LENGTH, coasting_truth[1]*NONDIM_LENGTH, coasting_truth[2]*NONDIM_LENGTH, c="black", label="Coasting Arc")
 # ax.plot(thrusting_truth[0]*NONDIM_LENGTH, thrusting_truth[1]*NONDIM_LENGTH, thrusting_truth[2]*NONDIM_LENGTH, c="red", label="Thrusting Arc")
@@ -580,8 +595,21 @@ for tick in ax.get_zticklabels():
     tick.set_fontname("Times New Roman")
 handles, labels = ax.get_legend_handles_labels()
 handles[0] = myhandle[0]
-ax.legend(handles, labels, prop={"family":"Times New Roman", "size":8}, fancybox=False, bbox_to_anchor=(1.2, 1))
+# ax.legend(handles, labels, prop={"family":"Times New Roman", "size":8}, fancybox=False, bbox_to_anchor=(1.1, 1))
 ax.view_init(elev=25, azim=-110, roll=0)
+
+ax = ax_dict["sensors"]
+ax.plot(plot_time, sum_sensors, color="black")
+ax.set_xlabel("Time [days]", fontname="Times New Roman", fontsize=8)
+ax.set_ylabel("Number of Observing Sensors", fontname="Times New Roman", fontsize=8)
+ax.set_xlim(0, 35)
+ax.set_yticks((0, 1, 2, 3))
+ax.tick_params(axis="both", which="major", labelsize=8)
+for tick in ax.get_xticklabels():
+    tick.set_fontname("Times New Roman")
+for tick in ax.get_yticklabels():
+    tick.set_fontname("Times New Roman")
+plt.grid(which="both", axis="y", ls="--", color="black")
 
 plt.savefig("figures/unobserved_trajectory.png", dpi=600, bbox_inches="tight")
 

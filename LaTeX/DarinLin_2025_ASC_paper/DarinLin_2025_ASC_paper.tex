@@ -139,7 +139,7 @@ The ubiquitous Extended Kalman Filter (EKF) is an recursive estimation algorithm
         ^+P_k &= {}^-P_k - C_k K_k^\top - K_k C_k ^\top + K_k W_k K_k^\top \\
         K_k &= C_k W_k^{-1} \\
         C_k &= {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) \\
-        W_k &= H_k^\top({}^-\bm{\hat{x}}_k) {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) + R_k \label{eq:innovations covariance (last EKF eq)}
+        W_k &= H_k({}^-\bm{\hat{x}}_k) {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) + R_k \label{eq:innovations covariance (last EKF eq)}
     \end{align}
     \noindent where $K_k$ is the Kalman gain matrix, $C_k$ is the cross covariance matrix, $W_k$ is the innovations covariance matrix, $H_k({}^-\bm{\hat{x}}_k) = \partial \bm{h}({}^-\hat{\bm{x}}_k)/\partial\bm{x}$ is the measurement Jacobian, and $R_k = \E[\bm{w}_k\bm{w}_k^\top]$ is the measurement noise covariance.
 
@@ -305,9 +305,9 @@ The coasting mode ($\tau=1$) has assumed ballistic CR3BP dynamics for the state,
         -G(\bm{\xi})^\top \bm{\lambda}
     \end{bmatrix}\label{eq:OCIMM-coasting-dynamics}
 \end{align}
-\noindent By having the costate dynamics of the coasting mode be the same time-optimal costate dynamics, we can track the dynamics of a fuel-optimal trajectory with greater numerical stability. 
+\noindent By having the costate dynamics of the coasting mode be the same time-optimal costate dynamics, we can track the a spacecraft maneuvering under a fuel-optimal trajectory with greater numerical stability. 
 
-Consider a spacecraft maneuvering under a fuel-optimal trajectory. Since the costate dynamics of fuel-optimal and time-optimal trajectories are the same, the OCIMM's assumed time-optimal costate dynamics are precisely correct. However, the problem with tracking this spacecraft is its bang-bang control law. From the perspective of an outside observer attempting to discern $\bm{\lambda}$, the only information available would be the spacecraft's state and control inputs. From this information, even if highly accurate, it is extremely difficult to obtain $\bm{\lambda}$, as many costates can produce the same control. This is demonstrated by examining the fuel-optimal control law (Eq. \ref{eq:min-fuel control}). During periods of coasting, the only information known is that $\norm{\bm{\lambda}_v}_2 < 1$, and during periods of thrusting, the only information known is the direction of $\bm{\lambda}_v$ and that $\norm{\bm{\lambda}_v}_2 > 1$. Then, even assuming a decent estimate of $\bm{\lambda}$ can be obtained, a slight error could be the difference between thrusting and coasting for a filter assuming fuel-optimal control. The proposed solution is to use an IMM with two modes, where the control during the thrusting arcs is modeled using the more well-behaved time-optimal dynamics.
+Consider a spacecraft maneuvering under a fuel-optimal trajectory. Since the costate dynamics of fuel-optimal and time-optimal trajectories are the same, the OCIMM's assumed time-optimal costate dynamics are precisely correct. However, the problem with tracking this spacecraft is its bang-bang control law. From the perspective of an outside observer attempting to discern $\bm{\lambda}$, the only information available would be the spacecraft's state and control inputs. From this information, even if highly accurate, it is extremely difficult to obtain $\bm{\lambda}$, as many costates can produce the same control. This is demonstrated by examining the fuel-optimal control law (Eq. \ref{eq:min-fuel control}). During periods of coasting, the only information known is that $\norm{\bm{\lambda}_v}_2 < 1$, and during periods of thrusting, the only information known is the direction of $\bm{\lambda}_v$ and that $\norm{\bm{\lambda}_v}_2 > 1$. Then, even assuming a decent estimate of $\bm{\lambda}$ can be obtained, a slight error could be the difference between thrusting and coasting for a filter assuming fuel-optimal control. The proposed solution is to use an IMM with two modes, where the control during the thrusting arcs is modeled using the more well-behaved time-optimal dynamics. This effectively reconstructs the fuel-optimal control in aggregate using an IMM with two mdoes.
 
 The key benefit of assuming optimal maneuvers is that given some observation of the beginning of a maneuver, it is possible to somewhat predict the rest of the maneuver. Thus, if an observation gap were to occur over the rest of the maneuver due to either natural causes (e.g. Moon occultation) or artificial causes (e.g. sensor re-tasking), the estimator can obtain a more accurate estimate. 
 
@@ -396,17 +396,19 @@ The measurements of $m$ spacecraft at the same time $t_k$ are processed in the m
 
 \subsection{Observation Checks}
 
-To simulate realistic observation conditions, we implement two types of observation condition checks: exclusion angles and Moon shadows. The exclusion angles check whether the line of sight from the sensor to the target spacecraft is too close to the line of sight to an astronomical body. The three astronomical bodies considered are the Earth, Sun, and Moon. Mathematically, the sensor is unable to obtain a measurement of the target spacecraft if $\psi_{E/M/S}^{(i)} < \psi_{E/M/S}^{\text{min}}$, where $\psi_{E/M/S}^{(i)}$ is the angle between sensor $i$'s line of sight vectors to the target spacecraft and the body, $\psi_{E/M/S}^{\text{min}}$ is the minimum allowed separation angle, and subscripts $E$, $M$, and $S$ correspond to the Earth, Moon, or Sun, respectively.
+To simulate realistic observation conditions, we implement two types of observation condition checks: exclusion angles and Moon shadows. The exclusion angles check whether the line of sight from the sensor to the target spacecraft is too close to the line of sight to an astronomical body. The three astronomical bodies considered are the Earth, Sun, and Moon. Mathematically, the sensor is unable to obtain a measurement of the target spacecraft if $\psi_{B}^{(i)} < \psi_{B}^{\text{min}}$, where $\psi_{B}^{(i)}$ is the angle between sensor $i$'s line of sight vectors to the target spacecraft and the body $B$ and $\psi_{B}^{\text{min}}$ is the minimum allowed separation angle. The subscript $B$ can be replaced by $E$, $S$, or $M$ to represent the Earth, Sun, or Moon, respectively.
+
+The Moon shadow exclusion check determines whether the line of sight from the target spacecraft to the Sun is occluded by the Moon, in which case the spacecraft would not be observable due to a lack of lighting. The Sun is assumed to be infinitely far away, which precipitates a cylindrical region of unobservability behind the Moon whose radius is assumed to be 1740 km.
 
 \subsection{Underweighting}
 
-Since the dynamics of the OCIMM are highly nonlinear and the magnitude of $\bm{\lambda}$ is not well known, a common issue is that the costate error covariance reduces too quickly at the end of observation gaps due to highly accurate measurements. This causes the OCIMM to become overconfident and unresponsive to changes in control. To alleviate this issue, we apply underweighting which applies a smaller update when there is a large difference between the predicted measurement error covariance and the actual measurement error covariance \cite{craig2024robust}. Underweighting is applied when the following condition is met:
+Since the dynamics of the OCIMM are highly nonlinear and the magnitude of $\bm{\lambda}$ is not well known, a common issue is that the costate error covariance reduces too quickly at the end of observation gaps due to highly accurate measurements. This causes the OCIMM to become overconfident and unresponsive to changes in control. To help alleviate this issue, we utilize underweighting which applies a smaller update when there is a large difference between the predicted measurement error covariance and the actual measurement error covariance \cite{craig2024robust}. Underweighting is applied when the following condition is met:
 \begin{align}\label{eq:underweighting-check}
     \tr(H_k {}^-P_k H_k^\top) > \frac{p}{1 - p} \tr(R_k)
 \end{align}
 In the case when underweighting is applied, the innovations covariance (originally given by Eq. \ref{eq:innovations covariance (last EKF eq)}) is modified to take the form
 \begin{align}\label{eq:underweighted-update}
-    W_k = \frac{1}{p} H_k^\top({}^-\bm{\hat{x}}_k) {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) + R_k 
+    W_k = \frac{1}{p} H_k({}^-\bm{\hat{x}}_k) {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) + R_k 
 \end{align}
 The rest of the measurement update proceeds as normal. Implementing underweighting allows the OCIMM to gradually adjust its estimate as new measurements are processed at the end of observation gaps. 
 
@@ -421,7 +423,7 @@ To test the tracking performance of the OCIMM, we simulate the tracking of a low
     \label{fig:truth_trajectory}
 \end{figure}
 
-We perform simulations for two scenarios: one with measurements available at all times, and another with all observation checks enforced to assess the ability of the OCIMM to predict control. Each scenario is ran with 100 Monte Carlo simulations, where each simulation differs in the initial state estimate ${}^+\hat{\bm{x}}_0$ and measurement noise values $\bm{w}_k^{(i)}$. The initial estimates for the state ${}^+\hat{\bm{\xi}}_0 \sim \mathcal{N}(\bm{\xi}(0), \text{blkdiag}(\sigma_{\bm{r}}I_3, \sigma_{\bm{v}}I_3))$ are drawn from a normal distribution with mean of the truth state and covariance of the initial state covariance. The estimates of the costates are initialized as ones, and the estimates of the acceleration IMM's control are initialized as zeros , such that $\bm{\lambda}_0 = \bm{1}_{6 \times 1}$ and $\bm{\eta}_0 = \bm{0}_{3\times1}$. The simulation parameters are listed in Table \ref{tab:truth-parameters}.
+We perform simulations for two scenarios: one with measurements available at all times, and another with all observation checks enforced to assess the ability of the OCIMM to predict control. Each scenario is ran with 100 Monte Carlo simulations, where each simulation differs in the initial state estimate ${}^+\hat{\bm{x}}_0$ and measurement noise values $\bm{w}_k^{(i)}$. The initial estimates for the state ${}^+\hat{\bm{\xi}}_0 \sim \mathcal{N}(\bm{\xi}(0), \text{blkdiag}(\sigma_{\bm{r}}I_3, \sigma_{\bm{v}}I_3))$ are drawn from a normal distribution with mean of the truth state and covariance of the initial state covariance. The estimates of the costates are initialized as ones, and the estimates of the acceleration IMM's control are initialized as zeros, such that $\bm{\lambda}_0 = \bm{1}_{6 \times 1}$ and $\bm{\eta}_0 = \bm{0}_{3\times1}$. The simulation parameters are listed in Table \ref{tab:truth-parameters}.
 
 \begin{table}
     \centering
@@ -433,13 +435,16 @@ We perform simulations for two scenarios: one with measurements available at all
         CR3BP Mass Ratio, $\mu$, [n.d.] & $1.215059\times 10^{-2}$ \\
         Max Control Acceleration, $u_\text{max, 0}$, [mm/s$^2$] & $0.4$ \\
         Measurement Angle S.D., $\sigma_\theta=\sigma_\phi$, [deg] & 0.001 \\
+        Damping Ratio, $p$, [n.d.] & 0.5 \\
+        Earth Exclusion Angle, $\psi_E^{\text{min}}$, [deg] & 10 \\
+        Sun Exclusion Angle, $\psi_S^{\text{min}}$, [deg] & 30 \\
+        Moon Exclusion Angle, $\psi_M^{\text{min}}$, [deg] & 5 \\
         Range Uncertainty, $\sigma_\text{scl}$, [n.d.] & 100 \\
         Iniital Mode Probabilities, $[\mu_0^{(1)}, \mu_0^{(2)}]$, [n.d.] & $[0.99, 0.01]$ \\
         Initial Position S.D., $\sigma_r(0)$, [km] & $50$ \\
         Initial Velocity S.D., $\sigma_v(0)$, [m/s] & 1 \\
         Initial Costate S.D., $\sigma_{\bm{\lambda}}(0)$, [n.d.] & 0.01  \\
         Initial Acceleration S.D., $\sigma_{\bm{\eta}}(0)$, [mm/s$^2$] & 1 \\
-        Damping Ratio, $p$, [n.d.] & 0.5 \\
         Mode Transition Matrix, $\Pi$, [n.d.] & $\begin{bmatrix}
             0.99 & 0.01 \\
             0.01 & 0.99
@@ -471,23 +476,23 @@ We perform simulations for two scenarios: one with measurements available at all
 
 To assess the estimation performance of the OCIMM, the mean absolute errors (MAEs) of  the OCIMM and acceleration IMM for the fully observed scenario are plotted in Figure \ref{fig:MAE-normal}. In general, the OCIMM and acceleration IMM have similar performance over the entire trajectory. As expected, the MAEs of both filters spike at the starts and ends of maneuvers, as the filters cannot predict when the mode will switch and must ``catch-up" to the sudden change from no control to maximum control (or vice versa) caused by the true bang-bang control profile.
 
-The two largest differences in performance occur during the second maneuver starting at $t\approx 8$ days and during the third maneuver starting at $t\approx 13$ days. These differences in performance are caused by the difference in assumed control dynamics of the two filters. The OCIMM has worse position MAE during the third maneuver which is due to a slighly overconfident estimate, causing the OCIMM to not update its position estimate to match the measurements. This demonstrates a drawback of assuming optimal control dynamics.
+The two largest differences in performance occur during the second maneuver starting at $t\approx 8$ days and during the third maneuver starting at $t\approx 13$ days. These differences in performance are caused by the difference in assumed control dynamics of the two filters. The OCIMM has worse position MAE during the third maneuver which is due to a overconfident costate estimate, causing the OCIMM to not update its position estimate to match the measurements. This demonstrates a drawback of introducing additional variables, but further tuning could improve this behavior.
 
-On the other hand, the OCIMM has better MAE performance during the second maneuver. This is due to the high rate of change of the truth control associated with the rapidly changing geometry near the Moon, pictured in Figure \ref{fig:closeup}, as the second maneuver is a flyby maneuver. Because the OCIMM estimates the entire costate, it has some predictive power of how the control will evolve with respect to the state dynamics, so long as the true control is well-approximated by the OCIMM's assumed optimal control policy. In contrast, the acceleration IMM assumes that the control is constant (i.e. $\dot{\hat{\bm{\mu}}} = \bm{0}$), and so it has no predictive power, resulting in a lagging estimation during periods when the truth control has a high rate of change. The result is that the OCIMM outperforms the acceleration IMM during the flyby maneuver. 
+On the other hand, the OCIMM has better MAE performance during the second maneuver. This is due to the high rate of change of the truth control associated with the rapidly changing geometry near the Moon, pictured in Figure \ref{fig:closeup}, as the second maneuver is a flyby maneuver. Because the OCIMM estimates the entire costate, it has some predictive power of how the control will evolve with respect to the state dynamics, so long as the true control is well-approximated by the OCIMM's assumed optimal control policy. In contrast, the acceleration IMM assumes that the control is constant (i.e. $\dot{\hat{\bm{\eta}}} = \bm{0}$), and so it has no predictive power, resulting in a lagging estimation during periods when the truth control has a high rate of change. The result is that the OCIMM outperforms the acceleration IMM during the flyby maneuver. 
 
 \subsection{Observation Gap Scenario}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{Figures/unobserved_trajectory.png}
-    \caption{Geometry of transfer trajectory and observers in observation gap scenario. Marked observer positions are positions of observers at beginning of the observation gap.}
+    \includegraphics[width=1\linewidth]{Figures/unobserved_trajectory.png}
+    \caption{Geometry of transfer trajectory and observers in observation gap scenario and number of observing sensors over time. Marked observer positions are positions of observers at beginning of the first observation gap at $t \approx 9$ days.}
     \label{fig:unobserved_trajectory}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{Figures/MAE_gap.png}
-    \caption{Mean absolute position, velocity, and acceleration estimation errors of acceleration IMM (black dashed lines) and OCIMM (red lines) for observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gap.}
+    \caption{Mean absolute position, velocity, and acceleration estimation errors of acceleration IMM (black dashed lines) and OCIMM (red lines) for observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gaps.}
     \label{fig:MAE-gap}
 \end{figure}
 
@@ -501,9 +506,15 @@ On the other hand, the OCIMM has better MAE performance during the second maneuv
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{Figures/mode_probabilities.png}
-    \caption{OCIMM mode probabilities of coasting mode (black) and maneuvering mode (red) over 100 Monte Carlo simulations of observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gap. }
+    \caption{OCIMM mode probabilities of coasting mode (black) and maneuvering mode (red) over 100 Monte Carlo simulations of observation gap scenario. Grey shading indicates truth maneuvering periods and red shading indicates observation gaps.}
     \label{fig:mode-probabilities}
 \end{figure}
+
+Next, to test the performance of the OCIMM during observation gaps, we implement visibility checks which change the number of sensors that can observe the target spacecraft over time. The geometry of the observation gaps and the number of observing sensors over time are plotted in Figure \ref{fig:unobserved_trajectory}, and the MAE of position, velocity, and acceleration of the OCIMM and are plotted in Figure \ref{fig:MAE-gap}. While different sensors are unable to observe the spacecraft at different times, we define an "observation gap" to be a period of time when no sensors can observe the spacecraft. During the observation gap starting at $t \approx 9$ days, the OCIMM significantly outperforms the IMM. The reason for this is the ability of the OCIMM to predict the future control given some estimate of the current control. Since the observation gap occurs after the beginning of the second maneuver at $t \approx 8$ days, the OCIMM has been able to obtain some estimate of the costates given observations of the control. After the beginning of the observation gap, it is then possible to propagate the spacecraft under the assumed minimum-time optimal control dynamics. This propagation is not perfectly accurate because the control $\bm{u}$ is only a function of $\bm{\lambda}_v$, so it is difficult to obtain an accurate estimate of $\bm{\lambda}_r$. Nevertheless, the general shape of the control profile is still accurately predicted by the OCIMM.
+
+This predictive power is demonstrated by comparing the assumed control of the OCIMM and acceleration IMM with the truth control during the observation gap, plotted in Figure \ref{fig:control}. Because of its assumed constant control, the acceleration IMM maintains its last estimated value of the control after the beginning of the observation gap at $t \approx 9$ days. In contrast, the OCIMM is able to accurately estimate the general shape of the truth control even after the beginning of the observation gap because of the inclusion of optimal control in its maneuvering mode dynamics. The result is that the OCIMM accumulates less estimation error than the acceleration IMM over the observation gap, as evidenced by their MAEs in Figure \ref{fig:MAE-gap}. 
+
+One concern with using both the OCIMM and the acceleration IMM is that if an observation gap begins after the beginning of a maneuver, it is not known when the maneuver ends. This concern is somewhat addressed by mode mixing during the observation gap which can be observed through the mode probabilities of the OCIMM which are plotted in Figure \ref{fig:mode-probabilities}. Overall, the OCIMM's mode switching behaves as expected, with the correct mode's probability increasing sharply after a short delay at the starts and ends of maneuvers. However, during the observation gaps without any measurement updates, the IMM's mode probability calculation causes the mode probabilites to tend toward an equilibrium determined by the mode transition matrix $\Pi$. Since the selected $\Pi$ is symmetric, the mode probabilities tend toward $\mu^{(j)} = 0.5$. This tendency towards equilibrium can be thought of as greater uncertainty in the mode as the observation gap continues, and the discrete mixing allows the possibility of both coasting and thrusting to be considered in the state estimate. 
 
 \begin{figure}
     \centering
@@ -514,20 +525,13 @@ On the other hand, the OCIMM has better MAE performance during the second maneuv
     \label{fig:three-sigmas}
 \end{figure}
 
-Next, to test the performance of the OCIMM during observation gaps, the MAE of position, velocity, and acceleration of the OCIMM and IMM in the observation gap scenario where observation checks are enforced are plotted in Figure \ref{fig:MAE-gap}. The geometry of the observation gap and the number of sensors over time are plotted in Figure \ref{fig:unobserved_trajectory}. While the number of sensors varies over time, we define an "observation gap" to be a period of time where no measurements are available. During the observation gap starting at $t \approx 9$ days, the OCIMM significantly outperforms the IMM. The reason for this is the ability of the OCIMM to predict the future control given some estimate of the current control. Since the observation gap occurs after the beginning of the second maneuver at $t \approx 8$ days, the OCIMM has been able to obtain some estimate of the costates given observations of the control. After the beginning of the observation gap, it is then possible to propagate the spacecraft under the assumed minimum-time optimal control dynamics. This propagation is not perfectly accurate because the control $\bm{u}$ is only a function of $\bm{\lambda}_v$, so it is difficult to obtain an accurate estimate of $\bm{\lambda}_r$. Nevertheless, the general shape of the control profile is still accurately predicted by the OCIMM.
-
-This predictive power is demonstrated by comparing the assumed control of the OCIMM and acceleration IMM with the truth control during the observation gap, plotted in Figure \ref{fig:control}. Because of its assumed constant control, the acceleration IMM maintains its last estimated value of the control after the beginning of the observation gap at $t \approx 9$ days. In contrast, the OCIMM is able to accurately estimate the general shape of the truth control even after the beginning of the observation gap because of the inclusion of optimal control in its maneuvering mode dynamics. The result is that the OCIMM accumulates less estimation error than the acceleration IMM over the observation gap, as evidenced by their MAEs in Figure \ref{fig:MAE-gap}. 
-
-One concern with using both the OCIMM and the acceleration IMM is that if an observation gap begins after the beginning of a maneuver, it is not known when the maneuver ends. This concern is somewhat addressed by mode mixing during the observation gap which can be observed through the mode probabilities of the OCIMM which are plotted in Figure \ref{fig:mode-probabilities}. Overall, the OCIMM's mode switching behaves as expected, with the correct mode's probability increasing suddenly after a short delay at the starts and ends of maneuvers. However, during the observation gaps without any measurement updates, the IMM's mode probability calculation causes the mode probabilites to tend toward an equilibrium determined by the mode transition matrix $\Pi$. Since the selected $\Pi$ is symmetric, the mode probabilities tend toward $\mu^{(j)} = 0.5$. This tendency towards equilibrium can be thought of as greater uncertainty in the mode as the observation gap continues, and the discrete mixing allows both the possibility of coasting and thrusting to be considered in the state estimate. At the end of the observation gap, there is some noisy behavior as the estimators recover from the large innovations caused by the lack of measurements. The noisy behavior starting at $t \approx 25$ days is due to the geometry of the observers during that period, as their alignment relative to the target yields poor range information. This is also exhibited by a corresponding increase in position MAE as seen in Figure \ref{fig:MAE-normal}.
-
-
 Lastly, to assess the consistency of the OCIMM, its estimation error and estimation error $3\sigma$ bounds from the observation gap scenario are plotted in Figure \ref{fig:three-sigmas}. Since the OCIMM is estimating the costate, the covariance of the control must be obtained by linearly transforming the costate covariance. This transformation is described in Eq. \ref{eq:covariance-transform},
 \begin{align}
     P_{u, k} = U_kP_{\bm{\lambda}_v, k}U_k^\top, \quad U_k = \left. \frac{\partial \bm{u}(\bm{\lambda})}{\partial{\bm{\lambda}}} \right|_{\bm{\lambda}=\hat{\bm{\lambda}}_k}, \quad \bm{u}(\bm{\lambda}) = -u_\text{max} \frac{B^\top \bm{\lambda}}{\norm{B^\top \bm{\lambda}}_2} \label{eq:covariance-transform}
 \end{align}
 \noindent where $P_{u,k} \approx \E[(\bm{u} - \hat{\bm{u}})(\bm{u} - \hat{\bm{u}})^\top] \in \R^{3 \times 3}$ is the control covariance matrix, and $P_{\bm{\lambda}_v} \in \R^{3 \times 3}$ is the portion of ${}^+P_k$ corresponding to the estimate of $\bm{\lambda}_v$. 
 
-It can be seen that the OCIMM is able to mostly maintain convergence when directly estimating the costate, even in periods of rapidly changing control and after observation gaps. This demonstrates the validity of an estimation approach which directly implements the costate in the state vector. There are periods when the estimation error exceeds the three sigma bounds, particularly during the first maneuver and the third maneuver. The first maneuver can be
+It can be seen that the OCIMM is mostly able to maintain convergence when directly estimating the costate, even in periods of rapidly changing control and after observation gaps. This demonstrates the validity of an estimation approach which directly implements the costate in the state vector. There are periods when the estimation error exceeds the three sigma bounds, particularly during the first maneuver and the third maneuver, which are due to overconfident costate estimates. Additionally, the linear transformation of the costate covariance to acceleration covariance causes the acceleration estimation error to sometimes exceed the three sigma bounds, as the transformation is not perfect. Nevertheless, the OCIMM is able to regain convergence, demonstrating that the filter is behaving as expected. Further work could be to address these issues, either additional tuning or a mathematical reformulation of how the OCIMM estimates the control.
 
 \section{Conclusion}
 
