@@ -1,0 +1,40 @@
+\ProvidesFile{ap-computer-science.tex}[2022-10-05 computer science appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{COMPUTER SCIENCE}
+\ix{computer science//Computer Science appendix}
+
+The cryptocode package
+\cite{mittelbach2020}
+\ix{cryptocode//pseudocode//algorithm//protocol}%
+is used to typeset pseudocode,
+algorithms,
+and protocols.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Protocol examples}
+
+\begin{protocol}[ht]
+  \caption{This is the first protocol caption.}
+  This is the first protocol.
+\end{protocol}
+
+\begin{protocol}[ht]
+  \caption{This is the second protocol caption.}
+  \pseudocodeblock
+  {
+    \textbf{Alice} \> \> \textbf{Bob}\\
+    b \sample \bin \> \>\\
+    \> \xrightarrow{\text{send over } b} \> \\
+    \> \> \text{do something}
+  }
+\end{protocol}
+\end{VerbatimOut}
+
+\MyIO

@@ -1,0 +1,116 @@
+\ProvidesFile{ap-colophon.tex}[2024-09-11 colophon appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter*{COLOPHON}
+\label{ap:colophon}
+\ix{colophon}
+
+\ExplSyntaxOn
+  \ifthen{\equal{true}{\ZZshowcolophon}}
+    {
+      \sys_if_shell_unrestricted:TF
+        % TRUE CODE
+        { }
+        % FALSE CODE
+        {
+          \typeout{Consider~using~the~shell-escape~option~so~the}
+          \typeout{Biber~version~will~be~included~in~the~colophon.}
+          \typeout{Hit~Enter~key~to~continue...}
+          \immediate\read15 to \junk
+        }
+    }
+\ExplSyntaxOff
+
+This is the colophon.
+A colophon describes how a document was produced \cite{diggypod-colophon}.
+This document was compiled on \ZZDateRun\ at \ZZTimeRun\ using
+\begin{luacode*}
+  local texlive = string.match(tex.luatexbanner, "%((.*)%)")
+  tex.sprint(texlive .. ", ")
+
+  local lualatex = tex.luatexbanner
+  lualatex = string.gsub(lualatex, "This is ", "")
+  lualatex = string.gsub(lualatex, ", Version ", " ")
+  lualatex = string.gsub(lualatex, " %(.*", "")
+  tex.sprint(lualatex .. ", ")
+
+  local fh = io.popen("biber -v")
+  biber = fh:read()
+  fh:close()
+  biber = string.gsub(biber, "biber version: ", "")
+  tex.sprint("Biber " .. biber .. ", ")
+\end{luacode*}
+and \PurdueThesisVersion.
+
+\begin{tabular}{@{}ll@{}}
+  \noalign{\vspace*{6pt}}
+  \toprule
+  \bfseries Control Sequence& \bfseries Value\\
+  \midrule
+  \multicolumn{2}{@{}l}{INPUT\hfil}\\
+  \verb+\ZZauthor+& \ZZauthor\\
+  \verb+\ZZcampus+& \ZZcampus\\
+  \verb+\ZZdegree+& \ZZdegree\\
+  \verb+\ZZdocument+& \ZZdocument\\
+  \verb+\ZZgraduation+& \ZZgraduation\\
+  \verb+\ZZinstitution+& \ZZinstitution\\
+  \verb+\ZZprogram+& \ZZprogram\\
+  \verb+\ZZtitle+& \ZZtitle\\
+  \noalign{\vspace*{6pt}}
+  \verb+\ZZshowcolophon+& \ZZshowcolophon\\
+  \verb+\ZZshowdiagonalline+& \ZZshowdiagonalline\\
+  \verb+\ZZshowgridlines+& \ZZshowgridlines\\
+  \verb+\ZZshowmarginlines+& \ZZshowmarginlines\\
+  \verb+\ZZshowtimestamp+& \ZZshowtimestamp\\
+  \verb+\ZZshowtodonotes+& \ZZshowtodonotes\\
+  \noalign{\vspace*{12pt}}
+  \multicolumn{2}{@{}l}{SHORTENED (for debugging)\hfil}\\
+  \verb+\ZZcam+& \ZZcam\\
+  \verb+\ZZdeg+& \ZZdeg\\
+  \verb+\ZZins+& \ZZins\\
+  \verb+\ZZpro+& \ZZpro\\
+  \noalign{\vspace*{12pt}}
+  \multicolumn{2}{@{}l}{DERIVED (for debugging)\hfil}\\
+  \verb+\ZZinscam+& \ZZinscam\\
+  \verb+\ZZinscampro+& \ZZinscampro\\
+  \verb+\ZZinscamprodeg+& \ZZinscamprodeg\\
+  \bottomrule
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\ExplSyntaxOn
+  \str_if_eq:NNTF
+    \ZZibibstyle
+    \ZZbibstyle
+    % TRUE CODE
+    {\def\ZZtmpa{\ZZibibstyle}}
+    % FALSE CODE
+    {\def\ZZtmpa{\ZZibibstyle\space overridden~with~\ZZbibstyle}}
+  \str_if_eq:NNTF
+    \ZZicitestyle
+    \ZZcitestyle
+    % TRUE CODE
+    {\def\ZZtmpb{\ZZicitestyle}}
+    % FALSE CODE
+    {\def\ZZtmpb{\ZZicitestyle\space overridden~with~\ZZcitestyle}}
+\ExplSyntaxOff
+\begin{tabular}{@{}ll@{}}
+  \noalign{\vspace*{6pt}}
+  \toprule
+  \bfseries What& \bfseries Value\\
+  \midrule
+  \verb+bibstyle+& \ZZtmpa\\
+  \verb+citestyle+& \ZZtmpb\\
+  \bottomrule
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+
+

@@ -1,0 +1,19 @@
+\ProvidesFile{ap-defining-commands.tex}[2022-10-05 defining commands appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{DEFINING COMMANDS}
+
+The next paragraph demonstrates how to define and use a command.
+
+\renewcommand{\t}[2]
+{% The "{%" hides the space caused by the newline.  LaTeX ignores leading spaces on a line.
+  Editors recommend that a #1 should never be
+  followed by a #2 without some intervening text.
+}
+
+\t{chapter title}{section heading}
+I suggest writing for readers.
+Break the rules if necessary.
+\end{VerbatimOut}
+
+\MyIO

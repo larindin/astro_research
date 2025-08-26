@@ -1,0 +1,315 @@
+\ProvidesFile{ap-text.tex}[2022-12-14 text appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{TEXT}
+
+\ix{Text appendix}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Color}
+
+The soul package \cite{franz2003} package is loaded by |thesis.tex|.
+The package defines the following commands:
+\hl{%
+  this text is highlighted in yellow
+  and is so long it is absolutely guaranteed
+  to go to the next line%
+} for testing.
+See the citation for much more information.
+
+The xcolor package \cite{kern2021} package is loaded by \PurdueThesisLogo.
+The package defines the following commands:
+\textcolor{red}{%
+  this text is printed in red
+  and is so long it is absolutely guaranteed
+  to go to the next line%
+} for testing.
+See the citation for much more information.
+\end{VerbatimOut}
+
+\MyIO
+  
+
+\begin{VerbatimOut}{z.out}
+
+% The \sentence command is also defined in the convington package
+% so I'll comment this one out.  I don't think this sentence
+% command is used.
+% \newcommand\sentence[1]{\MyRepeat{This is a sentence.  }{#1}}
+
+\section{Description, enumerate, and itemize environments}
+\ix{description environment//enumerate environment//itemize environment}
+\index{\verb+\begin{description}+}
+\index{\verb+\begin{enumerate}+}
+\index{\verb+\begin{itemize}+}
+
+The first example:
+
+\begin{description}
+  \item[elephant]
+    \MyRepeat{This is the elephant item of a description environment. }{3}
+  \item[frog]
+    \MyRepeat{This is the frog item of a description environment. }{3}
+\end{description}
+
+\begin{enumerate}
+  \item
+    \MyRepeat{This is the first item of an enumerate environment. }{3}
+  \item
+    \MyRepeat{This is the second item of an enumerate environment. }{3}
+\end{enumerate}
+
+\begin{itemize}
+  \item
+    \MyRepeat{This is the first item of an itemize environment. }{3}
+  \item
+    \MyRepeat{This is the second item of an itemize environment. }{3}
+\end{itemize}
+\end{VerbatimOut}
+\ix{description environment//enumerate environment//itemize environment}
+\index{\verb+\begin{description}+}
+\index{\verb+\begin{enumerate}+}
+\index{\verb+\begin{itemize}+}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+The second example:
+
+\begin{description}
+  \item[elephant]
+    \MyRepeat{This is the elephant item of a level zero description environment. }{2}
+    \begin{enumerate}
+      \item
+        \MyRepeat{This is the first item of a level one enumerate environment. }{2}
+      \begin{itemize}
+        \item
+          \MyRepeat{This is the first item of a level two itemize environment. }{2}
+        \item
+          \MyRepeat{This is the first item of a level two itemize environment. }{2}
+      \end{itemize}
+      \item
+        \MyRepeat{This is the second iitem of a level one enumerate environment. }{2}
+    \end{enumerate}
+  \item[frog]
+    \MyRepeat{This is the frog item of a level zero description environment. }{2}
+\end{description}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Computer program listings}
+
+\lstset{language=Pascal}
+
+\begin{ZZlisting}
+  \caption{This is the caption.}
+  \begin{CenteredBox}
+     This is the listing.
+  \end{CenteredBox}
+\end{ZZlisting}
+
+\begin{ZZlisting}
+  \caption{A Pascal Program}
+  \begin{CenteredBox}
+    \begin{lstlisting}
+for i:=maxint to 0 do
+begin
+    { do nothing }
+end;
+Write('Case insensitive.');
+WritE('Pascal keywords.');
+    \end{lstlisting}
+  \end{CenteredBox}
+\end{ZZlisting}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Frenchspacing}%
+\ix{frenchspacing//nonfrenchspacing}
+\index{\verb+\frenchspacing+}
+\index{\verb+\nonfrenchspacing+}
+
+{\small DON'T USE THIS:}
+As far as I know I'm the only one
+that uses this crazy format.
+The
+\def\t{{\tt\char'134 frenchspacing}}
+\def\u{{\tt\char'134 nonfrenchspacing}}
+\raise6pt\hbox{\rlap{\t}}%
+\lower6pt\hbox{\u}
+command puts approximately
+\raise6pt\hbox{\rlap{one}}%
+\lower6pt\hbox{two}
+spaces after sentences.
+The default\\[2pt]
+is |\nonfrenchspacing|.
+
+{\small BETTER} \cite{kris2014}:
+The
+|\frenchspacing| (|\nonfrenchspacing|)
+command puts approximately
+one (two)
+spaces after sentences.
+The default is |\nonfrenchspacing|.
+
+{\small BEST} \cite{cms17-slashes-to-signify-alternatives}:
+The
+|\frenchspacing|/|\nonfrenchspacing|
+command puts approximately
+one/two
+spaces after sentences.
+The default is |\nonfrenchspacing|.
+
+{
+  \frenchspacing
+  Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam
+  cursus. Morbi ut mi. Nullam enim leo, egestas id, condimentum at,
+  laoreet mattis, massa. Sed eleifend nonummy diam. Praesent mauris
+  ante, elementum et, bibendum at, posuere sit amet, nibh. Duis
+  tincidunt lectus quis dui viverra vestibulum. Suspendisse
+  vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam
+  vehicula mi at mauris. Maecenas placerat, nisl at consequat
+  rhoncus, sem nunc gravida justo, quis eleifend arcu velit quis
+  lacus. Morbi magna magna, tincidunt a, mattis non, imperdiet
+  vitae, tellus. Sed odio est, auctor ac, sollicitudin in,
+  consequat vitae, orci. Fusce id felis. Vivamus sollicitudin metus
+  eget eros.\endgraf
+}
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam
+cursus. Morbi ut mi. Nullam enim leo, egestas id, condimentum at,
+laoreet mattis, massa. Sed eleifend nonummy diam. Praesent mauris
+ante, elementum et, bibendum at, posuere sit amet, nibh. Duis
+tincidunt lectus quis dui viverra vestibulum. Suspendisse
+vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam
+vehicula mi at mauris. Maecenas placerat, nisl at consequat
+rhoncus, sem nunc gravida justo, quis eleifend arcu velit quis
+lacus. Morbi magna magna, tincidunt a, mattis non, imperdiet
+vitae, tellus. Sed odio est, auctor ac, sollicitudin in,
+consequat vitae, orci. Fusce id felis. Vivamus sollicitudin metus
+eget eros.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\section{Multiple Columns}
+
+Depending on what version of \LaTeX\ you're running
+the \verb+multicols+ package may or may not do what
+you want.
+
+% The multicols package must be loaded for this to work.
+% To load the multicols package put
+%     \usepackage{multicols}
+% between the "\documentclass" and "\begin{document}" commands.
+
+% Put this amount of space between the columns.
+% Let's use the default column separation to see what happens.
+% \setlength{\columnsep}{0.5truein}
+
+% Separate the columns with a vertical rule this wide.
+% Make the column three times the default width.
+\setlength{\columnseprule}{1.2pt}
+
+This is one column\MyRepeat{This is one column.  }{10}
+
+\begin{multicols}{2}
+  \MyRepeat{This is two columns.  }{12}
+\end{multicols}
+
+\begin{multicols}{3}
+  \MyRepeat{This is three columns.  }{9}
+\end{multicols}
+
+\begin{multicols}{4}
+  \MyRepeat{This is four columns.  }{10}
+\end{multicols}
+
+\begin{multicols}{5}
+  \MyRepeat{This is five columns.  }{10}
+\end{multicols}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Words}
+
+\newenvironment{entry}
+{%
+  \bigskip
+  % Start a \vbox here.
+  % Everything in a \vbox is guaranteed to be on the same page.
+  \vbox\bgroup
+    \noindent
+}
+{%
+  % End the \vbox here.
+  \egroup
+}
+
+\begin{entry}
+  {\bfseries irregardless}\qquad
+  is a nonstandard word that means regardless.
+  Use \emph{regardless} instead
+  \cite{merriam-webster-irregardless}.
+\end{entry}
+
+\begin{entry}
+  {\bfseries out of date / out-of-date}\qquad
+  means ``outmoded, obsolete''.
+  \cite{oed-out-of-date}.
+
+  When it comes after the noun,
+  the compound adjective usually doesn't get a hyphen.
+  So we say an easy-to-remember number,
+  but the number is easy to remember.
+  Same goes for up to date---if it's before a noun it needs a hyphen.
+  A document is up to date but it's an up-to-date document
+  \cite{thewriter-to-hyphenate-or-not-to-hyphenate}.
+  Also see
+  \cite{oed-out-of-date}.
+
+  In the context of writing about out-of-date software you may want to
+  use ``deprecated'' \cite{merriam-webster-deprecated} instead.
+\end{entry}
+
+\begin{entry}
+  {\bfseries start-up / start-up company}\qquad
+  means a fledgling business enterprise
+  \cite{wikipedia-startup-company}.
+  I would use the more modern \emph{startup}
+  and only use \emph{company} if not clear from the context.
+\end{entry}
+
+\begin{entry}
+  {\bfseries peace out}\qquad
+  means
+  ``goodbye''
+  \cite{online-slang-dictionary-peace-out}
+\end{entry}
+\end{VerbatimOut}
+
+\MyIO

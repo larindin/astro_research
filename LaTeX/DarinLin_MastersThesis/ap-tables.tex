@@ -1,0 +1,803 @@
+\ProvidesFile{ap-tables.tex}[2022-10-05 tables appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{TABLES}
+\ix{table}
+\end{VerbatimOut}
+
+\MyIO
+
+
+% \newlength{\ta}
+% \newlength{\tb}
+% \newlength{\tc}
+% 
+% \settowidth{\ta}{\vbox{\hbox{Money}\hbox{Market}}}
+% \settowidth{\tb}{\vbox{\hbox{Stocks}\hbox{and}\hbox{Bonds}}}
+% \settowidth{\tc}{\vbox{\hbox{Money}\hbox{Market}\hbox{and}\hbox{Stocks}}}
+% 
+% {
+%   \renewcommand{\baselinestretch}{1}
+%   \begin{table}
+%     \caption{%
+%       \hfil Allocation of the IRA and Keogh Wealth\hfil\break
+%       \mbox{}\hfil for Investors With or Without Brokerage Accounts\hfil
+%     }
+%     \label{tab:ira}
+%     \begin{center}
+%       \begin{tabular}%
+%         {%
+%           |%
+%           c%
+%           |%
+%           >{\centering\hspace{0pt}}m{\the\ta}%  Money Market
+%           |%
+%           c%                                    Stocks 
+%           |%
+%           c%                                    Bonds
+%           |%
+%           c%                                    Diversified
+%           |%
+%           >{\centering\hspace{0pt}}m{\the\tb}%  Stocks and Bonds
+%           |%
+%           >{\centering\hspace{0pt}}m{\the\tc}%  Money Market and Stocks
+%           |%
+%           c%                                    Others
+%           |%
+%         }
+%         \hline
+%         IMP&
+%           Money Market&
+%           Stocks&
+%           Bonds&
+%           Diversified&
+%           Stocks and Bonds&
+%           Money Market and Stocks&
+%           Others\tabularnewline
+%         \hline
+%         1& 14.19\%& 57.71\%& 12.21\%& 4.50\%& 7.36\%& 3.04\%& 0.99\%\tabularnewline \hline
+%         2& 14.08\%& 58.18\%& 12.32\%& 4.44\%& 7.30\%& 2.80\%& 0.88\%\tabularnewline \hline
+%         3 &14.26\%& 58.09\%& 12.27\%& 4.50\%& 7.19\%& 2.75\%& 0.94\%\tabularnewline \hline
+%         4 &13.94\%& 58.11\%& 12.14\%& 4.78\%& 7.35\%& 2.68\%& 0.99\%\tabularnewline \hline
+%         5 &13.92\%& 58.13\%& 11.93\%& 4.56\%& 7.60\%& 2.98\%& 0.88\%\tabularnewline \hline
+%       \end{tabular}
+%     \end{center}
+%     This table presents the allocations of the wealth in the IRA
+%     and Keogh accounts in various asset classes.
+%     Results from each set of imputed data are presented here.
+%     The first column lists the number of the imputations,
+%     and rest of the columns lists various allocations.
+%     Entrees under each asset class show the percentage of investors
+%     who have most of their IRA
+%     and Keogh wealth invested in that particular asset class.
+%     The asset class Diversified
+%     includes stocks,
+%     bonds,
+%     and money market investments.
+%     The asset class Others
+%     include investments in various life insurance products,
+%     annuities,
+%     real estate, etc.
+%     \medskip
+%     \footnotesize SOURCE: Survey of Consumer Finances,
+%     2001,
+%     Federal Reserve Board,
+%     USA.\par
+%   \end{table}
+% }
+
+
+\begin{VerbatimOut}{z.out}
+
+Here is a really simple table.
+I was greatly influenced
+by Herbert Voss' following ideas
+on typsetting tables
+\cite{voss2011}:
+Use |\toprule|, |\midrule|, and |\bottomrule|.
+\index{\verb+\toprule+}
+\index{\verb+\midrule+}
+\index{\verb+\bottomrule+}
+Don't have blank horizontal space to the left
+or right of body of table.
+\ix{Voss, Herbert}
+
+% "h" means put table "here"---don't let it float to top or bottom of page
+\begin{table}[ht]
+  \caption{The first three American Presidents.}
+  \vspace*{6pt}
+  \centering
+    % Table format:
+    %     WHAT    DESCRIPTION
+    %     @{}     don't put extra space before first column
+    %     r       right justify first column
+    %     l       left justify second column
+    %     @{}     don't put extra space after second column
+    \begin{tabular}{@{}rl@{}}
+      \toprule
+      \bf Number& \bf Name\\
+      \midrule
+      1& George Washington\\
+      2& John Adams\\
+      3& Thomas Jefferson\\
+      \bottomrule
+    \end{tabular}
+  \label{ta:first-three-american-presidents}
+\end{table}
+\ix{table}
+\index{\verb+\begin{table}+}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\newpage
+
+Here is the same table with a longer caption.
+
+% "h" means put table "here"---don't let it float to top or bottom of page
+\begin{table}[ht]
+  \caption{%
+    The first three American Presidents.
+    This caption is
+    much, much, much, much, much, much,
+    much, much, much, much, much, much
+    longer.%
+  }
+  \vspace*{6pt}
+  \centering
+    % Table format:
+    %     WHAT    DESCRIPTION
+    %     @{}     don't put extra space before first column
+    %     r       right justify first column
+    %     l       left justify second column
+    %     @{}     don't put extra space after second column
+    \begin{tabular}{@{}rl@{}}
+      \toprule
+      \bf Number& \bf Name\\
+      \midrule
+      1& George Washington\\
+      2& John Adams\\
+      3& Thomas Jefferson\\
+      \bottomrule
+    \end{tabular}
+  \label{ta:first-three-american-presidents-longer-caption}
+\end{table}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\newpage
+
+\LaTeX\ can print horizontal
+and vertical rules in tables.
+I don't like the way this looks 
+and suggest you do not use tables
+with lots of horizontal and vertical lines.
+\begin{table}[ht]
+  \caption{The first three American Presidents with horizontal and vertical lines}
+  \vspace*{6pt}
+  \centering
+    % Table format:
+    %     WHAT    DESCRIPTION
+    %     @{}     don't put any space left of first column
+    %     |       print a vertical rule
+    %     c       center column 
+    %     |       print a vertical rule
+    %     l       left justify column
+    %     |       print a vertical rule
+    %     @{}     don't put any space right of last column
+    \begin{tabular}{@{}|c|l|@{}}
+      % "\hline" prints a horizontal rule
+      \hline
+      \bf \#& \bf Name\\
+      \hline
+      1& George Washington\\
+      \hline
+      2& John Adams\\
+      \hline
+      3& Thomas Jefferson\\
+      \hline
+    \end{tabular}
+  \label{ta:American-Presidents-with-horizontal}
+\end{table}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\newpage
+
+Here is a more complicated table.
+
+{
+  \UndefineShortVerb{\|}
+\begin{table}[ht]
+  \caption{C Bitwise Operators}
+  \vspace*{6pt}
+  \centering
+    % Table format:
+    %     WHAT    DESCRIPTION
+    %     @{}     don't put extra space before first column
+    %     c       first column is centered
+    %     c       second column is centered
+    %     c       third column is centered
+    %     c       fourth column is centered
+    %     @{}     don't put extra space after fourth column
+    \begin{tabular}{@{}cccc@{}}
+      \toprule
+      \bf A& \bf B& \bf A\(|\)B& \bf A\&B\\[2pt]
+      \midrule
+      0& 0& 0& 0\\
+      0& 1& 1& 0\\
+      1& 0& 1& 0\\
+      1& 1& 1& 1\\
+      \bottomrule
+    \end{tabular}
+  \label{ta:C-Bitwise}
+\end{table}
+}
+\end{VerbatimOut}
+
+\MyIO
+
+
+% Plain Tex's \halign command can be used to make tables but it is not
+% worth telling users about.  LaTeX is more convenient to make tables
+% with generally.
+% 
+% \begin{VerbatimOut}{z.out}
+% 
+% You can use Plain \TeX's \verb+\halign+ command to make tables also.
+% If you can't do a complicated table using \LaTeX\ commands
+% you may want to try using Plain \TeX\ commands.
+% \LaTeX's table making commands use Plain \TeX\ commands.
+% 
+% \begin{table}[ht]
+%   \caption{American Presidents using {\tt\char'134 halign}}
+%   \hbox to \textwidth{\hss\vbox{\halign{%
+%     \strut #&      % 0. \strut
+%     \hfil#\qquad&  % 1. Number
+%     #\hfil\cr      % 2. Name
+%     %
+%     & \bf Number& \bf Name\cr
+%     & 1& George Washington\cr
+%     & 2& John Adams\cr
+%     & 3& Thomas Jefferson\cr
+%   }}\hss}
+%   \label{ta:American-Presidents-using}
+% \end{table}
+% \end{VerbatimOut}
+% 
+% \MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{table}[ht]
+  \caption{Participant descriptors for twelve practitioners engaged in co-creation activities}
+  \label{tab:22participants}
+  \center
+  \begin{tabular}{@{}cllS@{}}
+    \toprule
+    \multicolumn{1}{@{}l}{\textbf{Pseudonym}}&
+      \textbf{Disciplinary Role}&
+      \textbf{Company Type}&
+      \multicolumn{1}{l@{}}{\textbf{\# Years of Experience}}\\
+    \midrule
+    \multicolumn{4}{@{}l@{}}%
+    {%
+      \textbf{Sequence 1:} $\text{A1.1}\to\text{B2.1}$:
+      Overlapping dilemma cards to strengthen and represent%
+    }\\
+    \multicolumn{4}{@{}l}{ethical complexity
+      through practitioner's current ecological complexity model}\\
+    1P1& UX Designer& Enterprise (B2C)& 1.5\\
+    1P2& Product Manager& Enterprise (B2B)& 5\\
+    1P3& Data Scientist& Agency or Consultancy& 1\\
+    \noalign{\vspace{8pt}}
+    \multicolumn{4}{@{}l@{}}%
+    {%
+      \textbf{Sequence 2:} $\text{B2.1}\to\text{A1.1}$:
+      Building and tracing complexity based on Dilemmas Cards%
+    }\\
+    \multicolumn{4}{@{}l}{to reconstruct and reflect on their experience}\\
+    2P1& UX Designer& Agency or Consultancy& 8\\
+    2P2& Product Manager& Agency or Consultancy& 2\\
+    2P3& Software Engineer& Enterprise (B2B)& 2\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\newpage
+
+Here is a table that is too long to fit on one page.
+
+% This is very loosely based on page 106 of _A Guide to LaTeX_, third edition,
+% by Helmut Kopka and Patrick W. Daly.
+\begin{longtable}{@{}ll@{}}
+    \caption{State Abbreviations}\\
+    \toprule
+    \bf State& \bf Abbreviation\\
+    \hline
+  \endfirsthead
+    \caption[]{\emph{continued}}\\
+    \midrule
+    \bf State& \bf Abbreviation\\
+    \midrule
+  \endhead
+    \hline
+    \multicolumn{2}{r}{\emph{continued on next page}}
+  \endfoot
+    \bottomrule
+  \endlastfoot
+  Alabama& AL\\
+  Alaska& AK\\
+  American Samoa& AS\\
+  Arizona& AZ\\
+  Arkansas& AR\\
+  Armed Forces Europe& AE\\
+  Armed Forces Pacific& AP\\
+  Armed Forces the Americas& AA\\
+  California& CA\\
+  Colorado& CO\\
+  Connecticut& CT\\
+  Delaware& DE\\
+  District of Columbia& DC\\
+  Federated States of Micronesia& FM\\
+  Florida& FL\\
+  Georgia& GA\\
+  Guam& GU\\
+  Hawaii& HI\\
+  Idaho& ID\\
+  Illinois& IL\\
+  Indiana& IN\\
+  Iowa& IA\\
+  Kansas& KS\\
+  Kentucky& KY\\
+  Louisiana& LA\\
+  Maine& ME\\
+  Marshall Islands& MH\\
+  Maryland& MD\\
+  Massachusetts& MA\\
+  Michigan& MI\\
+  Minnesota& MN\\
+  Mississippi& MS\\
+  Missouri& MO\\
+  Montana& MT\\
+  Nebraska& NE\\
+  Nevada& NV\\
+  New Hampshire& NH\\
+  New Jersey& NJ\\
+  New Mexico& NM\\
+  New York& NY\\
+  North Carolina& NC\\
+  North Dakota& ND\\
+  Northern Mariana Islands& MP\\
+  Ohio& OH\\
+  Oklahoma& OK\\
+  Oregon& OR\\
+  Pennsylvania& PA\\
+  Puerto Rico& PR\\
+  Rhode Island& RI\\
+  South Carolina& SC\\
+  South Dakota& SD\\
+  Tennessee& TN\\
+  Texas& TX\\
+  Utah& UT\\
+  Vermont& VT\\
+  Virgin Islands& VI\\
+  Virginia& VA\\
+  Washington& WA\\
+  West Virginia& WV\\
+  Wisconsin& WI\\
+  Wyoming& WY\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+  \multicolumn{2}{c}{make this three pages long}\\
+\end{longtable}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+% The table is on the next page.
+
+\newpage
+
+% Set \LTcapwidth (the longtable caption width)
+% to \textwidth minus 4 paragraph indent widths.
+\setlength{\LTcapwidth}{\textwidth}
+\addtolength{\LTcapwidth}{-4\parindent}
+
+\newlength{\twidth}
+\newlength{\theight}
+
+\setlength{\twidth}{\textwidth}
+\setlength{\theight}{\textheight}
+
+\begin{sidewaystable}
+  % The following two lines compensate for what I think is a bug.
+  \setlength{\textwidth}{\theight}
+  \setlength{\textheight}{\twidth}
+  \caption{Sidewaystable of the first three American Presidents.}
+  \vspace*{6pt}
+  \centering
+    \begin{tabular}{@{}rl@{}}
+      \toprule
+      \bf Number& \bf Name\\
+      \midrule
+      1& George Washington\\
+      2& John Adams\\
+      3& Thomas Jefferson\\
+      \bottomrule
+    \end{tabular}
+\end{sidewaystable}
+\end{VerbatimOut}
+
+\MyIO
+
+\begin{VerbatimOut}{z.out}
+\begin{sidewaystable}
+  % The following two lines compensate for what I think is a bug.
+  \setlength{\textwidth}{\theight}
+  \setlength{\textheight}{\twidth}
+  \caption{Two tables can be placed vertically in a sidewaystable environment.}
+  \vspace*{6pt}
+  \centering
+    \begin{tabular}{@{}rl@{}}
+      \toprule
+      \bf Number& \bf Name\\
+      \midrule
+      1& George Washington\\
+      2& John Adams\\
+      3& Thomas Jefferson\\
+      \bottomrule
+    \end{tabular}
+  \vspace*{2\baselineskip}
+  \caption{This is the second table in the sideways environment.}
+  \vspace*{6pt}
+    \begin{tabular}{@{}rl@{}}
+      \toprule
+      \bf Number& \bf Name\\
+      \midrule
+      1& George Washington\\
+      2& John Adams\\
+      3& Thomas Jefferson\\
+      \bottomrule
+    \end{tabular}
+\end{sidewaystable}
+\end{VerbatimOut}
+
+\MyIO
+
+
+% Plain Tex's \halign command can be used to make tables but it is not
+% worth telling users about.  LaTeX is more convenient to make tables
+% with generally.
+% 
+% \begin{VerbatimOut}{z.out}
+%
+% \begin{sidewaystable}
+%   % The following two lines compensate for what I think is a bug.
+%   \setlength{\textwidth}{\theight}
+%   \setlength{\textheight}{\twidth}
+%   \caption{%
+%     sidewaystable
+%     {\tt\cbackslash halign\copencurly}\ldots{\tt\cclosecurly\/} table%
+%   }
+%   \hbox to \textwidth{\hss\vbox{\halign{%
+%     \strut #&      % 0. \strut
+%     \hfil#\qquad&  % 1. Number
+%     #\hfil\cr      % 2. Name
+%     %
+%     & \bf Number& \bf Name\cr
+%     \noalign{\vskip 2pt}
+%     & 1& George Washington\cr
+%     & 2& John Adams\cr
+%     & 3& Thomas Jefferson\cr
+%   }}\hss}
+% \end{sidewaystable}
+% \end{VerbatimOut}
+%
+% \MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{sidewaystable}[ht]%
+  % The following two lines compensate for what I think is a bug.
+  \setlength{\textwidth}{\theight}%
+  \setlength{\textheight}{\twidth}%
+  \caption{Live Guitar Open String Testing Data - Pitch (\textit{f\textsubscript{0}})}
+  \vspace*{6pt}%
+  \label{ta:live-guitar}%
+  % Define "Live Guitar Test" column.
+  \def\lgt#1{\bf Live Guitar Test #1}
+  % Define "Note", "Computed", "Measured", "%", and "Accuracy" column headings.
+  \def\note{\bf Note}
+  \def\cal{\bf Computed}
+  \def\mea{\bf Measured}
+  \def\per{\bf \%}
+  \def\acc{\bf Accuracy}
+  % Define "Name", "f_0 (Hz)", "Error", and "Range (\textcent)" column headings.
+  \def\name{\bf Name}
+  \def\fsz{\bf \textit{f\textsubscript{0}} (Hz)}
+  \def\err{\bf Error}
+  \def\ran{\bf Range (\textcent)}
+  % Make "!" be an invisible character the width of a digit.
+  % (All digits in the normal font are the same width.)
+  \catcode`\!=\active    \def!{\hphantom 1}
+  \hbox to \textwidth
+  {%
+    \hss
+    % From http://zerocapcable.com/?page_id=225
+    %     The units of tuning accuracy are cents. A cent is one hundredth
+    %     of a semitone.  Since there are 12 semitones in an octave, there
+    %     are 1200 cents in an octave.
+    % The default \tabcolsep is 6.0pt.
+    \setlength{\tabcolsep}{5pt}%
+    \begin{tabular}{@{}cc|ccc|ccc|ccc@{}}
+      \hline
+      \multicolumn{2}{c|}{ }&
+        \multicolumn{3}{c|}{\lgt1}&
+        \multicolumn{3}{c|}{\lgt2}&
+        \multicolumn{3}{c}{\lgt3}\\
+      \cline{3-11}
+      \note& \cal& \mea& \per& \acc& \mea& \per& \acc& \mea& \per& \acc\\
+      \name& \fsz& \fsz& \err& \ran& \fsz& \err& \ran& \fsz& \err& \ran\\
+      \hline
+      E\textsubscript 2& !82.407& !82.333& 0.0897& $+2$& !82.616& 0.2538& $+6$& !82.474& 0.0814& $+2$\\
+      A\textsubscript 2& 110.000& 110.092& 0.0836& $+2$& 110.092& 0.0836& $+2$& 110.092& 0.0836& $+2$\\
+      D\textsubscript 3& 146.832& 146.789& 0.0295& $-2$& 146.789& 0.0295& $-2$& 147.239& 0.2769& $+6$\\
+      G\textsubscript 3& 195.998& 196.721& 0.3690& $+8$& 195.918& 0.0407& $+2$& 196.721& 0.3690& $+8$\\
+      B\textsubscript 3& 246.942& 247.423& 0.1949& $+4$& 246.517& 0.1720& $-4$& 247.423& 0.1949& $+4$\\
+      E\textsubscript 4& 329.628& 331.034& 0.4267& $+8$& 331.034& 0.4267& $+8$& 331.034& 0.4267& $+8$\\
+      \hline
+      \multicolumn{11}{@{}l}{Thanks to Kathryn Schmidt for donating this table.}\\
+    \end{tabular}
+    \hss
+  }
+\end{sidewaystable}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+% Define a control sequence to save typing.
+% Let * represent zero or more spaces!
+% Method 1: \def\g#1{ requires using \g*{10} for 10.
+%           Two shifted characters, { and } are needed.
+% Method 2: \def\g#1/{ requires using \g*10/ for 10.
+%           One unshifted character, / is needed.
+% Method 2 requires less work than Method 1.
+\def\g#1/{\includegraphics[scale=0.5]{gr-metapost-tally-#1.pdf}}%
+
+% Define a length for use later.
+\newlength{\tlen}
+\setlength{\tlen}{2\parindent}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{table}[ht]%
+  \label{ta:first-tally-table}
+  \caption
+  [%
+    First tally table.  Use this method.%
+  ]%
+  {%
+    First tally table.  Use this method.  I think it is the simplest.
+  }
+  \vspace*{6pt}
+  %   Note that tabular* instead of tabular is used below.
+  %   The {\textwidth} makes the total width of the table the width
+  % of the printed area of the page.
+  %   The @{\kern\tlen} puts blank space the width of two paragraph indents
+  % before the first column.
+  %   The @{extracolsep{\fill}} adds \fill space between all subsequent
+  % columns.
+  %   The lll left justifies the next three columns.
+  % after the column.
+  %   The @{\kern\tlen} puts blank space the width of two
+  % paragraph indents before the first column.
+  \begin{tabular*}{\textwidth}{@{\kern\tlen}@{\extracolsep{\fill}}lll@{\kern\tlen}}%
+    \g 01/& \g 02/& \g 03/\\
+    \g 04/& \g 05/\\
+  \end{tabular*}%
+\end{table}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{table}[ht]
+  \caption{%
+    Second tally table.
+    Don't use this method.
+    The method used in the first tally table
+    is easier to understand.%
+  }%  
+  \vspace*{6pt}
+  %   Note that tabularx instead of tabular is used below.
+  %   The {\textwidth} makes the total width of the table the width
+  % of the printed area on the page.
+  %   The @{\kern\tlen} puts blank space the width of two paragraph indents
+  % before the first column.
+  %   The XX makes the first two columns the same width including the space
+  % after the column.
+  %   The l left justifies the last column.
+  %   The @{\kern\tlen} puts blank space the width of two paragraph indents
+  % after the last column.
+  \begin{tabularx}{\textwidth}{@{\kern\tlen}XXl@{\kern\tlen}}%
+    \g 01/& \g 02/& \g 03/\\
+    \g 04/& \g 05/\\
+  \end{tabularx}%
+\end{table}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{table}[h!]
+  \caption{
+    Third tally table.
+    Don't use this method.
+    The method used in the first tally table
+    is easier to understand.%
+  }%
+  \vspace*{6pt}
+  \def\t #1/#2/#3/%
+  {%
+    \hbox to\textwidth{%
+      \kern\tlen \g #1/\hfil \g #2/\hfil \g #3/\kern\tlen
+    }%
+  }%
+  \vbox{
+    \t 01/02/03/
+    \hbox to\textwidth{%
+      \kern\tlen \g 04/\hfil \g 05/\hfil \phantom{\g 05/}\kern\tlen
+    }%
+    }
+  \end{table}
+\end{VerbatimOut}
+
+\MyIO
+  
+
+\begin{VerbatimOut}{z.out}
+
+
+% Process all unprocessed floats.
+% None of the current floats will be after the \FloatBarrier.
+\FloatBarrier
+\end{VerbatimOut}
+
+\MyIO
+
+
+
+
+
+%\newlength{\ta}
+%\settowidth{\ta}{\vbox{\hbox{Money}\hbox{Market}}}
+%\newlength{\tb}
+%\settowidth{\tb}{\vbox{\hbox{Stocks}\hbox{and}\hbox{Bonds}}}
+%\newlength{\tc}
+%\settowidth{\tc}{\vbox{\hbox{Money}\hbox{Market}\hbox{and}\hbox{Stocks}}}
+%
+%  {\renewcommand{\baselinestretch}{1}
+%\begin{table}
+%  \caption{\hfil Allocation of the IRA and Keogh Wealth\hfil\break\mbox{}\hfil for Investors With or Without Brokerage Accounts\hfil}
+%  \label{tab:ira}
+%  \begin{center}
+%    \begin{tabular}%
+%      {%
+%        |%
+%        c%
+%        |%
+%        >{\centering\hspace{0pt}}m{\the\ta}%  Money Market
+%        |%
+%        c%                                    Stocks 
+%        |%
+%        c%                                    Bonds
+%        |%
+%        c%                                    Diversified
+%        |%
+%        >{\centering\hspace{0pt}}m{\the\tb}%  Stocks and Bonds
+%        |%
+%        >{\centering\hspace{0pt}}m{\the\tc}%  Money Market and Stocks
+%        |%
+%        c%                                    Others
+%        |%
+%      }
+%      \hline
+%      IMP&
+%        Money Market&
+%        Stocks&
+%        Bonds&
+%        Diversified&
+%        Stocks and Bonds&
+%        Money Market and Stocks&
+%        Others\tabularnewline
+%      \hline
+%      1& 14.19\%& 57.71\%& 12.21\%& 4.50\%& 7.36\%& 3.04\%& 0.99\%\tabularnewline \hline
+%      2& 14.08\%& 58.18\%& 12.32\%& 4.44\%& 7.30\%& 2.80\%& 0.88\%\tabularnewline \hline
+%      3 &14.26\%& 58.09\%& 12.27\%& 4.50\%& 7.19\%& 2.75\%& 0.94\%\tabularnewline \hline
+%      4 &13.94\%& 58.11\%& 12.14\%& 4.78\%& 7.35\%& 2.68\%& 0.99\%\tabularnewline \hline
+%      5 &13.92\%& 58.13\%& 11.93\%& 4.56\%& 7.60\%& 2.98\%& 0.88\%\tabularnewline \hline
+%    \end{tabular}
+%  \end{center}
+%  This table presents the allocations of the wealth in the IRA
+%  and Keogh accounts in various asset classes.
+%  Results from each set of imputed data are presented here.
+%  The first column lists the number of the imputations,
+%  and rest of the columns lists various allocations.
+%  Entrees under each asset class show the percentage of investors
+%  who have most of their IRA
+%  and Keogh wealth invested in that particular asset class.
+%  The asset class Diversified
+%  includes stocks,
+%  bonds,
+%  and money market investments.
+%  The asset class Others
+%  include investments in various life insurance products,
+%  annuities,
+%  real estate, etc.
+%  \medskip
+%  \footnotesize SOURCE: Survey of Consumer Finances,
+%  2001,
+%  Federal Reserve Board,
+%  USA.\par
+%\end{table}
+%  }

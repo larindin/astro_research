@@ -1,0 +1,199 @@
+\ProvidesFile{ap-testing.tex}[2024-05-17 testing appendix]
+
+\chapter{TESTING (THIS APPENDIX IS USED FOR TESTING, DOES THIS
+  VERY, VERY, VERY, VERY, VERY, VERY, VERY,
+  VERY, VERY, VERY, VERY, VERY, VERY, VERY,
+  LONG TITLE LOOK OK?)}
+
+\ix{Testing appendix}
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Apostrophes}
+
+Test apostrophes in text mode: f', f'', and f'''.
+
+Test apostrophes in math mode: \(f',\ f'',\text{ and }f'''\).
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Cite long title}
+
+Cite a reference with a very, very, very, \ldots\ long title
+\cite{test-long-title}.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Footnote}
+
+This is a footnote\footnote{This is a footnote.}%
+\index{\verb+\footnote+}%
+\ix{footnote}
+\end{VerbatimOut}
+
+\MyIO
+
+
+% {
+%   \makeatletter
+%     \renewcommand\@makechapterhead[1]%
+%     {{%
+%       \renewcommand{\baselinestretch}{1} \reset@font
+%       \large\bf\thechapter. #1\endgraf
+%     }}
+% 
+%     \chapter{TEST CHAPTER---THIS IS A VERY, VERY, VERY, VERY, VERY, VERY, VERY, VERY, VERY, VERY LONG CHAPTER NAME}
+%   \makeatother
+% }
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{\PurdueThesisLogo\ Logo}
+
+\begin{tabular}{@{}lll@{}}
+  \bfseries Input&     \bfseries Output&  \bfseries Comment\\
+  |PurdueThesis|&      PurdueThesis&      just ordinary text\\
+  |\PurdueThesisLogo|& \PurdueThesisLogo& PurdueThesis logo, less space between\\
+                     &                  & |P|--|u|, |e|--|T|, and |T|--|h|\\
+  |PuTh|&              PuTh&              just ordinary text\\
+  |\PuThLogo|&         \PuThLogo&         PuTh abbreviation logo, less space between\\
+                     &                  & |P|--|u|, |u|--|T|, and |T|--|h|\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Section headings with {\protect\scshape SmallCaps} font}
+\label{section-headings-with-smallcaps-font}
+
+Section headings with |{\protect\scshape SmallCaps}| don't work.%
+\todoerror{Section headings with {\protect\scshape SmallCaps} don't work.}
+
+\mbox{}
+
+\todowarn{Putting this section in a VerbatimOut environment
+  caused a ``'! LaTeX Error: Float(s) lost.'' error.}
+
+This does not work:
+\begin{verbatim}
+  \section{Section with {\protect\scshape SmallCaps}}
+\end{verbatim}
+use
+\begin{verbatim}
+  \section
+    [Section with {\protect\scshape SmallCaps}]%
+    {Section with S{\protect\scriptsize MALL}C{\protect\scriptsize APS}}
+\end{verbatim}
+instead.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{To-do notes}
+
+Make a todo comment.%
+\todocomment{Some people use ``to-do'', but I want to be consistent with command names.}
+
+The Purdue football game is at noon tomorrow.%
+\todowarn{Leave at 10:00---the traffic will be terrible.}
+
+\[
+  \sum_1^n = 1 + 2 + \cdots + n - 1
+\]%
+\todoerror{\(n-1\) should be \(n\).}
+\end{VerbatimOut}
+
+\MyIO
+
+
+These lower-case Greek characters should be used in math mode:
+\vspace*{0.2in}
+
+{
+  \renewcommand{\s}{\hskip5pt}
+  \renewcommand{\b}{\hskip20pt}
+  \begin{tabular}{
+    @{}
+    l@{\s}l@{\b}
+    l@{\s}l@{\b}
+    l@{\s}l@{\b}
+    l@{\s}l@{\b}
+    l@{\s}l@{\b}
+    l@{\s}l
+    @{}}
+    \(\alpha\)& |\alpha|& \(\beta\)& |\beta|& \(\gamma\)& |\gamma|&
+      \(\delta\)& |\delta|& \(\epsilon\)& |\epsilon|& \(\zeta\)& |\zeta|\\
+    \(\eta\)& |\eta|& \(\theta\)& |\theta|& \(\iota\)& |iota|&
+      \(\kappa\)& |\kappa|& \(\lambda\)& |\lambda|& \(\mu\)& |\mu|\\
+    \(\nu\)& |\nu|& \(\xi\)& |\xi|& \(o\)& |\omicron|&
+      \(\pi\)& |\pi|& \(\rho\)& |rho|& \(\sigma\)& |\sigma|\\
+    \(\tau\)& |\tau|& \(\upsilon\)& |\upsilon|& \(\phi\)& |\phi|&
+      \(\chi\)& |\chi|& \(\psi\)& |\psi|& \(\omega\)& |\omega|\\
+  \end{tabular}
+  \ix{%
+    alpha//beta//gamma//%
+      delta//epsilon//zeta//%
+    eta//theta//iota//%%
+      kappa//lambda//mu//%
+    nu//xi//omicron//%
+      pi//rho//sigma//%
+    tau//upsilon//phi/%
+      /chi//psi//omega%
+  }
+  \index{\verb+\alpha+}  \index{\verb+\beta+}  \index{\verb+\gamma+}
+    \index{\verb+\delta+}  \index{\verb+\epsilon+}  \index{\verb+\zeta+}
+  \index{\verb+\eta+}  \index{\verb+\theta+}  \index{\verb+\iota+}
+    \index{\verb+\kappa+}  \index{\verb+\lambda+}  \index{\verb+\mu+}
+  \index{\verb+\nu+}  \index{\verb+\xi+}  \index{\verb+\omicron+}
+    \index{\verb+\pi+}  \index{\verb+\rho+}  \index{\verb+\sigma+}
+  \index{\verb+\tau+}  \index{\verb+\upsilon+}  \index{\verb+\phi+}
+    \index{\verb+\chi+}  \index{\verb+\psi+}  \index{\verb+\omega+}
+}
+
+\section{Figure Captions}
+
+
+\begin{VerbatimOut}{z.out}
+
+\paragraph{This is a paragraph.}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\begin{figure}[ht]
+  \centering
+    This is the figure.
+  \caption[A short caption for the list of figures.]{%
+    This is the long caption.  This is the long caption.
+    This is the long caption.  This is the long caption.
+    This is the long caption.  This is the long caption.
+    This is the long caption.  This is the long caption.%
+  }
+\end{figure}
+\end{VerbatimOut}
+
+\MyIO

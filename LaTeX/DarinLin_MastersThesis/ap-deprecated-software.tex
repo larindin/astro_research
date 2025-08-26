@@ -1,0 +1,95 @@
+\ProvidesFile{ap-deprecated-software.tex}[2023-02-06 ap-deprecated-software appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{DEPRECATED SOFTWARE}
+
+Deprecated means
+\cite{merriam-webster-deprecated}
+\begin{quote}
+  to withdraw official support for or discourage the use of
+  (something, such as a software product)
+  in favor of a newer or better alternative.
+\end{quote}
+
+The following software is deprecated for use with \PurdueThesisLogo.
+Read the ``Details''
+or ``Used For''
+columns below for more information.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Bibliography Software}
+
+\noindent
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+  \toprule
+  \bf Software Name& \bf Details\\
+  \midrule
+  Mendeley&
+    If you don't currently use Mendeley
+    and are thinking about using Mendeley just for your thesis
+    I suggest that you do not do it.
+    It may cause more problems than it solves.
+    You can type the data needed for your bibliography
+    directly into .bib files.\\
+  \bottomrule
+\end{tabularx}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Packages}
+
+The
+|\usepackage{|\Place{packagename}|}|
+command is used to load a package.
+
+Do not use these packages---they are not compatible with \PurdueThesisLogo.\\
+
+\noindent
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+  \toprule
+  \bf Package Name& \bf Used For\\
+  \midrule
+  babel&
+    Translating ``Table of Contents'', etc\@. to foreign languages.
+    Reported by Danushka Menikkumbura.
+    Send email to \verb+latex@ecn.purdue.edu+ if you need to
+    typset multiple languages in your thesis.\\
+  caption&
+    Used to customize captions.
+    Do not load this package, it is not compatible with \PurdueThesisLogo.\\
+  glossaries&
+    Used to make glossaries.
+    Do not load this package, it is not compatible with \PurdueThesisLogo.
+    See the \verb+front.tex+ file for haw to make a glossary.\\
+  glossary&
+    For glossararies.
+    This package is deprecated.
+    Do not load this package.
+    See \verb+glossaries+.\\
+      subfig&
+    For subfigures.
+    This package is deprecated.
+    Do not load this package.
+    See page \pageref{pa:subfigures} for how to do subfigures.\\
+  subfigure&
+    For subfigures.
+    This package is deprecated.
+    Do not load this package.
+    See page \pageref{pa:subfigures} for how to do subfigures.\\
+  \bottomrule
+\end{tabularx}
+\end{VerbatimOut}
+
+\MyIO
+

@@ -1,0 +1,352 @@
+%%
+%% This is file `mismath.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% mismath.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2019-2023 by Antoine Missier <antoine.missier@ac-toulouse.fr>
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.3 of this license
+%% or (at your option) any later version. The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.3 or later is part of all distributions of LaTeX version
+%% 2005/12/01 or later.
+%% 
+\NeedsTeXFormat{LaTeX2e}[2005/12/01]
+\ProvidesPackage{packages/pa-mismath}
+    [2023/02/19 v2.4 .dtx mismath file]
+\newif\ifmm@ibrackets % initialized to false
+\DeclareOption{ibrackets}{\mm@ibracketstrue}
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{amsmath}}
+\ProcessOptions \relax
+\@ifpackageloaded{amsmath}{}{\RequirePackage{amsmath}}
+\@ifpackageloaded{mathtools}{}{\RequirePackage{mathtools}}
+\@ifpackageloaded{esvect}{}{\RequirePackage[b]{esvect}}
+\RequirePackage{ifthen}
+\RequirePackage{xspace}
+\RequirePackage{iftex}
+\ifmm@ibrackets\RequirePackage{ibrackets}\fi
+
+{\catcode`\|=\z@ \catcode`\\=12 |gdef|bslash{\}} % \bslash command
+
+\newcommand\mm@warning[1]{
+    \PackageWarningNoLine{mismath}{
+        Command \bslash #1 already exist and will not be redefined}
+}
+\newcommand\mm@macro[2]{
+    \@ifundefined{#1}{
+        \expandafter\def\csname #1\endcsname{#2}
+    }{\mm@warning{#1}}
+}
+\newcommand\mm@operator[3][]{%
+    \ifthenelse{\equal{#1}{}}{\def\tempa{#3}}{\def\tempa{#1}}
+    \@ifundefined{\tempa}{
+        \DeclareMathOperator{#2}{#3}
+    }{\mm@warning{\tempa}}
+}
+
+\providecommand{\mathup}[1]{{\operatorfont #1}} % also in kpfonts
+\mm@macro{e}{\mathup{e}}
+\AtBeginDocument{\let\oldi\i \let\oldj\j
+    \renewcommand{\i}{\TextOrMath{\oldi}{\mathup{i}}}
+    \renewcommand{\j}{\TextOrMath{\oldj}{\mathup{j}}} }
+
+\newcount\mm@charcode
+\newcount\mm@charclass
+\newcount\mm@charslot
+
+\newcommand\@MathUp[1]{%
+    \ifluatex
+        \mm@charclass=\Umathcharclass`#1
+        %\mm@charfam=\Umathcharfam`#1
+        \mm@charslot=\Umathcharslot`#1
+        \Umathcode`#1= \mm@charclass 0 \mm@charslot
+    \else
+        \mm@charcode=\mathcode`#1
+        % extract charclass
+        \@tempcnta=\mm@charcode
+        \divide\@tempcnta by "1000
+        \multiply\@tempcnta by "1000 % charclass
+        \mm@charclass=\@tempcnta
+        % extract charslot
+        \@tempcnta=\mm@charcode
+        \@tempcntb=\mm@charcode
+        \divide\@tempcnta by "100
+        \multiply\@tempcnta by "100 % charclass + charfam
+        \advance\@tempcntb by -\@tempcnta % charslot
+        \mm@charslot=\@tempcntb
+        % construct charcode
+        \mm@charcode=\mm@charclass
+        \advance\mm@charcode by \mm@charslot % charfam is now 0
+        \mathcode`#1=\mm@charcode
+    \fi
+}
+
+\newcommand\MathUp[1]{%
+    \ifx\@onlypreamble\@notprerr
+        \@MathUp{#1}
+    \else % in the preamble
+        \AtBeginDocument{\@MathUp{#1}}
+    \fi
+}
+
+\newcommand\MathIt[1]{%
+    \ifluatex
+        \mm@charclass=\Umathcharclass`#1
+        %\mm@charfam=\Umathcharfam`#1
+        \mm@charslot=\Umathcharslot`#1
+        \Umathcode`#1= \mm@charclass 1 \mm@charslot
+    \else
+        \mm@charcode=\mathcode`#1
+        % extract charclass
+        \@tempcnta=\mm@charcode
+        \divide\@tempcnta by "1000
+        \multiply\@tempcnta by "1000 % charclass
+        \mm@charclass=\@tempcnta
+        % extract charslot
+        \@tempcnta=\mm@charcode
+        \@tempcntb=\mm@charcode
+        \divide\@tempcnta by "100
+        \multiply\@tempcnta by "100 % charclass + charfam
+        \advance\@tempcntb by -\@tempcnta % charslot
+        \mm@charslot=\@tempcntb
+        % construct charcode
+        \mm@charcode=\mm@charclass
+        \advance\mm@charcode by \mm@charslot
+        \advance\mm@charcode by "100 % sets charfam to 1
+        \mathcode`#1=\mm@charcode
+    \fi
+}
+
+\newcommand*\MathNumbers[1]{%
+    \in@{e}{#1} \ifin@ \MathUp{e} \fi
+    \in@{i}{#1} \ifin@ \MathUp{i} \fi
+    \in@{j}{#1} \ifin@ \MathUp{j} \fi
+}
+
+\newcommand*\MathProba[1]{%
+    \in@{P}{#1} \ifin@ \MathUp{P} \fi
+    \in@{E}{#1} \ifin@ \MathUp{E} \fi
+    \in@{V}{#1} \ifin@ \MathUp{V} \fi
+}
+
+\newcommand*\MathNormal[1]{
+    \in@{e}{#1} \ifin@ \MathIt{e} \fi
+    \in@{i}{#1} \ifin@ \MathIt{i} \fi
+    \in@{j}{#1} \ifin@ \MathIt{j} \fi
+    \in@{P}{#1} \ifin@ \MathIt{P} \fi
+    \in@{E}{#1} \ifin@ \MathIt{E} \fi
+    \in@{V}{#1} \ifin@ \MathIt{V} \fi
+}
+
+\newcommand{\enumber}{%
+    \PackageWarning{mismath}{Command \string\enumber\space
+        is deprecated, \MessageBreak
+        use \bslash MathUp{e} instead}
+    \MathUp{e}
+}
+\newcommand{\inumber}{%
+    \PackageWarning{mismath}{Command \string\inumber\space
+        is deprecated, \MessageBreak
+        use \bslash MathUp{i} instead}
+    \MathUp{i}
+}
+\newcommand{\jnumber}{
+    \PackageWarning{mismath}{Command \string\jnumber\space
+        is deprecated, \MessageBreak
+        use \bslash MathUp{j} instead}
+    \MathUp{j}
+}
+\newcommand{\PEupright}{
+    \PackageWarning{mismath}{Command \string\PEupright\space
+        is deprecated, \MessageBreak
+        use \bslash MathUp{P} and \bslash MathUp{R} instead}
+    \MathUp{P}\MathUp{E}
+}
+
+\newcommand*\pinumber[1][]{
+    \@ifundefined{itpi}{\let\itpi\pi}{}
+    \ifthenelse{\equal{#1}{}}{
+      \ifx\@onlypreamble\@notprerr
+        \@ifundefined{savedpi}{
+            \PackageWarning{mismath}{%
+                \bslash pinumber without argument\MessageBreak
+                must be used in the preamble first\MessageBreak
+                to load LGR fontenc for upright pi}
+        }{\let\pi\savedpi}
+      \else % in the preamble
+        \RequirePackage[LGR,T1]{fontenc}
+        \DeclareSymbolFont{UpGr}{LGR}{lmr}{m}{n}
+        \DeclareMathSymbol{\pi}\mathalpha{UpGr}{"70}
+        \let\savedpi\pi
+      \fi
+    }{
+        \@ifundefined{#1}{
+            \PackageWarning{mismath}{%
+                Value #1 must be a valid
+                command name\MessageBreak for pinumber,
+                but command \bslash #1\space
+                is undefined.\MessageBreak
+                Perhaps a missing package}
+        }{\renewcommand{\pi}{%
+            \csname #1\endcsname}
+        }
+    }
+}
+
+\newcommand{\pinormal}{\@ifundefined{itpi}{}{\let\pi\itpi}}
+
+\newboolean{arrowvect}
+\setboolean{arrowvect}{true}
+\newcommand{\arrowvect}{\setboolean{arrowvect}{true}}
+\newcommand{\boldvect}{\setboolean{arrowvect}{false}}
+\newcommand{\boldvectcommand}{\boldsymbol} % from amsbsy package
+\mm@macro{vect}{\ifthenelse{\boolean{arrowvect}}{
+        \vv}{\boldvectcommand}} % doesn't work well with \if... \fi
+\newcommand*{\hvect}[1]{\vect{\vphantom{t}#1}}
+\newcommand*{\hvec}[1]{\vec{\vphantom{t}#1}}
+
+\newcommand*{\@norm}[1]{
+    \mbox{\raisebox{1.75pt}{\small$\bigl\Vert$}} #1
+    \mbox{\raisebox{1.75pt}{\small$\bigr\Vert$}} }
+\newcommand*{\@@norm}[1]{
+    \mbox{\footnotesize\raisebox{1pt}{$\Vert$}} #1
+    \mbox{\footnotesize\raisebox{1pt}{$\Vert$}} }
+\newcommand*{\@@@norm}[1]{
+    \mbox{\tiny\raisebox{1pt}{$\Vert$}} #1
+    \mbox{\tiny\raisebox{1pt}{$\Vert$}} }
+\@ifundefined{norm}{\providecommand*{\norm}[1]{
+        \mathchoice{\@norm{#1}}{\@norm{#1}}{\@@norm{#1}}{\@@@norm{#1}}
+        }
+    }{\mm@warning{norm} } % bad result with libertinust1math
+
+\mm@macro{di}{\mathop{}\!\mathup{d}}
+\newcommand\probastyle{}
+\let\Par\P % end of paragraph symbol
+\renewcommand{\P}{\operatorname{\probastyle{P}}}
+\mm@macro{E}{\operatorname{\probastyle{E}}}
+\mm@macro{V}{\operatorname{\probastyle{V}}}
+
+\mm@operator{\adj}{adj}
+\mm@operator{\Aut}{Aut}
+\mm@operator{\codim}{codim}
+\mm@operator{\Conv}{Conv}
+\mm@operator{\cov}{cov}
+\mm@operator{\Cov}{Cov}
+\mm@macro{curl}{\operatorname{\vect{\mathup{curl}}}}
+\mm@operator[divg]{\divg}{div}
+\mm@operator{\End}{End}
+
+\mm@operator{\erf}{erf}
+\mm@macro{grad}{\operatorname{\vect{\mathup{grad}}}}
+\mm@operator{\id}{id} % mathop or mathord ?
+\mm@operator{\Id}{Id}
+\mm@operator{\im}{im}
+\let\oldIm\Im \renewcommand{\Im}{\operatorname{Im}}
+\mm@operator{\lb}{lb}
+\mm@operator{\lcm}{lcm}
+
+\mm@operator{\rank}{rank}
+\let\oldRe\Re \renewcommand{\Re}{\operatorname{Re}}
+\mm@macro{rot}{\operatorname{\vect{\mathup{rot}}}}
+\mm@operator{\sgn}{sgn}
+\mm@operator{\sinc}{sinc}
+\mm@operator[spa]{\spa}{span}
+\mm@operator{\tr}{tr}
+\mm@operator{\var}{var}
+\mm@operator{\Var}{Var}
+\mm@operator[Zu]{\Zu}{Z}
+
+\mm@operator{\arccot}{arccot}
+\mm@operator{\sech}{sech}
+\mm@operator{\csch}{csch}
+\mm@operator{\arsinh}{arsinh}
+\mm@operator{\arcosh}{arcosh}
+\mm@operator{\artanh}{artanh}
+\mm@operator{\arcoth}{arcoth}
+\mm@operator{\arsech}{arsech}
+\mm@operator{\arcsch}{arcsch}
+
+\mm@operator[bigO]{\bigO}{\mathcal{O}}
+\mm@operator[bigo]{\bigo}{O}
+\mm@operator[lito]{\lito}{o}
+
+\mm@macro{mathset}{\mathbf}
+\mm@macro{R}{\ensuremath{\mathset{R}}\xspace}
+\mm@macro{C}{\ensuremath{\mathset{C}}\xspace}
+\mm@macro{N}{\ensuremath{\mathset{N}}\xspace}
+\mm@macro{Z}{\ensuremath{\mathset{Z}}\xspace}
+\mm@macro{Q}{\ensuremath{\mathset{Q}}\xspace}
+\mm@macro{F}{\ensuremath{\mathset{F}}\xspace}
+\mm@macro{K}{\ensuremath{\mathset{K}}\xspace}
+
+\mm@macro{ds}{\displaystyle}
+\mm@macro{dlim}{\lim\limits}
+\mm@macro{dsum}{\sum\limits}
+\mm@macro{dprod}{\prod\limits}
+\mm@macro{dcup}{\bigcup\limits}
+\mm@macro{dcap}{\bigcap\limits}
+
+\mm@macro{lbar}{\overline}
+\@ifundefined{hlbar}{
+    \providecommand*{\hlbar}[1]{\overline{\vphantom{t}#1}}}{
+    \mm@warning{hlbar} }
+\newcommand\@eqdef{\stackrel{\mathup{def}}{=}}
+\newcommand\@@eqdef{\stackrel{\Delta}{=}}
+\mm@macro{eqdef}{\@ifstar{\@@eqdef}{\@eqdef}}
+\mm@macro{unbr}{\underbrace}
+\mm@macro{iif}{if and only if\xspace}
+
+\mm@macro{then}{\ \Longrightarrow \ \mbox{} }
+\@ifundefined{txt}{
+    \providecommand*{\txt}[1]{\quad\text{#1}\quad} }{
+    \mm@warning{txt} }
+\mm@macro{mul}{\mathord{\times}}
+\@ifundefined{pow}{
+    \providecommand*{\pow}[2]{\left( #1 \right)^{\!#2}} }{
+    \mm@warning{pow} }
+\@ifundefined{abs}{
+    \providecommand*{\abs}[1]{\left\vert#1\right\vert} }{
+    \mm@warning{abs} }
+\@ifundefined{lfrac}{
+    \providecommand*{\lfrac}[2]{\frac{\;#1\;}{\;#2\;}} }{
+    \mm@warning{lfrac} }
+
+\newcommand{\systemstretch}{1.2}
+\newcommand{\systemsep}{\medspace}
+\newenvironment{system}[1][l]{
+    \renewcommand{\arraystretch}{\systemstretch}
+    \setlength{\arraycolsep}{0.15em}
+    \left\{\begin{array}{@{\systemsep}#1@{}} %
+}{\end{array}\right.}
+
+\newenvironment{spmatrix}{
+    \left(\begin{smallmatrix}
+}{\end{smallmatrix}\right)}
+
+\newenvironment{mathcols}{% needs multicol package
+    \renewcommand{\columnseprule}{0.1pt}
+    \begin{multicols}{2}
+        \par\noindent\hfill
+        \begin{math}\begin{aligned}\displaystyle
+}{%
+        \end{aligned}\end{math} \hfill\mbox{}
+    \end{multicols}
+}
+\newcommand{\changecol}{%
+    \end{aligned}\end{math} \hfill\mbox{}
+    \par\noindent\hfill
+    \begin{math}\begin{aligned}\displaystyle
+}
+
+\endinput
+%%
+%% End of file `mismath.sty'.

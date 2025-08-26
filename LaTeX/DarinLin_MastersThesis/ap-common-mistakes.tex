@@ -1,0 +1,149 @@
+\ProvidesFile{ap-common-mistakes.tex}[2024-05-05 common mistakes appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{COMMON MISTAKES}
+
+The following Headings, Mathematics, and Text
+sections describe some common mistakes.
+
+
+
+
+\section{Headings}
+
+\textcite[page~289]{farkas2011}
+wrote
+
+\begin{quotation}
+  The practice of stacking headings
+  is routinely condemned by style manuals
+  and other authorities.
+  Here is a typical statement,
+  taken from Houghton Mifflin's guidelines for authors.
+  \begin{quotation}
+    Avoid ``stacking'' heads,
+    or placing two levels
+    of headings together without intervening text.
+    A heading cannot substitute
+    for the transitional
+    or introductory paragraphs
+    that guide the reader through a chapter.
+    Remember too that a chapter opening looks better in type
+    when one
+    or more paragraphs
+    of text precede the first heading.
+  \end{quotation}
+\end{quotation}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Mathematics}
+
+\subsection{Put a little extra horizontal space before dx}
+\end{VerbatimOut}
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Text}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\subsection{e.g.,}
+\ix{e.g.}
+
+``e.g.'' should always be followed by a comma.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\subsection{``et al.'' is an abbreviation}
+\ix{et al.}
+
+The phrase ``et al.''
+is an abbreviation
+and should always be followed by a period.
+It should be in the normal font for your document---%
+do not italicize or underline it.
+
+Example:\\[6pt]
+\indent\indent
+\begin{tabular}{@{}ll@{}}
+  input&   \verb+Thun et al.~used data from Santa Claus.+\\
+  output&  Thun et al.~used data from Santa Claus.\\
+  comment& my recommendation\\[6pt]
+  input&   \verb+Thun et al. used data from Santa Claus.+\\
+  output&  Thun et al. used data from Santa Claus.\\
+  comment& too much space after period---\LaTeX\ thinks period is end of sentence\\[6pt]
+  input&   \verb+Thun et al\@. used data from Santa Claus.+\\
+  output&  Thun et al\@. used data from Santa Claus.\\
+  comment& spacing is right but the ``et al.'' could occur at end of a line\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\subsection{i.e.,}
+\ix{i.e.}
+
+``i.e.'' should always be followed by a comma.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\subsection{ldots}
+
+Use ``1, 2, \ldots, 10''
+instead of 1, 2, ..., 10''
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\subsection{text math subscripts}
+
+If you are using an English word
+as a math subscript or subsubscript
+typeset it in a roman font like this
+`\(x_\text{max}\)'
+instead of
+`\(x_{max}\)'.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\subsection{ties}
+
+Change the space in
+`Dr. ', `Fig. ', `Mr. ', `Mrs. ', `Mx. ', `Prof. ', etc.,
+to `\(\sim\)' so the period will only be followed by one
+space and, for example, `Dr.' and `Smith' will be tied
+together so they won't be split over two lines.
+\end{VerbatimOut}
+
+\MyIO

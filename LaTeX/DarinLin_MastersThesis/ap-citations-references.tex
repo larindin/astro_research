@@ -1,0 +1,142 @@
+\ProvidesFile{ap-citations.tex}[2024-10-04 citations and references appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{CITATIONS AND REFERENCES}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+In your thesis try to cite only original sources like articles
+and books.
+If possible,
+don`t use encyclopedias and Wikipedia.
+\cite{citing-wikipedia}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+This chapter contains information about citations
+and references---how to cite a reference in the text
+and the fine points of defining a bibliography
+(also called ``References'')
+entry.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Citations}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+This @online entry does not have a date
+but has a urldate:
+\cite{engineering}.
+
+\citetitle{erdos1992}
+by Paul Erd\H os
+\cite{erdos1992}
+was published in
+\citeyear{erdos1992}.
+
+For \LaTeX\ answers I refer to
+\cite{lamport1994}
+and then to
+\cite{goossens1994}
+or
+\cite{kopka1999}.
+\cite{kopka1999}
+is an update to
+\cite{kopka1995}.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+Here is an example .bib file entry:
+
+{\footnotesize
+\begin{verbatim}
+@misc{example2020,
+  address   = {Imaginaryville, Indiana},
+  author    = {Andrew Anteater and Bertha Bear and Charles Cheetah and Davida Deer
+                and Ethan Eagle},
+  date      = {2020-10-27},
+  doi       = {00.0000/000-0-000-00000-0},
+  editor    = {Mark Senn},
+  edition   = {2},
+  isbn      = {{000\FigureDash 0\FigureDash 000\FigureDash 00000\FigureDash 0}},
+  publisher = {Bogus International Publishing Company},
+  title     = {{Neil A.~Armstrong} Worked for {NASA}},
+  url       = {https://bogus.com/bogus.html},
+  urldate   = {2020-10-27},
+  version   = {1.0},
+}
+\end{verbatim}
+}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+Below are some example |ieee| style \BibLaTeXLogo\ citations.
+  
+(%
+  Different citation styles may give different results,
+  for example,
+  in the |apa| style,\\
+  |\cite{example2020}|
+  gives
+  ``Anteater et al., 2020''
+  and
+  |\parencite{example2020}|
+  gives
+  ``(Anteater et al., 2020)''.
+  See
+  \cite{apa-style-examples}
+  for more information.
+  I'll document all the citation styles
+  that \PurdueThesisLogo\ uses based on how
+  |\ZZinstitution|,
+  |\ZZcampus|,
+  and |\ZZprogram| are set later.%
+)
+
+\begin{inlinetable}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \textbf{Input}&                   \textbf{Output}\\
+    \midrule
+    \verb+\cite{example2020}+&        \cite{example2020}\\
+    \verb+\cite*{example2020}+&       \cite*{example2020}\\
+    \verb+\citeauthor{example2020}+&  \citeauthor{example2020}\\
+    \verb+\citeauthor*{example2020}+& \citeauthor*{example2020}\\
+    \verb+\citedate{example2020}+&    \citedate{example2020}\\
+    \verb+\citetitle{example2020}+&   \citetitle{example2020}\\
+    \verb+\citetitle*{example2020}+&  \citetitle*{example2020}\\
+    \verb+\citeurl{example2020}+&     \citeurl{example2020}\\
+    \verb+\citeyear{example2020}+&    \citeyear{example2020}\\
+    \verb+\parencite{example2020}+&   \parencite{example2020}\\
+    \verb+\textcite{example2020}+&    \textcite{example2020}\\
+    \bottomrule
+  \end{tabular}
+\end{inlinetable}
+\end{VerbatimOut}
+
+\MyIO

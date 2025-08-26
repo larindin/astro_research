@@ -1,0 +1,53 @@
+\ProvidesFile{ap-physics.tex}[2022-10-05 Physics appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{PHYSICS}
+\ix{physics//Physics appendix}
+
+Feynman diagrams\ix{Feynman diagram}
+show what happens
+when elementary particles collide
+\cite{feynman-diagram}.
+The Feynman diagrams below are from the
+\citetitle{ellis2016} documentation \cite{ellis2016}.
+\textbf{%
+  You must use \texttt{lualatex} instead
+  of \texttt{pdflatex}
+  to process documents that use the \texttt{tikz-feynman} package.%
+}
+
+The input
+in the documentation
+is different than here because a different random number generator
+is used \cite{menke2019}.
+I expect this to be corrected.
+In the meantime try replacing \texttt{vertical}
+with \texttt{vertical'}
+and/or switch some \texttt{fermion}
+to \texttt{anti} \texttt{fermion} lines \cite{ellis2017}.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\feynmandiagram [large, vertical'=e to f] {
+  a -- [fermion] b -- [photon, momentum=\(k\)] c -- [fermion] d,
+  b -- [fermion, momentum'=\(p_{1}\)] e -- [fermion, momentum'=\(p_{2}\)] c,
+  e -- [gluon] f,
+  h -- [anti fermion] f -- [anti fermion] i,
+};
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\feynmandiagram [horizontal=a to b] {
+  i1 -- [anti fermion] a -- [anti fermion] i2,
+  a -- [photon] b,
+  f1 -- [fermion] b -- [fermion] f2,
+};
+\end{VerbatimOut}
+
+\MyIO

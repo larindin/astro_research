@@ -1,0 +1,32 @@
+\ProvidesFile{ap-video.tex}[2022-10-05 video appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{VIDEO}
+
+% The following is based on information in
+%     http://ctan.math.washington.edu/tex-archive/macros/latex/contrib/media9/doc/media9.pdf
+% with the following details
+%     The media9 Package, v1.19
+%     Alexander Grahn
+%     https://gitlab.com/agrahn/media9
+%     29th July 2021
+% See section 2 on page 3 of the document for software dependencies.
+% Embed a YouTube video.
+
+This video example doesn't work for me using Firefox on Linux.
+
+\includemedia[
+  activate  = pageopen,
+  flashvars =
+  {
+    autohide        = 1   % Autohide controlbar.
+    &modestbranding = 1   % No YouTube logo in control bar.
+    &rel            = 0   % No related videos after end of this video.
+    &showinfo       = 0   % No title and other info before start of video.
+  },
+  height    = 2.25in,     % 9 x 16 aspect ratio
+  width     = 4in
+]{}{https://www.youtube.com/watch?v=C0DPdy98e4c}
+\end{VerbatimOut}
+
+\MyIO

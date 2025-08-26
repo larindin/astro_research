@@ -1,0 +1,354 @@
+\ProvidesFile{ap-chemistry.tex}[2022-10-05 chemistry appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{CHEMISTRY}
+\label{ch:chemistry}
+
+\ix{chemistry}
+\ix{Chemistry appendix}
+
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Chemical Diagrams}
+
+The chemplants package
+\cite{feffin2019}
+extends the
+\href{http://ctan.math.washington.edu/tex-archive/graphics/pgf/base/doc/pgfmanual.pdf}{\TikZLogo}
+package
+to draw chemical process units.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Chemical Equations}
+
+The mhchem Bundle
+\cite{hensel2018}
+contains mhchem v4.08 (chemical equations),
+hpstatement v1.02 (official hazard and precautionary statements),
+and rsphrase v3.11 (official rist and safety phrases).
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+Defined in thesis.tex: \nitrate.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+% See page 1 of
+%     https://www.thoughtco.com/what-is-a-chemical-equation-604026
+\ce{CH4 + 2O2 -> CO2 + 2H2O}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+% See page 1 of
+%     https://www.thoughtco.com/what-is-a-chemical-equation-604026
+\ce{2H2(g) + O2(g) -> 2H2O(l)}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+% See page 1 of
+% https://www.thoughtco.com/definition-of-ionic-equation-605262
+\ce{Ag+(aq) + NO3-(aq) + Na+(aq) + Cl-(aq) -> AgCl(s) + Na+(aq) + NO3-(aq)}
+is an ionic equation of the chemical reaction:
+\ce{AgNO3(aq) + NaCl(aq) -> AgCl(s) + NaNO3(aq)}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+% See page 1 of
+%     https://www.thoughtco.com/definition-of-balanced-equation-and-examples-604380
+\ce{Fe2O3 + C -> Fe + CO2}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+% From page 1 of
+%     https://www.thoughtco.com/definition-of-molecular-equation-605366
+
+For example, in the reaction between sodium chloride
+(\ce{NaCl})
+and silver nitrate
+(\ce{AgNO3}),
+the molecular reaction is:
+
+\ce{NaCl(aq) + AgNO3 -> NaNO3(aq) + AgCl(s)}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+The complete ionic equation is:
+
+\ce{Na+(aq) + Cl-(aq) + Ag+(aq) + NO3-(aq) -> AgCl(s) + Na+(aq) + NO3-(aq)}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+Ruben
+\cite[starting at 5:25]{meerman2013}
+claims this equation
+\begin{center}
+  \ce{C55H104O6 + 78O2 -> 55CO2 + 52H2O + energy}\endgraf
+\end{center}
+describes weight loss.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+And with better annotation:
+
+\begin{center}
+  \newcommand{\vph}{{\vphantom{\large Ag}}}
+  \ce{
+    $\underset{\text{\vph \footnotesize human fat}}{\ce{C55H104O6}}$
+    +
+    $\underset{\text{\vph \footnotesize oxygen}}{\ce{78O2}}$
+    ->
+    $\underset{\text{\vph \footnotesize carbon dioxide}}{\ce{55CO2}}$
+    +
+    $\underset{\text{\vph \footnotesize water}}{\ce{52H2O}}$
+    +
+    $\underset{\text{\vph \footnotesize body heat, moving, thinking, growing}}{\text{energy}}$
+  }
+\end{center}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+And with still better annotation:
+
+\begin{center}
+  \newcommand{\Fs}{\scriptsize}
+  \begin{tabular}{@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}}
+    &                                                       %  1. C55H10406
+      &                                                     %  2. +
+      &                                                     %  3. 78O2
+      &                                                     %  4. ->
+      &                                                     %  5. 55CO2
+      &                                                     %  6. +
+      &                                                     %  7. 52H2O
+      &                                                     %  8. +
+      \Fs calories\\                                        %  9. energy
+    %
+    \Fs kg&                                                 %  1.
+      &                                                     %  2.
+      \Fs kg&                                               %  3.
+      &                                                     %  4.
+      \Fs kg&                                               %  5.
+      &                                                     %  6.
+      \Fs kg&                                               %  7.
+      &                                                     %  8.
+      \Fs kJ\\                                              %  9.
+    %
+    \noalign{\vspace{3pt}}
+    %
+    \ce{C55H104O6}                                          %  1.
+      & \ce{+}                                              %  2.
+      & \ce{78O2}                                           %  3.
+      & \ce{->}                                             %  4.
+      & \ce{55CO2}                                          %  5.
+      & \ce{+}                                              %  6.
+      & \ce{52H2O}                                          %  7.
+      & \ce{+}                                              %  8.
+      & energy\\                                            %  9.
+    %
+    \Fs human fat&                                          %  1.
+      &                                                     %  2.
+      \Fs oxygen&                                           %  3.
+      &                                                     %  4.
+      \Fs carbon dioxide&                                   %  5.
+      &                                                     %  6.
+      \Fs water&                                            %  7.
+      &                                                     %  8.
+      \Fs body heat, moving, thinking, growing\\            %  9.
+  \end{tabular}
+\end{center}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+
+\section{Chemical Figures}
+
+Below is an example of how to use the chemfig package
+\cite{tellechea2021}.
+
+% Chicago Manual of Style Online, 17 edition, section 9.61 states
+% that 72--73, not 72--3, should be used.
+Here is the chemical figure
+for Penicillin
+\cite[pages~72--73]{tellechea2021}\\
+
+\chemfig{
+  [:-90]HN(-[::-45](-[::-45]R)=[::+45]O)>[::+45]*4(-(=O)-N*5(-(<:(=[::-60]O)
+  -[::+60]OH)-(<[::+0])(<:[::-108])-S>)--)
+}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\newpage
+\section{Chemical Schemes}
+
+Below are some examples of how to do schemes.
+
+\begin{scheme}[ht]
+  \caption{This is the first scheme caption.}
+  \vspace*{6pt}
+  \begin{center}
+    This is the first scheme.
+  \end{center}
+\end{scheme}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{scheme}[ht]
+  \caption{This is the second scheme caption.}
+  \vspace*{6pt}
+  \begin{center}
+    % Next line was added to make scheme a little smaller.
+    \scriptsize\setchemfig{bond offset=1pt,atom sep=3em,compound sep=6em}
+    \schemestart
+      \chemfig{-[:30](-[2])-[:-30]OH}
+      \arrow
+      \chemfig{-[:30](-[2])=^[:-30]O}
+    \schemestop
+  \end{center}
+\end{scheme}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\newpage
+\begin{scheme}[ht]
+  \caption[The Fischer indole synthesis]{%
+    The Fischer indole synthesis
+    \cite[pages~74--75]{tellechea2021}.%
+  }
+  \vspace*{6pt}
+  \begin{center}
+    % Next line was added to make scheme a little smaller.
+    \scriptsize\setchemfig{bond offset=1pt,atom sep=3em,compound sep=6em}
+    \schemestart
+      \chemfig{*6(=-*6(-\chembelow{N}{H}-NH_2)=-=-)}
+      \+
+      \chemfig{(=[:-150]O)(-[:-30]R_2)-[2]-[:150]R_1}
+      \arrow(.mid east--.mid west){->[\chemfig{H^+}]}
+      \chemfig{*6(-=*5(-\chembelow{N}{H}-(-R_2)=(-R_1)-)-=-=)}
+    \schemestop
+  \end{center}
+\end{scheme}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\newpage
+\begin{scheme}[ht]
+  \caption[The Cannizzaro reaction.]{%
+    The Cannizzaro reaction
+    \cite[pages~77--78]{tellechea2021}.%
+  }
+  \vspace*{12pt}
+  \begin{center}
+    % Next line was added to make scheme a little smaller.
+    \scriptsize\setchemfig{bond offset=1pt,atom sep=3em,compound sep=6em}
+    \schemestart
+      \chemfig{[:-30]*6(=-=(-@{atoc}C([6]=[@{db}]@{atoo1}O)-H)-=-)}
+      \arrow(start.mid east--.mid west){->[\chemfig{@{atoo2}\chemabove{O}{\scriptstyle\ominus}}H]}
+      \chemmove[-stealth,shorten >=2pt,dash pattern=on 1pt off 1pt,thin]{
+        \draw[shorten <=8pt](atoo2) ..controls +(up:10mm) and +(up:10mm)..(atoc);
+        \draw[shorten <=2pt](db) ..controls +(left:5mm) and +(west:5mm)..(atoo1);}
+      \chemfig{[:-30]*6(=-=(-C([6]-[@{sb1}]@{atoo1}\chembelow{O}{\scriptstyle\ominus})
+        ([2]-OH)-[@{sb2}]H)-=-)}
+      \hspace{1cm}
+      \chemfig{[:-30]*6((-@{atoc}C([6]=[@{db}]@{atoo2}O)-[2]H)-=-=-=)}
+      \chemmove[-stealth,shorten <=2pt,shorten >=2pt,dash pattern=on 1pt off 1pt,thin]{
+        \draw([yshift=-4pt]atoo1.270) ..controls +(0:5mm) and +(right:10mm)..(sb1);
+        \draw(sb2) ..controls +(up:10mm) and +(north west:10mm)..(atoc);
+        \draw(db) ..controls +(right:5mm) and +(east:5mm)..(atoo2);}
+      \arrow(@start.base west--){0}[-75,2]
+      {}
+      \arrow
+      \chemfig{[:-30]*6(=-=(-C([1]-@{atoo2}O-[@{sb}0]@{atoh}H)([6]=O))-=-)}
+      \arrow{0}
+      \chemfig{[:-30]*6((-C(-[5]H)(-[7]H)-[2]@{atoo1}\chemabove{O}{\scriptstyle\ominus})-=-=-=)}
+      \chemmove[-stealth,shorten >=2pt,dash pattern=on 1pt off 1pt,thin]{
+        \draw[shorten <=7pt](atoo1.90) ..controls +(+90:8mm) and +(up:10mm)..(atoh);
+        \draw[shorten <=2pt](sb) ..controls +(up:5mm) and +(up:5mm)..(atoo2);}
+    \schemestop
+  \end{center}
+\end{scheme}
+\end{VerbatimOut}
+
+\MyIO
+
+
+%\begin{scheme}[ht]
+%  \caption{This is the third scheme caption.}
+%  \vspace*{6pt}
+%  \begin{center}
+%    \schemestart
+%      \chemfig{*6(=-=(-(=[2]O)-[%-60]O-[0]O-[%30](=[2]O)-[%-60]*6(=-=-=-))=-)}
+%      \arrow{->[$\Delta$]}
+%      2 \chemfig{*6(=-=(-(=[2]O)-[%-60]{0.,0})-=-)}
+%      \arrow
+%      2 \chemfig{*6(=-=(-[,.15,,,draw-none]{0.,})-=-)}\+\ch{2 CO2 ^}
+%    \schemestop
+%  \end{center}
+%\end{scheme}

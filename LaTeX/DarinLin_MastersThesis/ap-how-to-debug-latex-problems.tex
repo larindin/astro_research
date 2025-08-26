@@ -1,0 +1,286 @@
+\ProvidesFile{ap-how-to-debug-latex-problems}[2023-08-30 How to Debug LaTeX Problems]
+
+\begin{VerbatimOut}{z.out}
+\chapter
+  [HOW TO DEBUG LATEX PROBLEMS]%
+  {HOW TO DEBUG \LaTeX\ PROBLEMS}
+\ix{debugging \LaTeX//How to Debug \LaTeXLogo\ Problems appendix}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+Add more content here.
+\todoerror{add more content here}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\ProvidesFile{ap-debugging.tex}[2023-06-16 debugging appendix]
+
+
+In \LuaLaTeXLogo\ error messages,
+the |l| in,
+for example,
+|l.987| means |line|.
+|l.987| means |line 987|.
+
+|! Undefined control sequence.|
+|l.|\emph{line\_number} |\|\emph{command}|}|
+
+The
+\emph{command}
+on
+\emph{line\_number}
+of the current file does not exist.
+It may be misspelled.
+
+\endinput
+
+\begin{environment}
+mispelled
+
+too many }
+
+use \begin{tabular} instead of \halign
+
+\alpha
+not in m'th mode
+
+\show \var
+
+\showthe \dimension
+
+
+compile input often
+
+providing ``too many'' causes extra arguementl to be printed
+
+Don't use the |unravel| package for debugging.
+It can cause more problems than it solves.
+
+Use minimum working examples.
+
+
+\begin{VerbatimOut}{z.out}
+\chapter{DEBUGGING}
+\ix{debugging//Debugging appendix}
+
+\MyIO
+
+Type 'R' to run LaTeX without showing errors.
+
+\linenumbers
+https://www.ametsoc.org/index.cfm/ams/publications/author-information/latex-author-info/preparing-a-latex-manuscript-for-submission/
+
+Remove all files ending with |.aux|.
+Those are temporary files
+and wil be remade automatically by LaTeX.
+
+
+\includeonly
+\endinput   (can only do at level 0)
+comment out with %
+
+\begin{comment} \ldots\ \end{comment}
+https://ctan.math.illinois.edu/macros/latex/contrib/comment/writeup.pdf
+
+\end{document}
+
+
+
+when you aren't in a text math (\(...\) or $...$ but I recommend \(...\))
+
+
+
+
+Just want to make sure you know about the following:
+after you recompile your document click on the icon to the
+immediate right to show any errors.
+
+There aren't any errors that have to do with your question.
+
+A float is a table or a figure.  \hbox is a horizontal box.
+There are 72.27 point (pt) per inch.
+
+Putting \, (backslash comma) in math mode gives a tiny
+bit of horizontal space.  You may want to put that before
+"erfc".
+
+You're right.  There is a problem.  I'll look at it with
+fresh eyes this weekend.
+
+I made a copy of the document and am making small changes to
+it but it fails to compile,  (I thought making a copy of
+it would not affect you.)  I'm confused.
+
+
+
+
+\left   \right
+\[    \]
+\(   \)
+{   }
+\begin{whatever}   \end{whatever}
+
+
+special characters:
+# $ % & ~ _ ^ \ { }
+
+
+don't use &#<digit><digit><digit><digut>& to try and get Unicode fonts in LaTeX
+
+PurdueThesis does not support the inputenc package.  Use, for example, $beta$
+for beta.
+\let\savedbeta=\beta
+beta = beta or $\savedbeta$
+
+% in bibliography files
+
+
+\qrmtz
+can't find control sequence
+it's either misspelled? ir your file or you didn't include a package that defined it
+
+use formatting that will help you
+  indenting
+
+use tools that will help you
+
+
+use Google
+
+http://crab.rutgers.edu/~karel/latex/class4/class4.html
+http://crab.rutgers.edu/~karel/latex/class5/class5.html
+http://crab.rutgers.edu/~karel/latex/class6/class6.html
+
+
+
+
+
+Michelle Krummel has a good Errors and Debugging tutorial.
+See LaTeX Tutorial 7 below.  In case you're interested in
+her other LaTeX tutorials they are in the table also.
+
+NAME   DATE   LENGTH
+LaTeX Tutorial 1 - Creating a LaTeX Document&
+LaTeX Tutorial 2 - Common Mathematical Notation&
+LaTeX Tutorial 3 - Brackets, Tables, and Arrays&
+LaTeX Tutorial 4 - Creating Lists&
+LaTeX Tutorial 5 - Text and Document Formatting&
+LaTeX Tutorial 6: Packages, Macros and Graphics&
+LaTeX Tutorial 7: Errors and Debugging&
+LaTeX Tutorial 8: TeXmaker and Overleaf Tips&
+LaTeX Tutorial 9 - Calculus Notation&
+LaTeX Tutorial 10: How to Format a Math Paper&
+LaTeX Tutorial 11: Beamer Slide Presentation&
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-07-08},
+  note    = {35 minutes long},
+  title   = {LaTeX Tutorial 1 - Creating a LaTeX Document},
+  url     = {https://www.youtube.com/watch?v=0ivLZh9xK1Q},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-07-27},
+  note    = {36 minutes long},
+  title   = {LaTeX Tutorial 2 - Common Mathematical Notation},
+  url     = {https://www.youtube.com/watch?v=bCumVPGR4ts},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-07-27},
+  note    = {42 minutes long},
+  title   = {LaTeX Tutorial 3 - Brackets, Tables, and Arrays},
+  url     = {https://www.youtube.com/watch?v=kefvRACdXHs},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-07-27},
+  note    = {12 minutes long},
+  title   = {LaTeX Tutorial 4 - Creating Lists},
+  url     = {https://www.youtube.com/watch?v=dZitO3IJTys},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-07-27},
+  note    = {23 minutes long},
+  title   = {LaTeX Tutorial 5 - Text and Document Formatting},
+  url     = {https://www.youtube.com/watch?v=3KvsemMjHPU},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-08-23},
+  note    = {30 minutes},
+  title   = {LaTeX Tutorial 6: Packages, Macros and Graphics},
+  url     = {https://www.youtube.com/watch?v=L7WzLrzU2Ec},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel
+  date    = {2020-08-25},
+  note    = {23 minutes long},
+  title   = {LaTeX Tutorial 7: Errors and Debugging},
+  url     = {https://www.youtube.com/watch?v=bYoTJc81-qk},
+  urldate = {2022-04-15},
+}
+pp
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2020-08-25},
+  note    = {41 minutes long},
+  title   = {LaTeX Tutorial 8: TeXmaker and Overleaf Tips},
+  url     = {https://www.youtube.com/watch?v=DzwoiIxrihA},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2015-05-03},
+  note    = {29 minutes long},
+  title   = {LaTeX Tutorial 9 - Calculus Notation},
+  url     = {https://www.youtube.com/watch?v=eDeRsE-NTb4},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel},
+  date    = {2016-10-03},
+  note    = {25 minutes long},
+  title   = {LaTeX Tutorial 10: How to Format a Math Paper},
+  url     = {https://www.youtube.com/watch?v=FcVP3gGUtGI},
+  urldate = {2022-04-15},
+}
+
+@online{krummel?,
+  author  = {Michelle Krummel,
+  date    = {2017-02-17},
+  note    = {47 minutes long},
+  tittle  = {LaTeX Tutorial 11: Beamer Slide Presentation},
+  url     = {https://www.youtube.com/watch?v=0fsWGg81RwU},
+  urldate = {2022-04-15},
+}
+
+I like powerdot better
+Hendri Adriaens
+The powerdot class
+https://ctan.org/pkg/powerdot
+2021/05/19
+version = {1.7},
+urldate = {2022-04-15}

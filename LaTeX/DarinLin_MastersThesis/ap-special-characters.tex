@@ -1,0 +1,28 @@
+\ProvidesFile{ap-special-characters.tex}[2022-10-05 special characters appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{SPECIAL CHARACTERS}
+\ix{special characters//Special Characters appendix}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+% The following two lines compensate for what I think is a bug.
+\begin{tabular}{@{}lll@{}}
+  \toprule
+  \textbf{Symbol}  & \textbf{\LaTeX\ Input}& \textbf{Comment}\\
+  \midrule
+  \textexclamdown  & |\textexclamdown|     & inverted exclamation mark\\
+                   &                       & |!`| also works in PurdueThesis\\
+  \textquestiondown& |\textquestiondown|   & inverted question mark\\
+                   &                       & |?`| also works in PurdueThesis\\
+  \H{o}            & |\H{o}|               & Hungarian o with double acute\\
+  \bottomrule
+\end{tabular}
+\index{special characters}
+\index{\verb+\begin{tabular}+}
+\end{VerbatimOut}
+
+\MyIO

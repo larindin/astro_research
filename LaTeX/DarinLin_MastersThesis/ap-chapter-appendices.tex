@@ -1,0 +1,57 @@
+\ProvidesFile{ap-chapter-appendices.tex}[2022-10-05 chapter appendices appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{CHAPTER APPENDICES}
+
+Using |\chapterappendix|
+or |\chapterappendices|
+in a chapter will number sections,
+for example,
+1.1,
+1.2,
+\ldots,
+1.A,
+1.B,
+\ldots\,.
+
+Using |\chapterappendix|
+or |\chapterappendices|
+in an appendix will number sections,
+for example,
+A.1,
+A.2,
+\ldots,
+A.A,
+A.B,
+\ldots\,.
+
+I suggest only using |\chapterappendix|
+or |\chapterappendices| in chapters---%
+using them in appendices is too confusing.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\newpage
+
+
+\section{This is a section heading}
+
+This is a paragraph.
+
+Use \verb+\chapterappendix+ or \verb+\chapterappendices+
+to make sections until the end of the next chapter
+be appendices.
+
+
+\chapterappendix
+
+
+\section{This is a chapter appendix}
+
+This is a paragraph.
+\end{VerbatimOut}
+
+\MyIO

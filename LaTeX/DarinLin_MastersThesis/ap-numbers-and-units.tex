@@ -1,0 +1,1201 @@
+\ProvidesFile{ap-numbers-and-units.tex}[2025-01-14 numbers and units appendix]
+
+%  Primary sources:
+%      See https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9-EN.pdf.
+%      See https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-4-two-classes-si-units-and-si-prefixes.
+%
+%  Notes:
+%      See https://www.iso.org/standard/60241.html.
+
+% Historic Vote Ties Kilogram and Other Units to Natural Constants
+% NIST
+% https://www.nist.gov/news-events/news/2018/11/historic-vote-ties-kilogram-and-other-units-natural-constants
+% created 2018-11-16
+% updated 2018-12-21
+% last retrieved 2018-12-22
+
+% https://www.bipm.org/utils/common/pdf/CGPM-2018/26th-CGPM-Resolutions.pdf
+% Resolutions adopted
+% 26^e CGPM
+% Versailes
+% 13--16 November 2018
+% last retrieved 2018-12-30
+
+
+\begin{VerbatimOut}{z.out}
+\chapter{NUMBERS AND UNITS}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+Note to self: scientific prefixes, scientific suffixes, tables.
+
+The \PurdueThesisLogo\ documentclass
+uses the siunitx \cite{wright2024} package
+with some extra definitions in the puthesis.cls file
+to do numbers and units.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{Number Examples}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\noindent\begin{tabular}{@{}lll@{}}
+  \bfseries Input& \bfseries Output& \bfseries Comment\\
+  \tabularspace
+  \verb+\num{-0.12345}+& \num{-0.12345}& note the small space after the ``3''\\
+  \verb+\num{-0.1234}+&
+    \num{-0.1234}&
+    note no space between the ``3'' and ``4''\\
+  \verb+\num{-.123}+& \num{-.123}& the ``0.'' is inserted automatically\\
+  \verb+\num{123}+& \num{123}\\
+  \verb+\num{1234}+& \num{1234}\\
+  \verb+\num{12345}+& \num{12345}& note the small space after the ``2''\\
+  \verb+\num{2e4}+& \num{2e4}\\
+  \verb+\num{e5}+& \num{e5}\\
+  \verb+\num{2.34567e6}+&
+    \num{2.34567e6}&
+    note the small space after the ``5''\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{Unit Examples}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+See page~\pageref{se:Complete-List-of-Units}
+for the complete list
+of units defined by \PurdueThesisLogo.
+
+\noindent\begin{tabular}{@{}lll@{}}
+  \bfseries Input& \bfseries Output& \bfseries Comment\\
+  \tabularspace
+  \verb+\si{\kg}+& \si{\kg}& kilogram\\
+  \verb+\si{\m}+& \si{\m}& meter\\
+  \verb+\si{\kg\per\m\squared}+&
+    \si{\kg\per\m\squared}&
+    \(= \si{\kg}/\si{\m\squared}\)\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{Combined Number and Unit Examples}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+\begin{tabular}{@{}lll@{}}
+  \bfseries Input& \bfseries Output& \bfseries Comment\\
+  \tabularspace
+  \verb+\SI{12}{\kg}+& \SI{12}{\kg}& 12 kilograms\\
+  \verb+\SI{34}{\m}+&  \SI{34}{\m}& 34 meters\\
+  % The next input line is too wide for the margins
+  % so I'm splitting it into pieces.
+  \verb+\SI{4.5e3}{\kg\per\m\squared}+&
+    \SI{4.5e3}{\kg\per\m\squared}&
+    \(= \num{4.5e3}\,\si{\kg}/\si{\m\squared}\)\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+How many seconds are in a non-leap year that does not have any leap seconds?
+% I tried several things and couold not get \cancel to work with \per.
+% Mark Senn    2019-12-29
+\begin{align*}
+           \frac{\SI{365}{\cancel\d}}{\si{\y}}
+    \times \frac{\SI{24}{\cancel\h}}{\si{\cancel\d}}
+    \times \frac{\SI{60}{\cancel\min}}{\si{\cancel\h}}         
+    \times \frac{\SI{60}{\s}}{\si{\cancel\min}}         
+    % From http://www.emerson.emory.edu/services/latex/latex_119.html
+    %     Spacing in Math Mode
+    %     In a math environment, LaTeX ignores the spaces you type
+    %     and puts in the spacing that it thinks is best. LaTeX formats
+    %     mathematics the way it's done in mathematics texts. If you
+    %     want different spacing, LaTeX provides the following four
+    %     commands for use in math mode:
+    %         \; - a thick space
+    %         \: - a medium space
+    %         \, - a thin space
+    %         \! - a negative thin space
+    & = \num{31536000}\;\frac{\si{\s}}{\si{\y}}\\
+    & = \SI{31536000}{\s\per\y}\\
+    & \approx \SI{3e7}{\s\per\y}\\
+    & \approx \text{30 million\,}\si{\s\per\y}\\
+\end{align*}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{Binary Prefixes}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+The
+|\kibi|\ldots|\yobi|
+commands are defined immediately after the
+|\usepackage{siunitx}|
+command in the PurdueThesis.cls file.
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\newcolumntype{m}{>{$}r<{$}}  % math mode version of "r" column type
+\renewcommand{\t}[4]{\(2^{#1}\) bytes is a #2, \(10^{#3}\) bytes is a #4}
+\begin{tabular}{@{}mllll@{}}
+  \multicolumn{1}{l}{\bfseries Power}&
+    \bfseries Prefix&
+    \bfseries Symbol&
+    \bfseries Command&
+    \bfseries Comment\\
+  \tabularspace
+  10& kibi& \unit{\kibi\nounit}& \verb+\si{\kibi}+& \t{10}{KB}{3}{KiB}\\
+  20& mebi& \unit{\mebi\nounit}& \verb+\si{\mebi}+& \t{20}{MB}{6}{MiB}\\
+  30& gibi& \unit{\gibi\nounit}& \verb+\si{\gibi}+& \t{30}{GB}{9}{GiB}\\
+  40& tebi& \unit{\tebi\nounit}& \verb+\si{\tebi}+& \t{40}{TB}{12}{TiB}\\
+  50& pebi& \unit{\pebi\nounit}& \verb+\si{\pebi}+& \t{50}{PB}{15}{PiB}\\
+  60& exbi& \unit{\exbi\nounit}& \verb+\si{\exbi}+& \t{60}{EB}{18}{EiB}\\
+  70& zebi& \unit{\zebi\nounit}& \verb+\si{\zebi}+& \t{70}{ZB}{21}{ZiB}\\
+  80& yobi& \unit{\yobi\nounit}& \verb+\si{\yobi}+& \t{80}{YB}{24}{YiB}\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{Decimal Prefixes}
+\end{VerbatimOut}
+
+\MyIO
+
+\begin{VerbatimOut}{z.out}
+
+\newcolumntype{m}{>{$}r<{$}}  % math mode version of "r" column type
+\begin{tabular}{@{}mllll@{}}
+  \multicolumn{1}{l}{\bfseries Power}&
+    \bfseries Prefix&
+    \bfseries Symbol&
+    \bfseries Command&
+    \bfseries Comment\\
+  \tabularspace
+  -30& quecto& \unit{\quecto\nounit}& \verb+\si{\quecto}+\\
+  -27& ronto&  \unit{\ronto\nounit}&  \verb+\si{\quecto}+\\
+  -24& yocto&  \unit{\yocto\nounit}&  \verb+\si{\yocto}+\\
+  -21& zepto&  \unit{\zepto\nounit}&  \verb+\si{\zepto}+\\
+  -18& atto&   \unit{\atto\nounit}&   \verb+\si{\atto}+\\
+  -15& femto&  \unit{\femto\nounit}&  \verb+\si{\femto}+\\
+  -12& pico&   \unit{\pico\nounit}&   \verb+\si{\pico}+\\
+   -9& nano&   \unit{\nano\nounit}&   \verb+\si{\nano}+\\
+   -6& micro&  \unit{\micro\nounit}&  \verb+\si{\micro}+\\
+   -3& milli&  \unit{\milli\nounit}&  \verb+\si{\milla}+\\
+   -2& centi&  \unit{\centi\nounit}&  \verb+\si{\centi}+\\
+   -1& deci&   \unit{\deci\nounit}&   \verb+\si{\deci}+\\
+    1& deca&   \unit{\deca\nounit}&   \verb+\si{\deca}+\\
+    1& deka&   \unit{\deka\nounit}&   \verb+\si{\deka}+& same as \verb+\si{\deca}+\\
+    2& hecto&  \unit{\hecto\nounit}&  \verb+\si{\hecto}+\\
+    3& kilo&   \unit{\kilo\nounit}&   \verb+\si{\kilo}+\\
+    6& mega&   \unit{\mega\nounit}&   \verb+\si{\mega}+\\
+    9& giga&   \unit{\giga\nounit}&   \verb+\si{\giga}+\\
+   12& tera&   \unit{\tera\nounit}&   \verb+\si{\tera}+\\
+   15& peta&   \unit{\peta\nounit}&   \verb+\si{\peta}+\\
+   18& exa&    \unit{\exa\nounit}&    \verb+\si{\exa}+\\
+   21& zetta&  \unit{\zetta\nounit}&  \verb+\si{\zetta}+\\
+   24& yotta&  \unit{\yotta\nounit}&  \verb+\si{\yotta}+\\
+   27& ronna&  \unit{\ronna\nounit}&  \verb+\si{\ronna}+\\
+   30& quetta& \unit{\quetta\nounit}& \verb+\si{\quetta}+\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{SI Units}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+The International System of Units
+(SI)
+% !!! Doing
+% !!!     \include{tipa}
+% !!! in thesis.tex so \textprimstress works
+% !!! apparently causes problems with math commands.
+% !!! Figure out why the following doesn't work later.
+% (%
+%   SI,
+%   abbreviated from the French Syst\`eme International
+%   (d\textprimstress unit\'es)%
+% )
+is the modern form of the metric system.
+There are seven SI base units:
+
+\hspace{40pt}
+\begin{tabular}{@{}lll@{}}
+  \tabularspace
+  \bfseries Name& \bfseries Unit Of&         \bfseries Symbol\\
+  \tabularspace
+  ampere&         electrical current&        \si{\ampere}\\
+  candela&        luminous intensity&        \si{\candela}\\
+  kelvin&         thermodynamic temperature& \si{\kelvin}\\
+  kg&             mass&                      \si{\kilogram}\\
+  meter&          length&                    \si{\meter}\\
+  mole&           amount of substance&       \si{\mole}\\
+  second&         time&                      \si{\second}\\
+\end{tabular}
+\end{VerbatimOut}
+
+\MyIO
+
+
+\begin{VerbatimOut}{z.out}
+
+\section{Complete List of Units}
+\label{se:Complete-List-of-Units}
+\end{VerbatimOut}
+
+\MyIO
+
+\begin{VerbatimOut}{z.out}
+
+{%
+  \ZZbaselinestretch{1}
+  \newcommand\vsp{\noalign{\vspace*{6pt}}}
+  % From
+  % https://tex.stackexchange.com/questions/31508/flushleft-with-p-option-in-tabular
+  %     It's necessary to use the \arraybackslash in the last column,
+  %     otherwise \\ would not end the table row.  You can use \newline
+  %     to end lines in the last column cells (and the regular \\ in
+  %     the other column cells).
+  %     ...
+  %     If you need it often, consider defining a new column type using
+  %     array features, as I did here:
+  %         \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+  \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}%
+% \begin{longtable}{@{}P{1.4in}P{1in}llP{1.8in}@{}}
+% \begin{longtable}{@{}P{1in}P{1in}llP{1.8in}@{}}
+% \begin{longtable}{@{}P{1.2in}P{1in}llP{1.8in}@{}}
+% \begin{longtable}{@{}P{90.72pt}P{1in}llP{1.8in}@{}}  % 1.2in (86.72pt) + 4pt = 90.72pt
+  \begin{longtable}{@{}P{1.4in}P{1in}llP{1.8in}@{}}% 1.2in (86.72pt) + 4pt = 90.72pt
+      \caption{Units and Corresponding Symbols}\\
+      \bfseries Name&
+        \bfseries Unit Of&
+        \bfseries Symbol&
+        \bfseries Command&
+        \bfseries Is equal to\\
+      \vsp
+    \endfirsthead
+      \caption[]{~\emph{continued}}\\
+      \bfseries Name&
+        \bfseries Unit Of&
+        \bfseries Symbol&
+        \bfseries Command&
+        \bfseries Is equal to\\
+      \vsp
+    \endhead
+      \vsp
+      % I don't know why the \hspace*{-7.5mm} was
+      % needed to center this horizontally.
+      \multicolumn{5}{@{}c@{}}{\hspace*{-7.5mm}\emph{continued on next page}}%
+    \endfoot    
+    \endlastfoot
+    ampere&
+      electrical current&
+      \si{\A}&
+      \verb+\si{\A}+&
+      (SI base unit)\\
+    \quad picoampere&
+      \ditto&
+      \si{\pA}&
+      \verb+\si{\pA}+&
+      \SI{e-12}{\A}\\ 
+    \quad nanoampere&
+      \ditto&
+      \si{\nA}&
+      \verb+\si{\nA}+&
+      \SI{e-9}{\A}\\
+    \quad microampere&
+      \ditto&
+      \si{\uA}&
+      \verb+\si{\uA}+&
+      \SI{e-6}{\A}\\
+    \quad milliampere&
+      \ditto&
+      \si{\mA}&
+      \verb+\si{\mA}+&
+      \SI{e-3}{\A}\\
+    \quad kiloampere&
+      \ditto&
+      \si{\kA}&
+      \verb+\si{\kA}+&
+      \SI{e3}{\A}\\
+    \vsp
+    % \aa ngstr\"om&
+    %   length&
+    %   \si{\AA}&
+    %   \verb+\si{\AA}+&
+    %   \SI{e-10}{\m}\\
+    \vsp
+    arcminute&
+      plane angle&
+      \si{\arcmin}&
+      \verb+\si{\arcmin}+&
+      % Changed
+      %     \SI{1/60}{\degree}\\
+      % to
+      (1/60)\unit{\degree\nounit}\\
+    arcsecond&
+      plane angle&
+      \si{\arcsec}&
+      \verb+\si{\arcsec}+&
+      % Changed
+      %     \SI{1/60}{\arcmin}\\
+      % to
+      (1/60)\unit{\arcmin\nounit}\\
+    \vsp
+    astronomical unit&
+      length&
+      \si{\au}&
+      \verb+\si{\au}+&
+      mean earth to\newline sun distance\\
+    \vsp
+    % From
+    %     siunitx - A comprehensive (SI) units package
+    %     Joseph Wright
+    %     Released 2021-08-04
+    %     (this describes v3.0.24, last revised 2021-08-04)
+    %     https://mirror.las.iastate.edu/tex-archive/macros/latex/contrib/siunitx/siunitx.pdf
+    % page 51:
+    %     ...the unit \atomicmassunit has similar deprecated status:
+    %     this was listed as with experimentally-determined units
+    %     in the 8th Edition of the si Brochure but is equivalent
+    %     to the dalton, a unit which remains accepted.
+    % atomic mass unit&
+    %   mass&
+    %   \si{\amu}&
+    %   \verb+\si{\amu}+&
+    %   \(1/12\) mass of\newline carbon-12 atom\\
+    % \vsp
+    bar&
+      pressure&
+      \si{\bar}&
+      \verb+\si{\bar}+&
+      \SI{e-5}{\Pa}\\
+    \quad millibar&
+      \ditto&
+      \si{\mbar}&
+      \verb+\si{\mbar}+&
+      \SI{e-3}{\bar}\\
+    \vsp
+    barn&
+      area&
+      \si{\b}&
+      \verb+\si{\b}+&
+      \SI{e-28}{\m\squared}\\
+    \vsp
+    becquerel&
+      radioactivity&
+      \si{\Bq}&
+      \verb+\si{\Bq}+&
+      one radioactive\newline decay per second\\
+    \vsp
+    bel&
+      sound intensity&
+      \si{\B}&
+      \verb+\si{\B}+&
+      10 decibels\\
+    \quad decibel&
+      \ditto&
+      \si{\dB}&
+      \verb+\si{\dB}+&
+      \SI{e-1}{\B}\\
+    \vsp
+    bohr&
+      length&
+      \si{\bohr}&
+      \verb+\si{\bohr}+&
+      distance between\newline nucleus and electron\newline in hydrogen atom\\
+    \vsp
+    bushel&
+      quantity&
+      \si{\bu}&
+      \verb+\si{\bu}+&
+      see \cite{wikipedia-bushel}\\
+    \vsp
+    candela&
+      luminous intensity&
+      \si{\cd}&
+      \verb+\si{\cd}+&
+      (SI base unit)\\
+    \vsp
+    coulomb&
+      electrical charge&
+      \si{\C}&
+      \verb+\si{\C}+&
+      \si{\A\per\s}\\
+    \vsp
+    dalton&
+      mass&
+      \si{\Da}&
+      \verb+\si{\Da}+&
+      another name for\newline atomic mass unit\\
+    \vsp
+    day&
+      time&
+      \si{\d}&
+      \verb+\si{\d}+&
+      \SI{86400}{\s}\\
+    \vsp
+    degree&
+      plane angle&
+      \si{\degree}&
+      \verb+\si{\degree}+&
+      1/360 of a cicle\\
+    \vsp
+    degree Celsius&
+      temperature&
+      \si{\celsius}&
+      \verb+\si{\celsius}+&
+      xxx\\
+    \vsp
+    electron mass&
+      mass&
+      \si{\em}&
+      \verb+\si{\em}+&
+      \SI{9.1093837139e-31}{\kg}\\
+    \vsp
+    electron volt&
+      energy&
+      \si{\eV}&
+      \verb+\si{\eV}+&
+      \SI{1.602176634e-19}{\joule}\\
+    \quad millielectronvolt&
+      \ditto&
+      \si{\meV}&
+      \verb+\si{\meV}+&
+      \SI{e-3}{\eV}\\
+    \quad kiloelectronvolt&
+      \ditto&
+      \si{\keV}&
+      \verb+\si{\keV}+&
+      \SI{e3}{\eV}\\
+    \quad megaelectronvolt&
+      \ditto&
+      \si{\MeV}&
+      \verb+\si{\MeV}+&
+      \SI{e6}{\eV}\\
+    \quad gigaelectronvolt&
+      \ditto&
+      \si{\GeV}&
+      \verb+\si{\GeV}+&
+      \SI{e9}{\eV}\\
+    \quad teraelectronvolt&
+      \ditto&
+      \si{\TeV}&
+      \verb+\si{\TeV}+&
+      \SI{e12}{\eV}\\
+    \vsp
+    elementary charge&
+      electrical charge&
+      \si{\ec}&
+      \verb+\si{\ec}+&
+      \href{https://en.wikipedia.org/wiki/Elementary_charge}{\SI{\approx 1.6e19}{\C}}\\
+    \vsp
+    farad&
+      electrical capacitance&
+      \si{\F}&
+      \verb+\si{\F}+&
+      \si{\s\tothe{4}\A\squared\per\m\squared\per\kg}\\
+    \quad femtofarad&
+      \ditto&
+      \si{\fF}&
+      \verb+\si{\fF}+&
+      \SI{e-15}{\F}\\
+    \quad picofarad&
+      \ditto&
+      \si{\pF}&
+      \verb+\si{\pF}+&
+      \SI{e-12}{\F}\\
+    \vsp
+    foot&
+      length&
+      \si{\ft}&
+      \verb+\si{\ft}+&
+      \SI{0.3048}{\m}\\  % not an SI unit
+    \vsp
+    % gauss: The gauss, symbol G, sometimes Gs, is the cgs unit of measurement of magnetic flux.
+    gray&
+      absorbed dose of ionizing radiation&
+      \si{\Gy}&
+      \verb+\si{\Gy}+&
+      \si{\J\per\kg}\\
+    \vsp
+    hartree&
+      energy used in molecular orbital calculations&
+      \si{\hartree}&
+      \verb+\si{\hartree}+&
+      \SI{4.35974472221e-18}{\joule}\\
+    \vsp
+    hectare&
+      area&
+      \si{\ha}&
+      \verb+\si{\ha}+&
+      \SI{e4}{\m\squared}\\
+    \vsp
+    henry&
+      electrical inductance&
+      \si{\H}&
+      \verb+\si{\H}+&
+      \si{\kg\m\squared\per\s\squared\per\A\squared}\\
+    \vsp
+    hertz&
+      frequency&
+      \si{\Hz}&
+      \verb+\si{\Hz}+&
+      \si{\per\s}\\
+    \quad millihertz&
+      \ditto&
+      \si{\mHz}&
+      \verb+\si{\mHz}+&
+      \SI{e-3}{\Hz}\\
+    \quad kilohertz&
+      \ditto&
+      \si{\kHz}&
+      \verb+\si{\kHz}+&
+      \SI{e3}{\Hz}\\
+    \quad megahertz&
+      \ditto&
+      \si{\MHz}&
+      \verb+\si{\MHz}+&
+      \SI{e6}{\Hz}\\
+    \quad gigahertz&
+      \ditto&
+      \si{\GHz}&
+      \verb+\si{\GHz}+&
+      \SI{e9}{\Hz}\\
+    \quad terahertz&
+      \ditto&
+      \si{\THz}&
+      \verb+\si{\THz}+&
+      \SI{e12}{\Hz}\\
+    \vsp
+    horsepower&
+      power&
+      \si{\hp}&
+      \verb+\si{\hp}+&
+      \SI{\approx 745.7}{\W},
+        see \cite{wikipedia-horsepower} for details\\  % not an SI unit
+    \vsp
+    hour&
+      time&
+      \si{\h}&
+      \verb+\si{\h}+&
+      \SI{3600}{\s}\\
+    \vsp
+    inch&
+      length&
+      \si{\in}&
+      \verb+\si{\in}+&
+      \SI{25.4}{\mm}\\  % not an SI unit
+    \vsp
+    joule&
+      work or energy&
+      \si{\J}&
+      \verb+\si{\J}+&
+      \si{\kg\m\squared\per\s\squared}\\
+    \quad microjoule&
+      \ditto&
+      \si{\uJ}&
+      \verb+\si{\uJ}+&
+      \SI{e-6}{\J}\\
+    \quad millijoule&
+      \ditto&
+      \si{\mJ}&
+      \verb+\si{\mJ}+&
+      \SI{e-3}{\J}\\
+    \quad kilojoule&
+      \ditto&
+      \si{\kJ}&
+      \verb+\si{\kJ}+&
+      \SI{e3}{\J}\\
+    \quad megajoule&
+      \ditto&
+      \si{\MJ}&
+      \verb+\si{\MJ}+&
+      \SI{e6}{\J}\\
+    \vsp
+    katal&
+      catalytic activity&
+      \si{\kat}&
+      \verb+\si{\kat}+&
+      \si{\mol\per\s}\\
+    \vsp
+    kelvin&
+      thermodynamic temperature&
+      \si{\K}&
+      \verb+\si{\K}+&
+      (SI base unit)\\
+    \vsp
+    kilogram&
+      mass&
+      \si{\kg}&
+      \verb+\si{\kg}+&
+      (SI base unit)\\
+    \quad femtogram&
+      \ditto&
+      \si{\fg}&
+      \verb+\si{\fg}+&
+      \SI{e-15}{\g}\\
+    \quad picogram&
+      \ditto&
+      \si{\pg}&
+      \verb+\si{\pg}+&
+      \SI{e-12}{\g}\\
+    \quad nanogram&
+      \ditto&
+      \si{\ng}&
+      \verb+\si{\ng}+&
+      \SI{e-9}{\g}\\
+    \quad microgram&
+      \ditto&
+      \si{\ug}&
+      \verb+\si{\ug}+&
+      \SI{e-6}{\g}\\
+    \quad milligram&
+      \ditto&
+      \si{\mg}&
+      \verb+\si{\mg}+&
+      \SI{e-3}{\g}\\
+    \quad gram&
+      \ditto&
+      \si{\g}&
+      \verb+\si{\g}+&
+      \SI{e-3}{\kg}\\
+    \vsp
+    kilowatt hour&
+      electrical energy&
+      \si{\kWh}&
+      \verb+\si{\kWh}+&
+      \si{\kW\h}\\
+    \vsp
+    knot&
+      speed&
+      \si{\kn}&
+      \verb+\si{\kn}+&
+      \si{\M\per\h}\\
+    \vsp
+    liter&
+      volume&
+      \si{\L}&
+      \verb+\si{\L}+&
+      \SI{e-3}{m\cubed}\\
+    \quad microliter&
+      \ditto&
+      \si{\uL}&
+      \verb+\si{\uL}+&
+      \SI{e-6}{\L}\\
+    \quad milliliter&
+      \ditto&
+      \si{\mL}&
+      \verb+\si{\mL}+&
+      \SI{e-3}{\L}\\
+    \quad hectoliter&
+      \ditto&
+      \si{\hL}&
+      \verb+\si{\hL}+&
+      \SI{e2}{\L}\\
+    \vsp
+    lumen&
+      luminous flux&
+      \si{\lm}&
+      \verb+\si{\lm}+&
+      \si{\cd\sr}\\
+    \vsp
+    lux&
+      illumination&
+      \si{\lx}&
+      \verb+\si{\lx}+&
+      \si{\lm\per\m\squared}\\
+    \vsp
+    meter&
+      length&
+      \si{\m}&
+      \verb+\si{\m}+&
+      (SI base unit)\\
+    \quad picometer&
+      \ditto&
+      \si{\pm}&
+      \verb+\si{\pm}+&
+      \SI{e-12}{\m}\\
+    \quad nanometer&
+      \ditto&
+      \si{\nm}&
+      \verb+\si{\nm}+&
+      \SI{e-9}{\m}\\
+    \quad micrometer&
+      \ditto&
+      \si{\um}&
+      \verb+\si{\um}+&
+      \SI{e-6}{\m}\\
+    \quad millimeter&
+      \ditto&
+      \si{\mm}&
+      \verb+\si{\mm}+&
+      \SI{e-3}{\m}\\
+    \quad centimeter&
+      \ditto&
+      \si{\cm}&
+      \verb+\si{\cm}+&
+      \SI{e-2}{\m}\\
+    \quad decimeter&
+      \ditto&
+      \si{\dm}&
+      \verb+\si{\dm}+&
+      \SI{e-1}{\m}\\
+    \quad kilometer&
+      \ditto&
+      \si{\km}&
+      \verb+\si{\km}+&
+      \SI{e3}{\m}\\
+    \vsp
+    % mile: not an SI unit
+    millimeter of mercury&
+      pressure&
+      \si{\mmHg}&
+      \verb+\si{\mmHg}+&
+      \href{https://en.wikipedia.org/wiki/Millimetre_of_mercury}{\SI{\approx 133}{\Pa}}\\
+    \vsp
+    minute&
+      time&
+      \si{\min}&
+      \verb+\si{\min}+&
+      \SI{60}{\s}\\
+    \vsp
+    mole&
+      amount of substance&
+      \si{\mol}&
+      \verb+\si{\mol}+&
+      (SI base unit)\\
+    \quad femtomole&
+      \ditto&
+      \si{\fmol}&
+      \verb+\si{\fmol}+&
+      \SI{e-15}{\mol}\\
+    \quad picomole&
+      \ditto&
+      \si{\pmol}&
+      \verb+\si{\pmol}+&
+      \SI{e-12}{\mol}\\
+    \quad nanomole&
+      \ditto&
+      \si{\nmol}&
+      \verb+\si{\nmol}+&
+      \SI{e-9}{\mol}\\
+    \quad micromole&
+      \ditto&
+      \si{\umol}&
+      \verb+\si{\umol}+&
+      \SI{e-6}{\mol}\\
+    \quad millimole&
+      \ditto&
+      \si{\mmol}&
+      \verb+\si{\mmol}+&
+      \SI{e-3}{\mol}\\
+    \quad kilomole&
+      \ditto&
+      \si{\kmol}&
+      \verb+\si{\kmol}+&
+      \SI{e3}{\mol}\\
+    \vsp
+    nautical mile&
+      distance&
+      \si{\M}&
+      \verb+\si{\M}+&
+      \SI{1852}{\m}\\
+    \vsp
+    neper&
+      gain, loss, and relative values&
+      \si{\Np}&
+      \verb+\si{\Np}+&
+      1\\
+    \vsp
+    newton&
+      force&
+      \si{\N}&
+      \verb+\si{\N}+&
+      \si{\kg\m\per\s\squared}\\
+    \quad millinewton&
+      \ditto&
+      \si{\mN}&
+      \verb+\si{\mN}+&
+      \SI{e-3}{\N}\\
+    \quad kilonewton&
+      \ditto&
+      \si{\kN}&
+      \verb+\si{\kN}+&
+      \SI{e3}{\N}\\
+    \quad meganewton&
+      \ditto&
+      \si{\MN}&
+      \verb+\si{\MN}+&
+      \SI{e6}{\N}\\
+    \vsp
+    ohm&
+      electrical resistance&
+      \si{\ohm}&
+      \verb+\si{\ohm}+&
+      \si{\kg\m\squared\per\s\cubed\per\A\squared}\\
+    \quad milliohm&
+      \ditto&
+      \si{\mohm}&
+      \verb+\si{\mohm}+&
+      \SI{e-3}{ohm}\\
+    \quad kiloohm&
+      \ditto&
+      \si{\kohm}&
+      \verb+\si{\kohm}+&
+      \SI{e3}{ohm}\\
+    \quad megaohm&
+      \ditto&
+      \si{\Mohm}&
+      \verb+\si{\Mohm}+&
+      \SI{e6}{ohm}\\
+    \vsp
+    pascal&
+      pressure&
+      \si{\Pa}&
+      \verb+\si{\Pa}+&
+      \si{\kg\per\m\per\s\squared}\\
+    \qquad kilopascal&
+      \ditto&
+      \si{\kPa}&
+      \verb+\si{\kPa}+&
+      \SI{e3}{\Pa}\\
+    \qquad megapascal&
+      \ditto&
+      \si{\MPa}&
+      \verb+\si{\MPa}+&
+      \SI{e6}{\Pa}\\
+    \qquad gigapascal&
+      \ditto&
+      \si{\GPa}&
+      \verb+\si{\GPa}+&
+      \SI{e9}{\Pa}\\
+    \vsp
+    percent&
+      hundredths&
+      \si{\percent}&
+      \verb+\si{\percent}+&
+      \SI{e-2}{}\\
+    \vsp
+    pound&
+      weight&
+      \si{\lb}&
+      \verb+\si{\lb}+&
+      \SI{.45359237}{\kg}\\  % not an SI unit
+    \vsp
+    radian&
+      plane angular measurement&
+      \si{\rad}&
+      \verb+\si{\rad}+&
+      \(180/\pi\) \unit{\degree\nounit}\\
+    \vsp
+    reduced Planck constant&
+      angular momentum&
+      \si{\planckbar}&
+      \verb+\si{\planckbar}+&
+      \(\approx \SI{1.05e-34}{\J\s}\)\\
+    \vsp
+    second&
+      time&
+      \si{\s}&
+      \verb+\si{\s}+&
+      (SI base unit)\\
+    \quad attosecond&
+      \ditto&
+      \si{\as}&
+      \verb+\si{\as}+&
+      \SI{e-18}{\s}\\
+    \quad femtosecond&
+      \ditto&
+      \si{\fs}&
+      \verb+\si{\fs}+&
+      \SI{e-15}{\s}\\
+    \quad picosecond&
+      \ditto&
+      \si{\ps}&
+      \verb+\si{\ps}+&
+      \SI{e-12}{\s}\\
+    \quad nanosecond&
+      \ditto&
+      \si{\ns}&
+      \verb+\si{\ns}+&
+      \SI{e-9}{\s}\\
+    \quad microsecond&
+      \ditto&
+      \si{\us}&
+      \verb+\si{\us}+&
+      \SI{e-6}{\s}\\
+    \quad millisecond&
+      \ditto&
+      \si{\ms}&
+      \verb+\si{\ms}+&
+      \SI{e-3}{\s}\\
+    \vsp
+    siemens&
+      conductance&
+      \si{\S}&
+      \verb+\si{\S}+&
+      \si{\per\kg\per\m\squared\s\cubed\A\squared}\\
+    \vsp
+    sievert&
+      dosage of ionizing radiation&
+      \si{\Sv}&
+      \verb+\si{\Sv}+&
+      \si{\m\squared\per\s\squared}\\
+    \vsp
+    speed of light&
+      speed&
+      \si{\clight}&
+      \verb+\si{\clight}+&
+      \SI{299792458}{\m\per\s}\\
+    \vsp
+    standard deviation&
+      amount of variation&
+      \si{\SD}&
+      \verb+\si{\SD}+&
+      $\displaystyle \sqrt{\frac 1{N-1} \sum_{i=1}^N(x_i-\bar x)^2}$\\
+    \vsp
+    steradian&
+      measure of solid angles&
+      \si{\sr}&
+      \verb+\si{\sr}+&
+      \SI{1}{\m\squared\per\m\squared}\\
+    \vsp
+    tesla&
+      magnetic flux density&
+      \si{\T}&
+      \verb+\si{\T}+&
+      \si{\kg\per\s\squared\per\A}\\
+    \vsp
+    metric ton&
+      mass&
+      \si{\t}&
+      \verb+\si{\t}+&
+      \SI{e3}{\kg}\\
+    \vsp
+    volt&
+      electrical potential difference&
+      \si{\V}&
+      \verb+\si{\V}+&
+      \si{\kg\m\squared\per\s\cubed\per\A}\\
+    \quad picovolt&
+      \ditto&
+      \si{\pV}&
+      \verb+\si{\pV}+&
+      \SI{e-12}{\V}\\
+    \quad nanovolt&
+      \ditto&
+      \si{\nV}&
+      \verb+\si{\nV}+&
+      \SI{e-9}{\V}\\
+    \quad microvolt&
+      \ditto&
+      \si{\uV}&
+      \verb+\si{\uV}+&
+      \SI{e-6}{\V}\\
+    \quad millivolt&
+      \ditto&
+      \si{\mV}&
+      \verb+\si{\mV}+&
+      \SI{e-3}{\V}\\
+    \quad kilovolt&
+      \ditto&
+      \si{\kV}&
+      \verb+\si{\kV}+&
+      \SI{e3}{\V}\\
+    \vsp
+    watt&
+      power&
+      \si{\W}&
+      \verb+\si{\W}+&
+      \si{\kg\m\squared\per\s\cubed}\\
+    \quad microwatt&
+      \ditto&
+      \si{\uW}&
+      \verb+\si{\uW}+&
+      \SI{e-6}{\W}\\
+    \quad milliwatt&
+      \ditto&
+      \si{\mW}&
+      \verb+\si{\mW}+&
+      \SI{e-3}{\W}\\
+    \quad kilowatt&
+      \ditto&
+      \si{\kW}&
+      \verb+\si{\kW}+&
+      \SI{e3}{\W}\\
+    \quad megawatt&
+      \ditto&
+      \si{\MW}&
+      \verb+\si{\MW}+&
+      \SI{e6}{\W}\\
+    \quad gigawatt&
+      \ditto&
+      \si{\GW}&
+      \verb+\si{\GW}+&
+      \SI{e9}{\W}\\
+    \vsp
+    weber&
+      magnetic flux&
+      \si{\Wb}&
+      \verb+\si{\Wb}+&
+      \si{\kg\m\squared\per\s\squared\per\A}\\
+    \vsp
+    yard&
+      length&
+      \si{\yd}&
+      \verb+\si{\yd}+&
+      \SI{.9144}{\m}\\  % not an SI unit
+    \vsp
+    year&
+      time&
+      \si{\y}&
+      \verb+\si{\y}+&
+      \SI{\approx 365.25}{\d}\\  % not an SI unit
+  \end{longtable}
+}
+\end{VerbatimOut}
+
+\MyIO
+\endinput
+
+%   Non-SI units accepted for use with the International System of Units.
+%   
+%   % From
+%   %     https://www.bipm.org/en/publications/si-brochure/section2-2-1.html
+%   \begin{tabular}{@{}llll@{}}
+%     \bfseries Symbol& \bfseries Command& \bfseries Name& \bfseries Unit of\\
+%     m^{-1}& reciprocal meter& wavenumber\\
+%     m^2& square meter& area\\
+%     m^3& cubic meter& volume\\
+%     m/s& meter per second& & speed, velocity\\
+%     m/s^2& meter per second squared& acceleration\\
+%   \end{tabular}
+%   
+%   In  addition  to  the  units  themselves,
+%   siunitx
+%   provides  pre-defined  macros  for  all
+%   
+%   
+%   % xxx needs lots more work above and maybe below
+%   
+%   \section{angles}
+%   
+%   \ang{1}
+%   \ang{1;2}
+%   \ang{1;2;3}
+%   \ang{;2}
+%   \ang{;;3}
+%   -\ang{;2}
+%   
+%   
+%   \ang{10}    \\
+%   \ang{12.3}  \\
+%   \ang{4,5}   \\
+%   \ang{1;2;3} \\
+%   \ang{;;1}   \\
+%   \ang{+10;;} \
+%   
+%       degrees
+%       degrees,minutes
+%       degrees,minutes,seconds
+%   
+%       \degree
+%       \arcminute
+%       \arcsecond
+%   
+%       \SI{3.1415}{\degree}
+%   
+%       \ang{-0;1;}
+%   
+%       list
+%           \SIlist{10;20}{\meter}
+%           \SIlist{10;20;30}{\meter}
+%       
+%   temperatures
+%   
+%       \degreeCelsius
+%       \celsius
+%       
+%       range
+%           \SIrange{1}{5}{\metre}
+%           \SIrange{1}{5}{\milli\metre}
+%       
+%   
+%   numbers
+%   
+%   123                \num{123}     \\
+%   1234               \num{1234}    \\
+%   12 345             \num{12345}   \\
+%   0.123              \num{0.123}   \\
+%   0.1234             \num{0.1234}  \\
+%   0.123 45           \num{.12345}  \\
+%   3.45 x 10-4        \num{3.45d-4} \\
+%   -10^{10}           \num{-e10}
+%                      \num{12345.67890}
+%                      \num{1+-2i}
+%                      \num{.3.45}
+%   
+%       number list
+%           \numlist{10;20}
+%           \numlist{10;20;30}
+%       
+%       number range
+%           \numrange{10}{20}
+%       \celsius

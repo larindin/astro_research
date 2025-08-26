@@ -1,0 +1,856 @@
+\ProvidesFile{ch-introduction.tex}[2025-01-16 introduction chapter]
+
+
+\chapter{INTRODUCTION}
+
+
+\section{Typographic Conventions}
+
+{
+  \newlength{\Parindent}
+  \setlength{\Parindent}{\parindent}
+  \newcommand{\Indent}{\advance\leftskip by \Parindent}
+  \parindent = 0pt
+
+  \newcommand{\Describe}[2]{%
+    {\Indent \Indent #1\endgraf}%
+    {\Indent \Indent \Indent #2\endgraf}%
+  }
+
+  {%
+    \Indent The following typographic conventions
+    are used in this document.
+    These conventions were influenced by
+    \cite{wireshark-users-guide,dijk2000,weh2016}.
+    There are no quotes in the typographic conventions.\endgraf
+  }
+
+  % Admonitions information is in \cite{wireshark-users-guide}.
+  % Admonitions are not supported yet.
+
+  % Dialog and window buttons information is in \cite{wireshark-users-guide}.
+  % Dialog and window buttons are not supported yet.
+
+  \Describe
+  {\Emph{Emph}, \FirstTime{FirstTime}, and \Title{Title}}
+  {%
+    Emphasized material,
+    terms used for the first time,
+    and titles are typset in italics.
+    Here are some examples:
+    Emphasis: You \Emph{must} do this.
+    First Time Use: An \FirstTime{ekayak}
+    is an electric kayak.
+    Title: He read \Title{The Grapes of Wrath}
+    and watched \Title{Citizen Kane}.%
+  }
+
+  \Describe
+  {\Keys{Keyboard} \Keys{Keys} and \Keys{Screen} \Keys{Buttons}}
+  {%
+    Keyboard keys look like keyboard keys.
+    \Keys{Control + A} means press the Control key and A key at the same time.
+    \Keys{A} \Keys{B} means press the A key and then press the B key.
+    Screen Buttons look like screen buttons.%
+  }
+
+  % Can't use \verb iside an arguement to \Describe.
+  \Describe
+  {{\tt Literal Element}}
+  {%
+    Literal elements are typeset in a typewriter font.
+    Literal elements include checkboxes,
+    code,
+    environment variables,
+    file names,
+    function names,
+    \LaTeX\ input,
+    output,
+    variable names,
+    and verbatim input (except for commands typed on the command line).
+    {\tt\char'40} is used to indicate a space
+    if it is not clear where spaces are.%
+  }
+  \index{.@"\verb*+ + (visible space)}
+  \index{"\verb+"\char'40+}
+
+  \Describe
+  {\Menu{Menu > Submenu > Item}}
+  {%
+    Menus are typeset as arrows pointing to the right.
+    For exmaple,
+    to make sure smooth scrolling is on go to
+    \Menu{Edit > Settings}
+    and make sure the
+    {\tt Use smooth scrolling\/}
+    checkbox is checked.%
+  }
+
+  \Describe
+  {\Place{Placeholder}}
+  {%
+    Placeholders are typset in a slanted font.
+    Placeholders need to replaced with real input.%
+  }
+
+  \Describe
+  {\Shell{shell command}}
+  {%
+    Shell commands are typset in a bold typewriter font.
+    Shell commands are typed on the command line by the user.%
+  }
+
+}
+
+
+\section{Writing in English Information}
+
+\subsection{Don't use redundant acronyms}
+
+Don't use redundant acronyms
+\cite{
+  fun-with-words2023,
+  rome2020,
+  redundant-acronym-phrases,
+  knight,
+  ras-syndrome,
+  lrdg2020,
+  everhart,
+  cox2018%
+}
+like the following in
+formal writing:
+
+{
+  \ZZbaselinestretch{1}
+  \noindent
+  \begin{longtable}{@{}ll@{}}
+      \caption{Redundant Acronyms}\\
+      \toprule
+      \bfseries Redundant Acronym& \bfseries Corresponding Phrase\\
+      \hline
+    \endfirsthead
+      \caption[]{\emph{continued}}\\
+      \midrule
+      \bfseries Redundant Acronym& \bfseries Corresponding Phrase\\
+      \midrule
+    \endhead
+      \hline
+      \multicolumn{2}{r}{\emph{continued on next page}}
+    \endfoot
+      \bottomrule
+    \endlastfoot
+    \% APR&               percent Annual Percentage Rate\\
+    ABS system&           Antilock Braking System system\\
+    AC current&           Alternating Current current\\
+    ACT test&             American College Test test\\
+    ADD disorder&         Attention Deficit Disorder disorder\\
+    AIDS syndrome&        Acquired Immune Deficiency Syndrome syndrome\\
+    AM modulation&        Amplitude Modulation modulation\\
+    APL language&         A Programming Language languge\\
+    APR rate&             Annual Percentage Rate rate\\
+    ATM machine&          Automated Teller Machine machine\\
+    BASIC code&           Beginner's All-Purpose Symbolic Instruction Code code\\
+    CAD design&           Computer-Aided Design design\\
+    CD disc&              Compact Disc disc\\
+    CNN news network&     Cable News Network news network\\
+    COBOL language&	      Common Business-Oriented Language language\\
+    DC Comics&            Detective Comics Comics\\
+    DC current&           Direct Current current\\
+    DVD disk&             Digital Versatile Disk disk\\
+    DMZ zone&             DeMilitarized Zone zone\\
+    FOD damage&           Foreign Object Damage damage\\
+    GIF format&           Graphics Interchange Format format \cite{merriam-webster-gif}\\
+    GMT time&             Greenwich Mean Time time \cite{merriam-webster-gmt}\\
+    GPS system&           Global Positioning System system \cite{merriam-webster-gps}\\
+    GOP party&            Grand Old Party party \cite{merriam-webster-gop}\\
+    GRE exam&             Graduate Record Examination exam \cite{merriam-webster-gre}\\
+    HIV virus&            Human Immunodeficiency Virus virus \cite{merriam-webster-hiv}\\
+    HTML language&        HyperText Markup Language language \cite{merriam-webster-html}\\
+    IRA account&          Individual Retirement Account account \cite{merriam-webster-hiv}\\
+    ISBN number&          International Standard Book Number number\\
+    ISDN network&         Integrated Services Digital Network network\\
+    LAN network&          Local Area Network network\\
+    LCD display&          Liquid Crystal Display display\\
+    LED diode&            Light Emitting Diode diode\\
+    LEM module&           Lunar Excursion Module module\\
+    MLB baseball&         Major League Baseball baseball \cite{merriam-webster-mlb}\\
+    MIDI interface&       Musical Instrument Digital Interface interface\\
+    MLS soccer&           Major League Soccer soccer \cite{merriam-webster-mlb}\\
+    NATO organization&    North Atlantic Treaty Organization organization\\
+    NPR radio&            National Public Radio radio\\    % https://www.curtishoneycutt.com/blog/2019/5/14/tips-on-avoiding-ras-syndrome
+    OPEC countries&       Organization of Petroleum Exporting Countries countries\\  % https://www.etymologynerd.com/blog/redundant-acronyms-that-are-redundant
+    PAC committee&        Political Action Committee committee\\       % https://www.curtishoneycutt.com/blog/2019/5/14/tips-on-avoiding-ras-syndrome
+    PC computer&          Personal Computer computer\\
+    PDF format&           Portable Document Format format \cite{merriam-webster-pdf}\\
+    PIN number&           Personal Identification Number number\\
+    RAM memory&           Random-Access Memory memory\\
+    SSN number&           Social Security Number number \cite{merriam-webster-ssn}\\
+    TCP-IP protocol&      Transmission Control Protocol/Internet Protocol protocol\\  % https://systemato.com/blog/redundant-acronyms-make-you-look-stupid-even-if-you-arent/
+    UPC code&             Universal Product Code code\\
+    UL laboratories&      Underwriters Laboratories laboratories\\
+    VAT tax&              Value Added Tax tax\\
+    VHF frequency&        Very High Frequency frequency\\
+    VIN number&           Vehicle Identification Number number\\
+  \end{longtable}
+}
+
+I sometimes use FBI
+(Federal Bureau of Investigation)
+as an adjective, e.g.,
+`an FBI investigation'.
+
+The SAT (SAT in not an acronym) is a standardized test
+\cite{sat}.
+
+\subsection{Logical punctuation}
+\ix{logical punctuation}
+
+I use logical punctuation
+\cite{yagoda2011}:\\
+  \I2 The sign said ``Buses Only''.\\
+instead of\\
+  \I2 The sign said ``Buses Only.''\\
+so quoted material,
+and only quoted material,
+is inside quotes.
+This is relatively new and not many people use it.
+Your major professor may not like this style.
+Check with them before you decide to use this.
+
+
+\subsection{Serial comma}
+\ix{, (comma)//comma//serial comma}
+
+I use the serial comma:\\
+  \I2 apple, berry, and cherry\\
+instead of\\
+  \I2 apple, berry and cherry\\
+because I find it easier
+to see the list items
+when they are separated by commas.
+The serial comma is also known as the
+Oxford comma,
+Harvard comma,
+or series comma.
+
+
+\subsection{Modern pronouns}
+
+I don't use modern pronouns in this document
+but if I did I'd use the LambdaMoo ``spivak'' (1991)
+\cite{spivak-pronoun}
+variant of gender-neutral pronouns.
+(Hmm\ldots
+thinking machines are coming.
+People are anthropocentric \cite{merriam-webster-anthropocentric}.
+There may be resistance to
+using traditional human pronouns
+for machines that think.
+I wonder if using tradutional
+pronouns for mostly-meatbag lifeforms
+and spivak pronouns for mostly non-meatbag
+lifeforms would make sense.)
+
+\vspace{6pt}
+{
+  \ZZbaselinestretch{1}
+  \let\B=\bfseries
+  \begin{tabular}{llllll}
+    \B Variant&
+      \B Subject&
+      \B Object&
+      \(\vcenter{%
+        \hbox{\strut\B Possessive}
+        \hbox{\strut\B adjective}
+      }\)&
+      \(\vcenter{%
+        \hbox{\strut\B Posessive}
+        \hbox{\strut\B pronoun}}\)&
+      \B Reflexive\\[18pt]
+    \B Masculine&
+      he said&
+      I saw him&
+      his leg hurt&
+      that is his&
+      he hurt himself\\[6pt]
+    \B Feminine&
+      she said&
+      I saw her&
+      her leg hurt&
+      that is hers&
+      she hurt herself\\[6pt]
+    \(\vcenter{%
+      \hbox{\strut\B LambdaMoo}
+      \hbox{\strut\B ``spivak'' (1991)}
+    }\)&
+      e said&
+      I saw em&
+      eir leg hurt&
+      that is eirs&
+      e hurt emself\\
+  \end{tabular}
+}
+\vspace{6pt}
+
+
+\section{The software used}
+
+Prof.~Donald Knuth\ix{Knuth, Donald Ervin}
+of Stanford University
+wrote the \FirstTime{\TeXLogo\/}\ix{\TeX}
+typesetting system
+for the creation of beautiful books---%
+and especially for books that contain lots of mathematics
+\cite[page v]{knuth2012}.
+He wasn't happy with the quality of the typesetting in his
+multi-volume
+\emph{The Art of Computer Programming}.
+\TeXLogo\ was first released in 1978.
+\TeXLogo-related\ systems are not
+`What You See Is What You Get'
+(WYSIWYG) systems.
+Documents are created in an ordinary text editor
+and processed by a program to make the output.
+This is a nice feature because one can concentrate on the content
+of the document instead of the appearance
+of the document.
+
+Dr.~Leslie Lamport\ix{Lamport, Leslie B.}
+extended \TeXLogo\ using \TeXLogo's
+programming language to make the easier-to-use {\sl\LaTeXLogo}\ix{\LaTeXLogo}.
+It was first released in 1984.
+The \LaTeXLogo\ Project
+\cite{thelatexproject2023}
+now handles \LaTeXLogo\ development.
+
+\FirstTime{\LuaLaTeXLogo\/}\ix{\LuaLaTeXLogo}
+is a dialect of \LaTeXLogo\ with features
+that make it easier to use for programming.
+
+\FirstTime{\TeXLiveLogo\/}\ix{\TeXLiveLogo}
+\cite{texlive}
+is a free \TeXLogo\ software distribution
+that contains all of the above software and more.
+This document was created using \TeXLiveLogo.
+\TeXLiveLogo\ is available for Linux,
+Unix,
+and Windows.
+\FirstTime{\MacTeXLogo\/} is a \TeXLiveLogo-based system for Apple MacOS computers.
+\FirstTime{\OverleafLogo\/} is a \TeXLiveLogo-based system to run \TeX\ on the web.
+
+\FirstTime{\PurdueThesisLogo\/}
+(\FirstTime{\PuThLogo\/} for short---rhymes with tooth)
+uses \LuaLaTeXLogo\ to
+make it easier to do
+Purdue theses,
+dissertations,
+etc.
+This template demonstrates how to use \PurdueThesisLogo.
+\PurdueThesisLogo\ is intended to support all Purdue campuses,
+programs,
+and graduate degrees.
+I only support this software using \TeXLiveLogo.
+
+Figure \ref{fi:lualatex-system-flowchart} shows the \LuaLaTeXLogo\ system flowchart.
+\FirstTime{Overleaf\/}
+\cite{overleaf}
+uses latexmk
+\cite{latexmk}
+to run
+|biblatex|,
+|makeindex|,
+and |lualatex| automatically
+so the minimum amount of work is done.
+On Linux,
+MacOS,
+and Windows you can run the programs individually
+or use |latexmk|---I recommend using |latexmk|.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+
+    \tikzset{font={\fontsize{10pt}{12pt}\selectfont}}
+
+    % Large rectangle.
+    \coordinate (pdflatex-nw-c) at (0,8);  \coordinate (pdflatex-ne-c) at (6,8);
+    \coordinate (pdflatex-sw-c) at (0,0);  \coordinate (pdflatex-se-c) at (6,0);
+
+    % Draw large rectangle.
+    \draw (pdflatex-sw-c) -- (pdflatex-nw-c) -- (pdflatex-ne-c) -- (pdflatex-se-c) -- cycle;
+
+    % West edge of rectangle.
+    \coordinate (my-fonts-c)       at (0,7);  \coordinate (my-fonts-w-c)     at ($(my-fonts-c)     + (-1,0)$);
+    \coordinate (my-images-c)      at (0,6);  \coordinate (my-images-w-c)    at ($(my-images-c)    + (-1,0)$);
+    \coordinate (my-packages-c)    at (0,5);  \coordinate (my-packages-w-c)  at ($(my-packages-c)  + (-1,0)$);
+    \coordinate (my-tex-files-c)   at (0,4);  \coordinate (my-tex-files-w-c) at ($(my-tex-files-c) + (-1,0)$);
+    \coordinate (w-aux-files-c)    at (0,3);  \coordinate (w-aux-files-w-c)  at ($(w-aux-files-c)  + (-1,0)$);
+      \coordinate (w-aux-files-w-w-c) at ($(w-aux-files-w-c) + (-1,0)$);
+    \coordinate (bbl-files-c)      at (0,2);  \coordinate (bbl-files-w-c)    at ($(bbl-files-c)    + (-1,0)$);
+    \coordinate (ind-file-c)       at (0,1);  \coordinate (ind-file-w-c)     at ($(ind-file-c)     + (-1,0)$);
+
+    % North edge of rectangle.
+    \coordinate (system-fonts-c)    at (1.6,8);  \coordinate (system-fonts-n-c)    at ($(system-fonts-c)    + (0,1)$);
+    \coordinate (system-packages-c) at (4.4,8);  \coordinate (system-packages-n-c) at ($(system-packages-c) + (0,1)$);
+
+    % East edge of rectangle.
+    \coordinate (log-file-c)      at (6,6);  \coordinate (log-file-e-c)      at ($(log-file-c) + (1,0)$);
+    \coordinate (my-pdf-file-c)   at (6,4);  \coordinate (my-pdf-file-e-c)   at ($(my-pdf-file-c) + (1,0)$);
+    \coordinate (e-aux-files-c)   at (6,3);  \coordinate (e-aux-files-e-c)   at ($(e-aux-files-c) + (1,0)$);
+      \coordinate (e-aux-files-e-e-c)         at ($(e-aux-files-e-c) + (1,0)$);
+
+    % Draw arrows on west side.
+    \draw [thick, ->]       (my-fonts-w-c)     -- (my-fonts-c);
+    \draw [thick, ->]       (my-images-w-c)    -- (my-images-c);
+    \draw [thick, ->]       (my-packages-w-c)  -- (my-packages-c);
+    \draw [ultra thick, ->] (my-tex-files-w-c) -- (my-tex-files-c);
+    \draw [thick, ->]       (w-aux-files-w-c)  -- (w-aux-files-c);
+    \draw [thick, ->]       (bbl-files-w-c)    -- (bbl-files-c);
+    \draw [thick, ->]       (ind-file-w-c)     -- (ind-file-c);
+
+    % Draw arrows on north side.
+    \draw [thick, ->] (system-fonts-n-c)    -- (system-fonts-c);
+    \draw [thick, ->] (system-packages-n-c) -- (system-packages-c);
+
+    % Draw arrows on east side.
+    \draw [thick, ->]       (log-file-c)    -- (log-file-e-c);
+    \draw [ultra thick, ->] (my-pdf-file-c) -- (my-pdf-file-e-c);
+    \draw [thick, ->]       (e-aux-files-c) -- (e-aux-files-e-c);
+
+    % Print file extensions on west side.
+    \draw (my-fonts-w-c)     node[rounded rectangle, draw, left] {my fonts};
+    \draw (my-images-w-c)    node[rounded rectangle, draw, left] {my images};
+    \draw (my-packages-w-c)  node[rounded rectangle, draw, left] {my packages};
+    \draw (my-tex-files-w-c) node[rounded rectangle, draw, left] {my .tex files};
+    \draw (w-aux-files-w-c)  node[rounded rectangle, draw, left] (w-aux-files-w-n) {.aux files};
+    \draw (bbl-files-w-c)    node[rounded rectangle, draw, left] (w-bbl-files-w-n) {.bbl files};
+    \draw (ind-file-w-c)     node[rounded rectangle, draw, left] (w-ind-file-w-n)  {.ind file};
+
+    % Print labels on north side.
+    \draw (system-fonts-n-c)    node[rounded rectangle, draw, above] {\begin{tabular}{c}system\\fonts\end{tabular}};
+    \draw (system-packages-n-c) node[rounded rectangle, draw, above] {\begin{tabular}{c}system\\packages\end{tabular}};
+
+    % Print file extensions on east side.
+    \draw (log-file-e-c)      node[rounded rectangle, draw, right] {.log file};
+    \draw (my-pdf-file-e-c)   node[rounded rectangle, draw, right] {my .pdf file};
+    \draw (e-aux-files-e-c)   node[rounded rectangle, draw, right] (e-aux-files-e-n) {.aux files};
+
+    % Print program names.
+    \node at (3,4) {\large lualatex};
+    \node[rectangle, draw] at (3,-1) (makeindex-n) {makeindex (make index)};
+    \node[rectangle, draw] at (3,-2) (biber-n) {biber (make bibliography)};
+
+    % Draw lines on west side of big rectangle.
+    \draw [rounded corners, thick, <-] (w-aux-files-w-n.west) -- ++(-2,0)   -- ++(0,-6) -- (0,-3);
+    \draw [rounded corners, thick, <-] (w-bbl-files-w-n.west) -- ++(-1.5,0) -- ++(0,-4) -- (biber-n.west);
+    \draw [rounded corners, thick, <-] (w-ind-file-w-n.west)  -- ++(-1,0)   -- ++(0,-2) -- (makeindex-n.west);
+
+    % Draw line on east side of big rectangle.
+    \draw [rounded corners, thick, ->] (e-aux-files-e-n.east) -- ++(1,0) -- ++(0,-4) -- (makeindex-n.east);
+    \draw [rounded corners, thick, ->] (e-aux-files-e-n.east) -- ++(1,0) -- ++(0,-5) -- (biber-n.east);
+    \draw [rounded corners, thick]     (e-aux-files-e-n.east) -- ++(1,0) -- ++(0,-6) -- (0,-3);
+
+  \end{tikzpicture}
+  \caption{\LuaLaTeXLogo\ System Flowchart}
+  \label{fi:lualatex-system-flowchart}
+\end{figure}
+
+The
+Thesis and Dissertation Office
+\cite{thesis-and-dissertation-office-resources}
+wrote a formatting manual
+\cite{thesis2017}
+and Microsoft Word templates
+\cite{thesis2020}
+for Purdue theses,
+etc.
+
+
+\section{\LaTeX-related information}
+
+\subsection{Input reading rules}
+
+\LaTeXLogo\ uses the following rules when reading input:
+\begin{itemize}
+  \item
+    Spaces at the beginning of a line are ignored.
+  \item
+    \Keys{\sffamily\%} starts a comment.
+    The |%| and everything after it on that line are ignored.
+    Type \Keys{\sffamily\char'134} \Keys{\sffamily\%} to print a `\%'.
+  \item
+    \Keys{Enter} is equivalent to a space.
+  \item
+    \Keys{Enter} \Keys{Enter} (a blank line) ends a paragraph.
+  \item
+    Typing multiple spaces works the same as one space.
+\end{itemize}
+
+% The itemize environment takes up lots of space---sometimes
+% I like to compress the layuot as shown below.
+
+\subsection{Input preparation conventions}
+
+In \LaTeX\ typing
+
+\begin{verbatim}
+As \(h\) approaches 0 in the limit, the last fraction can be shown to go to
+zero.  This is true because the area of the red portion of excess region is
+less than or equal to the area of the tiny black-bordered rectangle.  More
+precisely, \[\left|f(x)-\frac{A(x+h)-A(x)}h\right|-\frac{\left|\text{Red
+Excess}\right|}h\le\frac{h\big(f(x+h_1)-f(x+h_2)\big)}h=f(x+h_1)-f(x+h_2),\]
+where \(x+h_1\) and \(x+h_2\) are points where \(f\) reaches its maximum and
+its minimum, respectively, in the interval \([x,x+h]\).
+\end{verbatim}
+\noindent gives exactly the same output as
+
+\begin{verbatim}
+As \(h\) approaches 0 in the limit,
+the last fraction can be shown to go to zero.
+This is true because the area of the red portion of excess region
+is less than or equal to the area of the tiny black-bordered rectangle.
+More precisely,
+\[
+  \left |
+    f(x)
+    -
+    \frac {A(x+h)-A(x)} {h}
+  \right |
+  -
+  \frac {\left|\text{Red Excess}\right|} {h}
+  \le
+  \frac {h\big(f(x+h_1)-f(x+h_2)\big)} {h}
+  =
+  f(x+h_1)
+  -
+  f(x+h_2),
+ \]
+ where \(x+h_1\)
+ and \(x+h_2\) are points where \(f\) reaches its maximum and its minimum,
+ respectively,
+ in the interval \([x, x + h]\).
+\end{verbatim}
+
+
+I've used \LaTeX\ over~30 years
+and use these personal conventions
+to prepare input.
+Using these conventions leads
+to many short lines,
+but I find those easier
+to read and edit.
+Do whatever works best for you.
+
+\I2 start input lines with\\
+  \I3 the first word of a sentence\\
+  \I3 \verb+(+\\
+  \I3 \verb+and+\\
+  \I3 \verb+but+\\
+  \I3 \verb+from+\\
+  \I3 \verb+or+\\
+  \I3 \verb+to+
+
+\NL
+\I2 end input lines with\\
+  \I3 sentence-ending periods\\
+  \I3 phrase-ending commas\\
+  \I3 phrase-ending colons\\
+  \I3 phrase-ending semicolons\\
+  \I3 \verb+)+\\
+  \I3 \verb+\\+\\
+  \I3 \verb+\\[+\textit{dimension}\verb+]+
+
+\NL
+\I2 put these on a line of their own\\
+  \I3 \verb+\begin{+\textit{environment name}\verb+}+\\
+  \I3 \verb+\end{+\textit{environment name}\verb+}+\\
+  \I3 short parenthetical remark
+
+
+\section{Filenames}
+\ix{filenames}
+
+There are several different name styles for file names:\ix{camelCase//kebab-case//PascalCase//snake\_case}
+
+{%
+  \singlespace
+  \I2
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \bf Name& \bf Why it's called that\\
+    \midrule
+    camelCase& |C| is taller that surrounding characters,
+      looks like camel's hump\\
+    kebab-case& letters appear to be slid on shish-kebab skewer,
+      no \Keys{Shift} needed\\
+    PascalCase& popular in the Pascal programming language\\
+    snake\_case& looks like a snake, is kebab-case except
+      |-| is changed to |_|\\
+    \bottomrule
+  \end{tabular}
+}
+
+\vspace*{6pt}
+\textcolor{red}{I recommend you only use kebab-case file names}
+that consist of only lowercase letters,
+zero or more digits,
+zero or more \verb+-+ characters
+(but no consecutive \verb+-+ characters),
+and a single period.
+You won't need to use \Keys{Shift} then.
+
+\textcolor{red}{Do not put spaces in your file names.}
+It makes it easier to run your thesis on other computer operating systems.
+Linux, MacOS, and Windows are operating systems.
+
+I like
+to start all chapter file names with |ch-|.
+Chapter names are everything
+from the beginning of the thesis through the last chapter.
+Chapters include all front matter in addition
+to all chapters.
+
+Appendix names start with |ap-|
+and are everything after the last chapter including any bibliography,
+colophon,
+indices,
+and vita.
+
+Graphics files specific to your thesis start
+with \verb+gr-+ and go in the graphics folder.
+Non-thesis graphics files retain their normal names
+and go in the graphics folder.
+
+\LaTeX\ package files specific to your thesis  start
+with \verb+pa-+ and go in the packages folder.
+Non-thesis packages retain their normal names
+and go in the packages folder.
+
+
+\section{Special input characters}
+
+\UndefineShortVerb{\|}
+\DefineShortVerb{\;}  % so ";verbatim;" will be verbatim
+\noindent
+{
+  \setlength{\tabcolsep}{8.5pt}
+\begin{tabular}{@{}lllllllllll@{}}
+  \multicolumn{10}{@{}l}{These input characters are special:\hfil}\\
+  \kern\parindent& ;#;&  ;$;&  ;%;&  ;&;&  ;\;&            ;^;&         ;_;&  ;{;&  ;};&  ;~;\\
+  \multicolumn{10}{@{}l}{Type\hfil}\\
+  \kern\parindent& ;\#;& ;\$;& ;\%;& ;\&;& ;$\backslash$;& ;\char'136;& ;\_;& ;\{;& ;\};& ;\char'176;\\
+  \multicolumn{10}{@{}l}{to get this output\hfil}\\
+  \kern\parindent& \#&   \$&   \%&   \&&   $\backslash$&   \char'136&   \_&   \{&   \}&   \char'176\\
+\end{tabular}
+}
+\UndefineShortVerb{\;}
+\DefineShortVerb{\|}  % so "|verbatim|" will be verbatim
+
+
+\section{Spacing after periods}
+
+A lowercase letter followed by a period\ix{. (period)//spacing!after period}
+is treated like the end of a sentence
+with approximately two spaces following the period.
+To not make it the end of a sentence put \verb+\+
+or \verb+~+ after the period.
+See table below.
+
+An uppercase letter followed by a period\ix{. (period)//spacing!after period}
+is treated like a person's middle initial
+with approximately one space following the period.
+To make it the end of a sentence put \verb+\@+
+before the period.
+See table below.
+
+\begin{singlespace}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \bfseries Input& \bfseries Output& \bfseries Comment\\
+    \midrule
+    \noalign{\vspace{2pt}}
+    \verb+Dr. Smith+& Dr. Smith& too much space after \verb+Dr.+\\
+    \verb+Dr.\ Smith+& Dr.\ Smith& correct, \verb+Dr.+ and \verb+Smith+ can be on different lines\\
+    \verb+Dr.~Smith+& Dr.~Smith& correct, \verb+Dr.+ and \verb+Smith+ will be on same line, I\\
+    & & recommend using this\\
+    \noalign{\vspace{6pt}}
+    \verb+at NASA.  The+& at NASA.  The& not enough space after \verb+NASA.+\\
+    \verb+at NASA\@.  The+& at NASA\@.  The& correct\\
+    \bottomrule
+  \end{tabular}
+  \index{Dr.~Smith}
+  \index{Smith}
+  \index{\verb+~+ (tilde)}
+  \index{tilde (\verb+~+)}
+  \index{NASA}
+  \index{\verb*+\ +}
+  \index{\verb+"\"@+}
+  \index{period!space after}
+  \index{initials}
+\end{singlespace}
+
+\vspace{\baselineskip}
+
+(%
+  I thought the following was too confusing.
+  One or more \emph{lowercase}/\emph{uppercase}
+  letters followed by a period
+  is treated like
+  \emph{the end of a sentence}/\emph{a person's middle initial}
+  with approximately
+  \emph{two}/\emph{one}
+  space(s) following the period.%
+)\todowarn{maybe move this to writing style appendix?}
+
+(%
+  I thought some people might think the following
+  is too informal or nonstandard.
+  It is pretty confusing also.
+  One or more
+  \lower6pt\hbox{\rlap{\small lowercase}}%
+  \raise6pt\hbox{\small uppercase}
+  letters followed by a period
+  is treated like
+  \raise6pt\hbox{\rlap{\small a middle initial}}%
+  \lower6pt\hbox{\small the end of a sentence}
+  \noindent with approximately
+  \raise6pt\hbox{\small \rlap{one}}%
+  \lower6pt\hbox{\small two}
+  space(s) following the period.%
+)\todowarn{maybe move this to writing style appendix?}
+
+
+\section{Five kinds of dashes}
+
+There are five kinds of dashes\ix{dash}
+
+\edef\The#1pt{#1}
+
+\begin{singlespace}
+  \newlength{\myhyphenlen}      \settowidth{\myhyphenlen}{-}
+  \newlength{\myendashlen}      \settowidth{\myendashlen}{--}
+  \newlength{\myemdashlen}      \settowidth{\myemdashlen}{---}
+  \newlength{\myfiguredashlen}  \settowidth{\myfiguredashlen}{\FigureDash}
+  \newlength{\myminuslen}       \settowidth{\myminuslen}{\(-\)}
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    \bfseries Name& \bfseries Input& \bfseries Output& \bfseries Width in Points (72.27 points/inch)\\
+    \midrule
+    hyphen& \verb+-+ (one hyphen)& -& \the\myhyphenlen\\
+    endash& \verb+--+ (two hyphens)& --& \the\myendashlen\\
+    emdash& \verb+---+ (three hyphens)& ---& \the\myemdashlen\\
+    figure dash& \verb+\FigureDash+& \FigureDash& \the\myfiguredashlen\\
+    minus sign& \verb+\(-\)+& \(-\)& \the\myminuslen\\
+    \bottomrule
+  \end{tabular}
+\end{singlespace}
+
+\begin{description}
+
+  \item[hyphen]
+  \ix{dash//hyphen//dash!hyphen}
+    The hyphen
+    is a punctuation mark used to join words
+    and to separate syllables of a single word
+    \cite{wikipedia-hyphen}.
+    \begin{singlespace}
+      \begin{tabular}{@{}lll@{}}
+        \toprule
+        \bfseries Input& \bfseries Output& \bfseries Comment\\
+        \midrule
+        \verb+-+ (one hyphen)& -\\
+        \verb+son-in-law+& son-in-law& used to join words\\
+        \verb+gas-oline+& gas-oline& used to separate syllables, \LaTeX\ hyphenates words\\
+        & & automatically so you may not ever use this\\
+        \bottomrule
+      \end{tabular}
+    \end{singlespace}
+
+  \item[endash]
+  \ix{dash//endash//dash!endash}
+    The endash
+    \cite{wikipedia-endash}
+     is used for
+    \begin{singlespace}
+      \begin{tabular}{@{}lll@{}}
+        \toprule
+        \bfseries Input& \bfseries Output& \bfseries Comment\\
+        \midrule
+        \verb+--+ (two hyphens)& --\\
+        \verb+The Purdue--IU game+& The Purdue--IU game& conflict\\
+        \verb+Perth--Dubai--Boston+& Perth--Dubai--Boston& connection\\
+        \verb+Teal Road runs East--West+& Teal Road runs East--West& direction\\
+        \verb+ages 21--65+& ages 21--65& age range\\
+        \verb+June--July 1967+& June--July 1967& month range\\
+        \verb+pages 38--55+& pages 38--55& page range\\
+        \verb+1:15--2:15 p.m.+& 1:15--2:15 p.m.& time range\\
+        \verb+Purdue beat IU 35--28+& Purdue beat IU 35--28& scores\\
+        \bottomrule
+      \end{tabular}
+    \end{singlespace}
+
+  \item[emdash]
+  \ix{dash//emdash//dash!emdash}
+    The emdash
+    \cite{wikipedia-emdash}
+     is used for
+    \begin{singlespace}
+      \begin{tabular}{@{}ll@{}}
+        \toprule
+        \verb+---+ (three hyphens)& ---\\[6pt]
+        \bfseries Input& \verb+the usual suspects---Larry, Moe, and Curly+\\
+        \bfseries Output& the usual suspects---Larry, Moe, and Curly\\
+        \bfseries Comment& --- acts like colon\\[6pt]
+        \bfseries Input& \verb+Larry, Moe, and Curly---the usual suspects+\\
+        \bfseries Output& Larry, Moe, and Curly---the usual suspects\\
+        \bfseries Comment& inverse function of colon\\[6pt]
+        \bfseries Input& \verb+three people---Larry, Moe, and Curly---%+\\
+        & \verb+are the usual suspects+\\
+        \bfseries Output& three people---Larry, Moe, and Curly---are the usual suspects\\
+        \bfseries Comment& first --- acts as \verb+(+, second --- acts as \verb+)+\\[6pt]
+        \bfseries Input& \verb+I believe I shall---no, I'm going to do it.+\\
+        \bfseries Output& I believe I shall---no, I'm going to do it.\\
+        \bfseries Comment& use --- when a thought evolves on the fly\\
+        \bottomrule
+      \end{tabular}
+    \end{singlespace}
+
+    Emdashes should be used sparingly in formal writing.
+
+  \item[figure dash]
+  \ix{dash//figure dash//dash!figure dash}
+    The figure dash
+    (input: \verb+\FigureDash+)
+    is used to separate digits---it's the same width
+    as a digit and is used in identification numbers,
+    part numbers,
+    phone numbers, etc.
+    Type, for example, \verb+Q6759\FigureDash 18100+
+    to get ``Q6759\FigureDash 18100''.
+
+  \item[minus sign]
+  \ix{dash//minus sign//dash!minus sign}
+    Used for negative numbers or subtraction in math mode.
+    \begin{singlespace}
+      \begin{tabular}{@{}lll@{}}
+        \toprule
+        \bfseries Input& \bfseries Output& \bfseries Comment\\
+        \midrule
+        \verb+-+& \(-\)& (one hyphen in text math mode or display math mode)\\
+        \verb=\(-a + b\)=& \(-a + b\)& negative $a$\\
+        \verb+\(a - b\)+& \(a - b\)& subtraction\\
+        \bottomrule
+      \end{tabular}
+    \end{singlespace}
+
+\end{description}
+
+% The first use of an unusual term is \FirstTime{emphasized}.
+% It is defined soon after it is emphasized.
+% From http://everets.org/kevin/ten-codes.php retrieved on 2020-02-28:
+%     CODE  MEANS
+%     10-7  Out of service
+% So, the model number is a joke.
+% 10\FigureDash 7
+% for this research.

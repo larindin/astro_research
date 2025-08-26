@@ -1,0 +1,26 @@
+\ProvidesFile{ap-music.tex}[2023-09-01 music appendix]
+
+\begin{VerbatimOut}{z.out}
+\chapter{MUSIC}
+\ix{music//Music appendix}
+
+To get the following printed music score I did the following steps.
+\begin{itemize}
+  \item
+    Get the ``Example of LilyPond input file''
+    from the Wikipedia LilyPond page
+    \cite{wikipedia-lilypond}
+    and put it in a
+    |fib.ly|
+    file.
+  \item
+    Run \Shell{lilypond fib.ly} to get the following
+    |fib.pdf|
+    file:
+\end{itemize}
+\ix{LilyPond music typesetting software}
+
+\noindent \includegraphics[scale=0.77]{gr-fib.pdf}
+\end{VerbatimOut}
+
+\MyIO
