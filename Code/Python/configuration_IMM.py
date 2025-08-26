@@ -7,7 +7,7 @@ from catalogue import *
 from helper_functions import *
 
 # Monte-carlo parameters
-seed = 2
+seed = 3
 generator = np.random.default_rng(seed)
 num_runs = 10
 save = False
