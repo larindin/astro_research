@@ -7,7 +7,7 @@ from catalogue import *
 from helper_functions import *
 
 # Monte-carlo parameters
-seed = 3
+seed = 0
 generator = np.random.default_rng(seed)
 num_runs = 10
 save = False
@@ -80,8 +80,11 @@ accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)*
 coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
 accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2)
 
-CR3BP_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(5e-3)**2)
+CR3BP_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(2e-3)**2)
+UKF_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(2e-3)**2)
 
 initial_mode_probabilities = np.array([0.99, 0.01])
 mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])
+alpha, beta, kappa = 1e-3, 2, 0
+ukf_parameters = (alpha, beta, kappa)
