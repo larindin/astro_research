@@ -6,7 +6,7 @@ import scipy.integrate
 from configuration_IMM import *
 from CR3BP import *
 from CR3BP_pontryagin import *
-from EKF import *
+from UKF import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
@@ -14,16 +14,8 @@ from plotting import *
 time_vals, truth_vals = generate_truth_vals(dynamics_equation, CR3BP_DEs, final_time, dt, initial_truth, backprop_time, additional_time, truth_dynamics_args)
 
 def CR3BP_dynamics_equation(t, X, mu, umax):
-
-    state = X[0:6]
-    STM = X[6:42].reshape((6, 6))
-
-    jacobian = CR3BP_jacobian(state, mu)
-
-    ddt_state = CR3BP_DEs(0, state, mu)
-    ddt_STM = jacobian @ STM
-
-    return np.concatenate((ddt_state, ddt_STM.flatten()))
+    ddt_state = CR3BP_DEs(0, X, mu)
+    return ddt_state
 
 def angles_measurement_equation(time_index, X, measurement_variances, sensor_position_vals, check_results):
 
@@ -120,6 +112,8 @@ if vary_scenarios == False:
         moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
         check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
+        if gap == False:
+            check_results[sensor_index, :] = 1
 
 for run_index in range(num_runs):
 
@@ -158,20 +152,21 @@ for run_index in range(num_runs):
     measurement_args.append((measurement_variances, sensor_position_vals, check_results))
     measurements.append(measurement_vals.measurements)
 
-# filter_measurement_function = angles_measurement_equation
+# filter_measurement_function = angles_measurement_equ`ation
 
 dynamics_function = CR3BP_dynamics_equation
 dynamics_function_args = (mu, umax)
 filter_measurement_function = PV_measurement_equation
 
 
-myEKF = EKF(dynamics_function,
+myUKF = UKF(dynamics_function,
             dynamics_function_args,
             filter_measurement_function,
-            CR3BP_process_noise_covariance,
+            UKF_process_noise_covariance,
+            ukf_parameters,
             0.5)
 
-filter_output = myEKF.run_MC(initial_estimates,
+filter_output = myUKF.run_MC(initial_estimates,
                              initial_covariance,
                              time_vals,
                              measurements,
@@ -200,24 +195,6 @@ plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linea
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.25)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="log", alpha=0.25)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="log", alpha=0.25)
-
-rmse_r_fig = plt.figure()
-rmse_ax_labels = ["$x$", "$y$", "$z$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_r_fig.add_subplot(thing)
-    ax.plot(plot_time, avg_error_vals[ax_index], alpha=0.75)
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-ax.set_xlabel("Time [days]")
-
-rmse_v_fig = plt.figure()
-rmse_ax_labels = ["$v_x$", "$v_y$", "$v_z$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_v_fig.add_subplot(thing)
-    ax.plot(plot_time, avg_error_vals[ax_index+3], alpha=0.75)
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-ax.set_xlabel("Time [days]")
 
 mae_fig = plt.figure()
 ax = mae_fig.add_subplot(211)
