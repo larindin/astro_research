@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  2 SEP 2025 12:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  2 SEP 2025 13:44
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_MastersThesis1/thesis.tex
-(/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_MastersThesis1/thesis.tex
+**/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_MastersThesis/thesis.tex
+(/Users/darin/Documents/GitHub/astro_research/LaTeX/DarinLin_MastersThesis/thesis.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 File: thesis.tex 2025-01-15 PurdueThesis thesis.tex file
@@ -485,13 +485,13 @@ Package: xpatch 2020/03/25 v0.3a Extending etoolbox patching commands
 
 Match.
 Setting▯\ZZcam▯to▯"wl".
-Setting▯\ZZdeg▯to▯"phd".
+Setting▯\ZZdeg▯to▯"msaa".
 Match.
 Setting▯\ZZdoc▯to▯"thesis".
 Match.
 Setting▯\ZZins▯to▯"pu".
 Match.
-Setting▯\ZZpro▯to▯"ece".
+Setting▯\ZZpro▯to▯"aae".
 Match.
 Match.
 Match.
@@ -526,30 +526,30 @@ OPTIONS
 
 MANDATORY▯PARAMETERS
 ▯▯INPUT
-▯▯▯▯author▯▯▯▯▯▯▯▯▯▯'Ima Author'
+▯▯▯▯author▯▯▯▯▯▯▯▯▯▯'Darin Lin'
 ▯▯▯▯campus▯▯▯▯▯▯▯▯▯▯'West Lafayette'
-▯▯▯▯degree▯▯▯▯▯▯▯▯▯▯'Doctor of Philosophy'
+▯▯▯▯degree▯▯▯▯▯▯▯▯▯▯'Master of Science in Aeronautics and Astronautics'
 ▯▯▯▯document▯▯▯▯▯▯▯▯'A Thesis'
-▯▯▯▯graduation▯▯▯▯▯▯'May 2025'
+▯▯▯▯graduation▯▯▯▯▯▯'December 2025'
 ▯▯▯▯institution▯▯▯▯▯'Purdue University'
-▯▯▯▯program▯▯▯▯▯▯▯▯▯'Electrical and Computer Engineering'
+▯▯▯▯program▯▯▯▯▯▯▯▯▯'Aeronautics and Astronautics'
 ▯▯SHORTENED
 ▯▯▯▯ZZcam▯▯▯▯▯▯▯▯▯▯▯'wl'
-▯▯▯▯ZZdeg▯▯▯▯▯▯▯▯▯▯▯'phd'
+▯▯▯▯ZZdeg▯▯▯▯▯▯▯▯▯▯▯'msaa'
 ▯▯▯▯ZZins▯▯▯▯▯▯▯▯▯▯▯'pu'
-▯▯▯▯ZZpro▯▯▯▯▯▯▯▯▯▯▯'ece'
+▯▯▯▯ZZpro▯▯▯▯▯▯▯▯▯▯▯'aae'
 ▯▯DERIVED
 ▯▯▯▯ZZinscam▯▯▯▯▯▯▯▯'pu-wl'
-▯▯▯▯ZZinscampro▯▯▯▯▯'pu-wl-ece'
-▯▯▯▯ZZinscamprodeg▯▯'pu-wl-ece-phd'
+▯▯▯▯ZZinscampro▯▯▯▯▯'pu-wl-aae'
+▯▯▯▯ZZinscamprodeg▯▯'pu-wl-aae-msaa'
 
 (
 ▯▯Debugging...
 ▯▯This▯institution/campus/program/degree▯combination▯is▯ok:
 ▯▯▯▯\ZZinstitution▯is▯'Purdue University'
 ▯▯▯▯\ZZcampus▯▯▯▯▯▯is▯'West Lafayette'
-▯▯▯▯\ZZprogram▯▯▯▯▯is▯'Electrical and Computer Engineering'
-▯▯▯▯\ZZdegree▯▯▯▯▯▯is▯'Doctor of Philosophy'
+▯▯▯▯\ZZprogram▯▯▯▯▯is▯'Aeronautics and Astronautics'
+▯▯▯▯\ZZdegree▯▯▯▯▯▯is▯'Master of Science in Aeronautics and Astronautics'
 )
 \c@ZZtitlepos=\count330
 \c@ZZtitleincr=\count331
@@ -1071,75 +1071,56 @@ Package: bm 2023/12/19 v1.2f Bold Symbol Support (DPC/FMi)
 \symboldsymbols=\mathgroup6
 Package bm Info: No bold for \OMX/lmex/m/n, using \pmb.
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/bold-extra/bold-extra.sty
-Package: bold-extra 2001/11/13 v0.1 Use fonts from cm/mf-extra/bold
-) (/usr/local/texlive/2025/texmf-dist/tex/generic/chemfig/chemfig.sty (/usr/local/texlive/2025/texmf-dist/tex/generic/chemfig/chemfig.tex (/usr/local/texlive/2025/texmf-dist/tex/generic/simplekv/simplekv.tex
-Package: simplekv 2023/10/02 v0.2c Simple keyval package (CT)
-) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.code.tex
-File: pgflibraryarrows.meta.code.tex 2023-01-15 v3.1.10 (3.1.10)
-\pgfarrowinset=\dimen312
-\pgfarrowlength=\dimen313
-\pgfarrowwidth=\dimen314
-\pgfarrowlinewidth=\dimen315
-)
-\CF_cnt_atomgroup=\count552
-\CF_cnt_group=\count553
-\CF_cnt_atom=\count554
-\CF_cnt_cycle=\count555
-\CF_cnt_cyclebonds=\count556
-\CF_cnt_compound=\count557
-\CF_dim=\dimen316
-\CF_turnangle=\dimen317
-\CF_arrowsize=\dimen318
-\CF_zero=\dimen319
-\CF_box=\box83
-\CF_boxstuff=\box84
-\CF_testbox=\box85
-\CF_chargebox=\box86
-\CF_substtoks=\toks60
-)
-Package: chemfig 2023/12/28 v1.66 Draw molecule with an easy syntax (CT)
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
 Package: fancyvrb 2024/01/20 4.5c verbatim text (tvz,hv)
-\FV@CodeLineNo=\count558
+\FV@CodeLineNo=\count552
 \FV@InFile=\read5
-\FV@TabBox=\box87
-\c@FancyVerbLine=\count559
-\FV@StepNumber=\count560
+\FV@TabBox=\box83
+\c@FancyVerbLine=\count553
+\FV@StepNumber=\count554
 \FV@OutFile=\write6
 LaTeX Info: Redefining \UseVerb on input line 1229.
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/filehook/filehook.sty
-Package: filehook 2022/10/25 v0.8b Hooks for input files
- (/usr/local/texlive/2025/texmf-dist/tex/latex/filehook/filehook-2020.sty
-Package: filehook-2020 2022/10/25 v0.8b Hooks for input files
-)) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count561
-\lst@gtempboxa=\box88
-\lst@token=\toks61
-\lst@length=\count562
-\lst@currlwidth=\dimen320
-\lst@column=\count563
-\lst@pos=\count564
-\lst@lostspace=\dimen321
-\lst@width=\dimen322
-\lst@newlines=\count565
-\lst@lineno=\count566
-\lst@maxwidth=\dimen323
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.sty
+\lst@mode=\count555
+\lst@gtempboxa=\box84
+\lst@token=\toks60
+\lst@length=\count556
+\lst@currlwidth=\dimen312
+\lst@column=\count557
+\lst@pos=\count558
+\lst@lostspace=\dimen313
+\lst@width=\dimen314
+\lst@newlines=\count559
+\lst@lineno=\count560
+\lst@maxwidth=\dimen315
  (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstpatch.sty
 File: lstpatch.sty 2024/09/23 1.10c (Carsten Heinz)
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
-\c@lstnumber=\count567
-\lst@skipnumbers=\count568
-\lst@framebox=\box89
+\c@lstnumber=\count561
+\lst@skipnumbers=\count562
+\lst@framebox=\box85
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2024/09/23 1.10c listings configuration
 ))
 Package: listings 2024/09/23 1.10c (Carsten Heinz)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/mhchem/mhchem.sty
-Package: mhchem 2024/01/29 v4.10 for typesetting chemical formulae
- (/usr/local/texlive/2025/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
-Package: l3keys2e 2024-08-16 LaTeX2e option processing using LaTeX3 keys
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/hyperxmp/hyperxmp.sty
+Package: hyperxmp 2024/03/17 v5.13 Store hyperref metadata in XMP format
+\hyxmp@aep@toks=\toks61
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/ifmtarg/ifmtarg.sty
+Package: ifmtarg 2018/04/16 v1.2b check for an empty argument
+)
+\@hyxmp@count=\count563
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/oberdiek/ifdraft.sty
+Package: ifdraft 2016/05/16 v1.4 Detect class options draft and final (HO)
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/iftex/ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+)) (/usr/local/texlive/2025/texmf-dist/tex/generic/stringenc/se-pdfdoc.def
+File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/mathtools/mathtools.sty
+Package: mathtools 2024/10/04 v1.31 mathematical typesetting tools
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/mathtools/mhsetup.sty
+Package: mhsetup 2021/03/18 v1.4 programming setup (MH)
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2024/11/05 v2.17t AMS math features
 \@mathmargin=\skip99
@@ -1148,106 +1129,96 @@ For additional information on amsmath, use the `?' option.
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 LaTeX Info: Redefining \boldsymbol on input line 28.
-\pmbraise@=\dimen324
+\pmbraise@=\dimen316
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count569
+\inf@bad=\count564
 LaTeX Info: Redefining \frac on input line 233.
-\uproot@=\count570
-\leftroot@=\count571
+\uproot@=\count565
+\leftroot@=\count566
 LaTeX Info: Redefining \overline on input line 398.
 LaTeX Info: Redefining \colon on input line 409.
-\classnum@=\count572
-\DOTSCASE@=\count573
+\classnum@=\count567
+\DOTSCASE@=\count568
 LaTeX Info: Redefining \ldots on input line 495.
 LaTeX Info: Redefining \dots on input line 498.
 LaTeX Info: Redefining \cdots on input line 619.
-\Mathstrutbox@=\box90
-\strutbox@=\box91
+\Mathstrutbox@=\box86
+\strutbox@=\box87
 LaTeX Info: Redefining \big on input line 721.
 LaTeX Info: Redefining \Big on input line 722.
 LaTeX Info: Redefining \bigg on input line 723.
 LaTeX Info: Redefining \Bigg on input line 724.
-\big@size=\dimen325
+\big@size=\dimen317
 LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
-\macc@depth=\count574
+\macc@depth=\count569
 LaTeX Info: Redefining \bmod on input line 904.
 LaTeX Info: Redefining \pmod on input line 909.
 LaTeX Info: Redefining \smash on input line 939.
 LaTeX Info: Redefining \relbar on input line 969.
 LaTeX Info: Redefining \Relbar on input line 970.
-\c@MaxMatrixCols=\count575
+\c@MaxMatrixCols=\count570
 \dotsspace@=\muskip22
-\c@parentequation=\count576
-\dspbrk@lvl=\count577
+\c@parentequation=\count571
+\dspbrk@lvl=\count572
 \tag@help=\toks62
-\row@=\count578
-\column@=\count579
-\maxfields@=\count580
+\row@=\count573
+\column@=\count574
+\maxfields@=\count575
 \andhelp@=\toks63
-\eqnshift@=\dimen326
-\alignsep@=\dimen327
-\tagshift@=\dimen328
-\tagwidth@=\dimen329
-\totwidth@=\dimen330
-\lineht@=\dimen331
+\eqnshift@=\dimen318
+\alignsep@=\dimen319
+\tagshift@=\dimen320
+\tagwidth@=\dimen321
+\totwidth@=\dimen322
+\lineht@=\dimen323
 \@envbody=\toks64
 \multlinegap=\skip100
 \multlinetaggap=\skip101
 \mathdisplay@stack=\toks65
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/chemgreek/chemgreek.sty
-Package: chemgreek 2020/01/16 v1.1a interface for upright Greek letters for use in chemistry (CN)
-\l__chemgreek_tmpa_int=\count581
-\g__chemgreek_tmpa_int=\count582
 )
-\l__mhchem_ce_distanceFromLastComma_int=\count583
-\__mhchem_arrow_extPgfLength_skip=\skip102
-\mhchem@minispace@tmp=\skip103
-\mhchem@minibackspace@tmp=\skip104
-\mhchem@bondwidth=\skip105
-\mhchem@bondheight=\skip106
-\mhchem@smallbondwidth@tmpA=\skip107
-\mhchem@smallbondwidth@tmpB=\skip108
-\mhchem@smallbondwidth=\skip109
-\mhchem@bondtmp@minussidebearingleft=\skip110
-\mhchem@bondtmp@minussidebearingright=\skip111
-\l__mhchem_option_version_int=\count584
-\mhchem@option@minusmathsidebearingleft=\dimen332
-\mhchem@option@minusmathsidebearingright=\dimen333
-\mhchem@option@minustextsidebearingleft=\dimen334
-\mhchem@option@minustextsidebearingright=\dimen335
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/cancel/cancel.sty
-Package: cancel 2013/04/12 v2.2 Cancel math terms
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/etoc/etoc.sty
-Package: etoc 2023/10/29 v1.2d Completely customisable TOCs (JFB)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/multicol.sty
+\g_MT_multlinerow_int=\count576
+\l_MT_multwidth_dim=\dimen324
+\origjot=\skip102
+\l_MT_shortvdotswithinadjustabove_dim=\dimen325
+\l_MT_shortvdotswithinadjustbelow_dim=\dimen326
+\l_MT_above_intertext_sep=\dimen327
+\l_MT_below_intertext_sep=\dimen328
+\l_MT_above_shortintertext_sep=\dimen329
+\l_MT_below_shortintertext_sep=\dimen330
+\xmathstrut@box=\box88
+\xmathstrut@dim=\dimen331
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/multicol.sty
 Package: multicol 2024/09/14 v1.9i multicolumn formatting (FMi)
-\c@tracingmulticols=\count585
-\mult@box=\box92
-\multicol@leftmargin=\dimen336
-\c@unbalance=\count586
-\c@collectmore=\count587
-\doublecol@number=\count588
-\multicoltolerance=\count589
-\multicolpretolerance=\count590
-\full@width=\dimen337
-\page@free=\dimen338
-\premulticols=\dimen339
-\postmulticols=\dimen340
-\multicolsep=\skip112
-\multicolbaselineskip=\skip113
-\partial@page=\box93
-\last@line=\box94
-\mc@boxedresult=\box95
-\maxbalancingoverflow=\dimen341
-\mult@rightbox=\box96
-\mult@grightbox=\box97
-\mult@firstbox=\box98
-\mult@gfirstbox=\box99
+\c@tracingmulticols=\count577
+\mult@box=\box89
+\multicol@leftmargin=\dimen332
+\c@unbalance=\count578
+\c@collectmore=\count579
+\doublecol@number=\count580
+\multicoltolerance=\count581
+\multicolpretolerance=\count582
+\full@width=\dimen333
+\page@free=\dimen334
+\premulticols=\dimen335
+\postmulticols=\dimen336
+\multicolsep=\skip103
+\multicolbaselineskip=\skip104
+\partial@page=\box90
+\last@line=\box91
+\mc@boxedresult=\box92
+\maxbalancingoverflow=\dimen337
+\mult@rightbox=\box93
+\mult@grightbox=\box94
+\mult@firstbox=\box95
+\mult@gfirstbox=\box96
+\@tempa=\box97
+\@tempa=\box98
+\@tempa=\box99
 \@tempa=\box100
 \@tempa=\box101
 \@tempa=\box102
@@ -1281,146 +1252,30 @@ Package: multicol 2024/09/14 v1.9i multicolumn formatting (FMi)
 \@tempa=\box130
 \@tempa=\box131
 \@tempa=\box132
-\@tempa=\box133
-\@tempa=\box134
-\@tempa=\box135
-\c@minrows=\count591
-\c@columnbadness=\count592
-\c@finalcolumnbadness=\count593
-\last@try=\dimen342
-\multicolovershoot=\dimen343
-\multicolundershoot=\dimen344
-\mult@nat@firstbox=\box136
-\colbreak@box=\box137
-\mc@col@check@num=\count594
-)
-\Etoc@toctoks=\toks66
-\c@etoc@tocid=\count595
-\etoc@framed@titlebox=\box138
-\etoc@framed@contentsbox=\box139
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/hyperxmp/hyperxmp.sty
-Package: hyperxmp 2024/03/17 v5.13 Store hyperref metadata in XMP format
-\hyxmp@aep@toks=\toks67
- (/usr/local/texlive/2025/texmf-dist/tex/latex/ifmtarg/ifmtarg.sty
-Package: ifmtarg 2018/04/16 v1.2b check for an empty argument
-)
-\@hyxmp@count=\count596
- (/usr/local/texlive/2025/texmf-dist/tex/latex/oberdiek/ifdraft.sty
-Package: ifdraft 2016/05/16 v1.4 Detect class options draft and final (HO)
-) (/usr/local/texlive/2025/texmf-dist/tex/generic/iftex/ifluatex.sty
-Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
-)) (/usr/local/texlive/2025/texmf-dist/tex/generic/stringenc/se-pdfdoc.def
-File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/latexsym.sty
-Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
-\symlasy=\mathgroup7
-LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
-(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 52.
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/makeidx.sty
-Package: makeidx 2021/10/04 v1.0m Standard LaTeX package
-)
-\@indexfile=\write7
-\openout7 = `thesis.idx'.
-
-
-Writing index file thesis.idx
-(/usr/local/texlive/2025/texmf-dist/tex/latex/mathtools/mathtools.sty
-Package: mathtools 2024/10/04 v1.31 mathematical typesetting tools
- (/usr/local/texlive/2025/texmf-dist/tex/latex/mathtools/mhsetup.sty
-Package: mhsetup 2021/03/18 v1.4 programming setup (MH)
-)
-\g_MT_multlinerow_int=\count597
-\l_MT_multwidth_dim=\dimen345
-\origjot=\skip114
-\l_MT_shortvdotswithinadjustabove_dim=\dimen346
-\l_MT_shortvdotswithinadjustbelow_dim=\dimen347
-\l_MT_above_intertext_sep=\dimen348
-\l_MT_below_intertext_sep=\dimen349
-\l_MT_above_shortintertext_sep=\dimen350
-\l_MT_below_shortintertext_sep=\dimen351
-\xmathstrut@box=\box140
-\xmathstrut@dim=\dimen352
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/media9/media9.sty
-Package: media9 2024/09/16 v1.29 acrobat-9/X compatible media
-\g_mix_pkgresizeflag_int=\count598
-\l_mix_poster_box=\box141
-\g_mix_wd_dim=\dimen353
-\g_mix_ht_dim=\dimen354
-\g_mix_dp_dim=\dimen355
-\g_mix_rmcnt_int=\count599
-\l_mix_viewcnt_int=\count600
-\g@mix@page@int=\count601
-\g_mix_resizeflag_int=\count602
-\l_mix_lineno_int=\count603
-\l_mix_pbtn_box=\box142
-\g_mix_mbtncnt_int=\count604
-\mix@btn@dim=\dimen356
-) (./packages/pa-ditto.sty
-File: pa-ditto.sty 2021-01-04 ditto package
-) (./packages/pa-figure-dash.sty
-File: pa-figure-dash.sty 2021-01-04 figure dash package
-\figurebox=\box143
-\lenfigurerulethickness=\skip115
-\lenfigureraiseheight=\skip116
-\lenfigurerulewidth=\skip117
+\c@minrows=\count583
+\c@columnbadness=\count584
+\c@finalcolumnbadness=\count585
+\last@try=\dimen338
+\multicolovershoot=\dimen339
+\multicolundershoot=\dimen340
+\mult@nat@firstbox=\box133
+\colbreak@box=\box134
+\mc@col@check@num=\count586
 ) (./packages/pa-logos.sty
 Package: packages/pa-logos 2024-04-26 logos package
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/pdfpages/pdfpages.sty
-Package: pdfpages 2025/01/30 v0.6e Insert pages of external PDF documents (AM)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/eso-pic/eso-pic.sty
-Package: eso-pic 2023/05/03 v3.0c eso-pic (RN)
-\ESO@tempdima=\dimen357
-\ESO@tempdimb=\dimen358
-)
-\AM@pagewidth=\dimen359
-\AM@pageheight=\dimen360
-\AM@fboxrule=\dimen361
- (/usr/local/texlive/2025/texmf-dist/tex/latex/pdfpages/pppdftex.def
-File: pppdftex.def 2025/01/30 v0.6e Pdfpages driver for pdfTeX (AM)
-)
-\pdfpages@includegraphics@status=\count605
-\AM@pagebox=\box144
-\AM@global@opts=\toks68
-\AM@pagecnt=\count606
-\AM@toc@title=\toks69
-\AM@lof@heading=\toks70
-\c@AM@survey=\count607
-\AM@templatesizebox=\box145
 ) (./packages/pa-repeat.sty
 File: pa-repeat.sty 2024-04-26 repeat package
 Package: packages/pa-repeat 2024-04-26 pa-repeat
-\MyRepeatCount=\count608
-\MyRepeatMaxCount=\count609
+\MyRepeatCount=\count587
+\MyRepeatMaxCount=\count588
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/placeins/placeins.sty
 Package: placeins 2005/04/18  v 2.2
-) (/usr/local/texlive/2025/texmf-dist/tex/generic/soul/soul.sty
-Package: soul 2023-06-14 v3.1 Permit use of UTF-8 characters in soul (HO)
- (/usr/local/texlive/2025/texmf-dist/tex/generic/soul/soul-ori.sty
-Package: soul-ori 2023-06-14 v3.1 letterspacing/underlining (mf)
-\SOUL@word=\toks71
-\SOUL@lasttoken=\toks72
-\SOUL@syllable=\toks73
-\SOUL@cmds=\toks74
-\SOUL@buffer=\toks75
-\SOUL@token=\toks76
-\SOUL@syllgoal=\dimen362
-\SOUL@syllwidth=\dimen363
-\SOUL@charkern=\dimen364
-\SOUL@hyphkern=\dimen365
-\SOUL@dimen=\dimen366
-\SOUL@dimeni=\dimen367
-\SOUL@minus=\count610
-\SOUL@comma=\count611
-\SOUL@apo=\count612
-\SOUL@grave=\count613
-\SOUL@spaceskip=\skip118
-\SOUL@ttwidth=\dimen368
-\SOUL@uldp=\dimen369
-\SOUL@ulht=\dimen370
-) (/usr/local/texlive/2025/texmf-dist/tex/generic/etexcmds/etexcmds.sty
-Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
-)) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/textcomp.sty
-Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.code.tex
+File: pgflibraryarrows.meta.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfarrowinset=\dimen341
+\pgfarrowlength=\dimen342
+\pgfarrowwidth=\dimen343
+\pgfarrowlinewidth=\dimen344
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/circuitikz/circuitikz.sty
 Package: circuitikz 2025/01/10{} The CircuiTikz circuit drawing package version 1.7.1
  (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarycalc.code.tex
@@ -1431,42 +1286,42 @@ File: tikzlibrarybending.code.tex 2023-01-15 v3.1.10 (3.1.10)
 File: pgfmodulebending.code.tex 2023-01-15 v3.1.10 (3.1.10)
  (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/modules/pgfmodulenonlineartransformations.code.tex
 File: pgfmodulenonlineartransformations.code.tex 2023-01-15 v3.1.10 (3.1.10)
-\pgftransformnonlinearflatness=\dimen371
+\pgftransformnonlinearflatness=\dimen345
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/pgflibrarycurvilinear.code.tex
 File: pgflibrarycurvilinear.code.tex 2023-01-15 v3.1.10 (3.1.10)
-\pgf@curvilinear@time@a=\dimen372
-\pgf@curvilinear@length@a=\dimen373
-\pgf@curvilinear@length@b=\dimen374
-\pgf@curvilinear@length@c=\dimen375
-\pgf@curvilinear@length@d=\dimen376
+\pgf@curvilinear@time@a=\dimen346
+\pgf@curvilinear@length@a=\dimen347
+\pgf@curvilinear@length@b=\dimen348
+\pgf@curvilinear@length@c=\dimen349
+\pgf@curvilinear@length@d=\dimen350
 )
-\pgf@arrows@the@rigidity=\dimen377
+\pgf@arrows@the@rigidity=\dimen351
 )) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryfpu.code.tex (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.code.tex)) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcirc.defines.tex
-\pgf@circ@count@a=\count614
-\pgf@circ@count@b=\count615
-\pgf@circ@count@c=\count616
-\pgf@circ@res@up=\dimen378
-\pgf@circ@res@down=\dimen379
-\pgf@circ@res@zero=\dimen380
-\pgf@circ@res@left=\dimen381
-\pgf@circ@res@right=\dimen382
-\pgf@circ@res@other=\dimen383
-\pgf@circ@res@step=\dimen384
-\pgf@circ@res@temp=\dimen385
-\pgf@circ@Rlen=\dimen386
-\pgf@circ@scaled@Rlen=\dimen387
-\pgfstartlinewidth=\dimen388
+\pgf@circ@count@a=\count589
+\pgf@circ@count@b=\count590
+\pgf@circ@count@c=\count591
+\pgf@circ@res@up=\dimen352
+\pgf@circ@res@down=\dimen353
+\pgf@circ@res@zero=\dimen354
+\pgf@circ@res@left=\dimen355
+\pgf@circ@res@right=\dimen356
+\pgf@circ@res@other=\dimen357
+\pgf@circ@res@step=\dimen358
+\pgf@circ@res@temp=\dimen359
+\pgf@circ@Rlen=\dimen360
+\pgf@circ@scaled@Rlen=\dimen361
+\pgfstartlinewidth=\dimen362
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircutils.tex
-\ctikz@scratchbox=\box146
+\ctikz@scratchbox=\box135
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircpath.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircshapes.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircmonopoles.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircbipoles.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcirctripoles.tex
-\pgf@circ@res@count=\count617
+\pgf@circ@res@count=\count592
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircquadpoles.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircmultipoles.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcirclabel.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircvoltage.tex
-\pgfcirc@labelshift=\dimen389
+\pgfcirc@labelshift=\dimen363
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcirccurrent.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/circuitikz/pgfcircflow.tex)) (/usr/local/texlive/2025/texmf-dist/tex/latex/menukeys/menukeys.sty
 Package: menukeys 2022/07/01 v1.6.2 -- A package to format menus, paths and shortcuts
  (/usr/local/texlive/2025/texmf-dist/tex/generic/xstring/xstring.sty (/usr/local/texlive/2025/texmf-dist/tex/generic/xstring/xstring.tex
-\xs_counta=\count618
-\xs_countb=\count619
+\xs_counta=\count593
+\xs_countb=\count594
 )
 Package: xstring 2023/08/22 v1.86 String manipulations (CT)
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryshapes.symbols.code.tex
@@ -1487,38 +1342,38 @@ Package: adjcalc 2012/05/16 v1.1 Provides advanced setlength with multiple back-
 Package: trimclip 2025/02/21 v1.2a Trim and clip general TeX material
  (/usr/local/texlive/2025/texmf-dist/tex/latex/collectbox/collectbox.sty
 Package: collectbox 2022/10/17 v0.4c Collect macro arguments as boxes
-\collectedbox=\box147
+\collectedbox=\box136
 )
-\tc@llx=\dimen390
-\tc@lly=\dimen391
-\tc@urx=\dimen392
-\tc@ury=\dimen393
+\tc@llx=\dimen364
+\tc@lly=\dimen365
+\tc@urx=\dimen366
+\tc@ury=\dimen367
 Package trimclip Info: Using driver 'tc-pdftex.def'.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/adjustbox/tc-pdftex.def
 File: tc-pdftex.def 2025/02/26 v2.3 Clipping driver for pdftex
 ))
-\adjbox@Width=\dimen394
-\adjbox@Height=\dimen395
-\adjbox@Depth=\dimen396
-\adjbox@Totalheight=\dimen397
-\adjbox@pwidth=\dimen398
-\adjbox@pheight=\dimen399
-\adjbox@pdepth=\dimen400
-\adjbox@ptotalheight=\dimen401
+\adjbox@Width=\dimen368
+\adjbox@Height=\dimen369
+\adjbox@Depth=\dimen370
+\adjbox@Totalheight=\dimen371
+\adjbox@pwidth=\dimen372
+\adjbox@pheight=\dimen373
+\adjbox@pdepth=\dimen374
+\adjbox@ptotalheight=\dimen375
  (/usr/local/texlive/2025/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
 Package: ifoddpage 2022/10/18 v1.2 Conditionals for odd/even page detection
-\c@checkoddpage=\count620
+\c@checkoddpage=\count595
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/varwidth/varwidth.sty
 Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
-\@vwid@box=\box148
-\sift@deathcycles=\count621
-\@vwid@loff=\dimen402
-\@vwid@roff=\dimen403
+\@vwid@box=\box137
+\sift@deathcycles=\count596
+\@vwid@loff=\dimen376
+\@vwid@roff=\dimen377
 )) (/usr/local/texlive/2025/texmf-dist/tex/latex/relsize/relsize.sty
 Package: relsize 2013/03/29 ver 4.1
 )
-\l__twmk_indris_int=\count622
-\c@tw@hyphen@char@num=\count623
+\l__twmk_indris_int=\count597
+\c@tw@hyphen@char@num=\count598
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary3d.code.tex
 File: tikzlibrary3d.code.tex 2023-01-15 v3.1.10 (3.1.10)
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryshapes.misc.code.tex
@@ -1526,35 +1381,35 @@ File: tikzlibraryshapes.misc.code.tex 2023-01-15 v3.1.10 (3.1.10)
  (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.misc.code.tex
 File: pgflibraryshapes.misc.code.tex 2023-01-15 v3.1.10 (3.1.10)
 )) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.text.code.tex (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.code.tex (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.code.tex
-\pgfdecoratedcompleteddistance=\dimen404
-\pgfdecoratedremainingdistance=\dimen405
-\pgfdecoratedinputsegmentcompleteddistance=\dimen406
-\pgfdecoratedinputsegmentremainingdistance=\dimen407
-\pgf@decorate@distancetomove=\dimen408
-\pgf@decorate@repeatstate=\count624
-\pgfdecorationsegmentamplitude=\dimen409
-\pgfdecorationsegmentlength=\dimen410
+\pgfdecoratedcompleteddistance=\dimen378
+\pgfdecoratedremainingdistance=\dimen379
+\pgfdecoratedinputsegmentcompleteddistance=\dimen380
+\pgfdecoratedinputsegmentremainingdistance=\dimen381
+\pgf@decorate@distancetomove=\dimen382
+\pgf@decorate@repeatstate=\count599
+\pgfdecorationsegmentamplitude=\dimen383
+\pgfdecorationsegmentlength=\dimen384
 )
-\tikz@lib@dec@box=\box149
+\tikz@lib@dec@box=\box138
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorations.text.code.tex
-\pgf@lib@dec@text@box=\box150
+\pgf@lib@dec@text@box=\box139
 )
-\tikz@lib@dec@te@box=\box151
+\tikz@lib@dec@te@box=\box140
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.pathmorphing.code.tex (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorations.pathmorphing.code.tex)) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryfit.code.tex
 File: tikzlibraryfit.code.tex 2023-01-15 v3.1.10 (3.1.10)
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarybackgrounds.code.tex
 File: tikzlibrarybackgrounds.code.tex 2023-01-15 v3.1.10 (3.1.10)
-\pgf@layerbox@background=\box152
-\pgf@layerboxsaved@background=\box153
+\pgf@layerbox@background=\box141
+\pgf@layerboxsaved@background=\box142
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/xfrac/xfrac.sty
 Package: xfrac 2024-06-04 Split-level fractions
-\l__xfrac_slash_box=\box154
-\l__xfrac_tmp_box=\box155
-\l__xfrac_denominator_bot_sep_dim=\dimen411
-\l__xfrac_numerator_bot_sep_dim=\dimen412
-\l__xfrac_numerator_top_sep_dim=\dimen413
-\l__xfrac_slash_left_sep_dim=\dimen414
-\l__xfrac_slash_right_sep_dim=\dimen415
+\l__xfrac_slash_box=\box143
+\l__xfrac_tmp_box=\box144
+\l__xfrac_denominator_bot_sep_dim=\dimen385
+\l__xfrac_numerator_bot_sep_dim=\dimen386
+\l__xfrac_numerator_top_sep_dim=\dimen387
+\l__xfrac_slash_left_sep_dim=\dimen388
+\l__xfrac_slash_right_sep_dim=\dimen389
 \l__xfrac_slash_left_muskip=\muskip23
 \l__xfrac_slash_right_muskip=\muskip24
 
@@ -1577,66 +1432,66 @@ Package: cprotect 2011/01/27 v1.0e (Bruno Le Floch)
  (/usr/local/texlive/2025/texmf-dist/tex/latex/bigfoot/suffix.sty
 Package: suffix 2006/07/15 1.5a Variant command support
 )
-\CPT@WriteOut=\write8
-\c@CPT@WriteCount=\count625
-\c@CPT@numB=\count626
-\CPT@commandatend@toks=\toks77
+\CPT@WriteOut=\write7
+\c@CPT@WriteCount=\count600
+\c@CPT@numB=\count601
+\CPT@commandatend@toks=\toks66
 ))
-Package translations Info: No language package found. I am going to use `english' as default language. on input line 879.
-\@quotelevel=\count627
-\@quotereset=\count628
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 879.
+Package translations Info: No language package found. I am going to use `english' as default language. on input line 286.
+\@quotelevel=\count602
+\@quotereset=\count603
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 286.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (./thesis.aux (./ch-front.aux) (./ch-important.aux) (./ap-about-appendices.aux))
 \openout1 = `thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 879.
-LaTeX Font Info:    ... okay on input line 879.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 286.
+LaTeX Font Info:    ... okay on input line 286.
  (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count629
-\scratchdimen=\dimen416
-\scratchbox=\box156
-\nofMPsegments=\count630
-\nofMParguments=\count631
-\everyMPshowfont=\toks78
-\MPscratchCnt=\count632
-\MPscratchDim=\dimen417
-\MPnumerator=\count633
-\makeMPintoPDFobject=\count634
-\everyMPtoPDFconversion=\toks79
+\scratchcounter=\count604
+\scratchdimen=\dimen390
+\scratchbox=\box145
+\nofMPsegments=\count605
+\nofMParguments=\count606
+\everyMPshowfont=\toks67
+\MPscratchCnt=\count607
+\MPscratchDim=\dimen391
+\MPnumerator=\count608
+\makeMPintoPDFobject=\count609
+\everyMPtoPDFconversion=\toks68
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 879.
+Package hyperref Info: Link coloring ON on input line 286.
  (./thesis.out) (./thesis.out)
-\@outlinefile=\write9
-\openout9 = `thesis.out'.
+\@outlinefile=\write8
+\openout8 = `thesis.out'.
 
  (/usr/local/texlive/2025/texmf-dist/tex/latex/translations/translations-basic-dictionary-english.trsl
 File: translations-basic-dictionary-english.trsl (english translation file `translations-basic-dictionary')
 )
-Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 879.
+Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 286.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
@@ -1676,7 +1531,7 @@ Package caption Info: End \AtBeginDocument code.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 
-Package todonotes Warning: The length marginparwidth is less than 2cm and will most likely cause issues with the appearance of inserted todonotes. The issue can be solved by adding a line like \setlength {\marginparwidth }{2cm} prior to loading the todonotes package. on input line 879.
+Package todonotes Warning: The length marginparwidth is less than 2cm and will most likely cause issues with the appearance of inserted todonotes. The issue can be solved by adding a line like \setlength {\marginparwidth }{2cm} prior to loading the todonotes package. on input line 286.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/notoccite/notoccite.sty
 Package: notoccite 2000/07/20
@@ -1694,23 +1549,13 @@ Package biblatex Info: Automatic encoding selection.
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'thesis.bbl' found.
  (./thesis.bbl)
-Package biblatex Info: Reference section=0 on input line 879.
-Package biblatex Info: Reference segment=0 on input line 879.
-\c@lstlisting=\count635
-
-Package chemgreek Info: Activating mapping `default' on line 879.
-
-\Etoc@tf=\read6
- (/usr/local/texlive/2025/texmf-dist/tex/latex/pdflscape/pdflscape.sty
-Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
- (/usr/local/texlive/2025/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
-Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PDF (HO)
-Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
-))
+Package biblatex Info: Reference section=0 on input line 286.
+Package biblatex Info: Reference segment=0 on input line 286.
+\c@lstlisting=\count610
 <graphics/gr-pu-seal-vector.pdf, id=109, 527.62581pt x 516.24864pt>
 File: graphics/gr-pu-seal-vector.pdf Graphic file (type pdf)
 <use graphics/gr-pu-seal-vector.pdf>
-Package pdftex.def Info: graphics/gr-pu-seal-vector.pdf  used on input line 888.
+Package pdftex.def Info: graphics/gr-pu-seal-vector.pdf  used on input line 295.
 (pdftex.def)             Requested size: 224.7766pt x 219.93448pt.
 
 
@@ -1732,58 +1577,55 @@ File: ch-front.tex 2024-09-12 front matter chapter
 [4
 
 ]
-\tf@toc=\write10
-\openout10 = `thesis.toc'.
-
-
 
 [5
 
-]
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 72.
+] (./thesis.toc
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 72.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 1.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 72.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 1.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 72.
+(Font)              <12> on input line 1.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 72.
+(Font)              <8> on input line 1.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 72.
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 72.
- (/usr/local/texlive/2025/texmf-dist/tex/latex/base/ulasy.fd
-File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+(Font)              <6> on input line 1.
 )
+\tf@toc=\write9
+\openout9 = `thesis.toc'.
+
+
 
 [6
 
 {/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}] (./thesis.lot)
-\tf@lot=\write11
-\openout11 = `thesis.lot'.
+\tf@lot=\write10
+\openout10 = `thesis.lot'.
 
 
 
 [7
 
 ] (./thesis.lof)
-\tf@lof=\write12
-\openout12 = `thesis.lof'.
+\tf@lof=\write11
+\openout11 = `thesis.lof'.
 
 
 
 [8
 
 ] (./thesis.lol)
-\tf@lol=\write13
-\openout13 = `thesis.lol'.
+\tf@lol=\write12
+\openout12 = `thesis.lol'.
 
 
 
@@ -1852,8 +1694,8 @@ Package hyperref Warning: The anchor of a bookmark and its parent's must not
 (/usr/local/texlive/2025/texmf-dist/tex/generic/stringenc/se-utf8.def
 File: se-utf8.def 2019/11/29 v1.12 stringenc: UTF-8
 ) [16]
-\tf@thm=\write14
-\openout14 = `thesis.thm'.
+\tf@thm=\write13
+\openout13 = `thesis.thm'.
 
  (./thesis.aux (./ch-front.aux) (./ch-important.aux) (./ap-about-appendices.aux))
  ***********
@@ -1984,46 +1826,25 @@ numeric-comp.cbx    2024/03/21 v3.20 biblatex citation style (PK/MW)
 biblatex.cfg    
 blx-case-expl3.sty    2024/03/21 v3.20 expl3 case changing code for biblatex
       bm.sty    2023/12/19 v1.2f Bold Symbol Support (DPC/FMi)
-bold-extra.sty    2001/11/13 v0.1 Use fonts from cm/mf-extra/bold
- chemfig.sty    2023/12/28 v1.66 Draw molecule with an easy syntax (CT)
 fancyvrb.sty    2024/01/20 4.5c verbatim text (tvz,hv)
-filehook.sty    2022/10/25 v0.8b Hooks for input files
-filehook-2020.sty    2022/10/25 v0.8b Hooks for input files
 listings.sty    2024/09/23 1.10c (Carsten Heinz)
 lstpatch.sty    2024/09/23 1.10c (Carsten Heinz)
  lstmisc.sty    2024/09/23 1.10c (Carsten Heinz)
 listings.cfg    2024/09/23 1.10c listings configuration
-  mhchem.sty    2024/01/29 v4.10 for typesetting chemical formulae
-l3keys2e.sty    2024-08-16 LaTeX2e option processing using LaTeX3 keys
- amsmath.sty    2024/11/05 v2.17t AMS math features
-  amsbsy.sty    1999/11/29 v1.2d Bold Symbols
-  amsopn.sty    2022/04/08 v2.04 operator names
-chemgreek.sty    2020/01/16 v1.1a interface for upright Greek letters for use in chemistry (CN)
-  cancel.sty    2013/04/12 v2.2 Cancel math terms
-    etoc.sty    2023/10/29 v1.2d Completely customisable TOCs (JFB)
-multicol.sty    2024/09/14 v1.9i multicolumn formatting (FMi)
 hyperxmp.sty    2024/03/17 v5.13 Store hyperref metadata in XMP format
  ifmtarg.sty    2018/04/16 v1.2b check for an empty argument
  ifdraft.sty
 ifluatex.sty    2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
 se-pdfdoc.def    2019/11/29 v1.12 stringenc: PDFDocEncoding
-latexsym.sty    1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
- makeidx.sty    2021/10/04 v1.0m Standard LaTeX package
 mathtools.sty    2024/10/04 v1.31 mathematical typesetting tools
  mhsetup.sty    2021/03/18 v1.4 programming setup (MH)
-  media9.sty    2024/09/16 v1.29 acrobat-9/X compatible media
-packages/pa-ditto.sty    2021-01-04 ditto package
-packages/pa-figure-dash.sty    2021-01-04 figure dash package
+ amsmath.sty    2024/11/05 v2.17t AMS math features
+  amsbsy.sty    1999/11/29 v1.2d Bold Symbols
+  amsopn.sty    2022/04/08 v2.04 operator names
+multicol.sty    2024/09/14 v1.9i multicolumn formatting (FMi)
 packages/pa-logos.sty    2024-04-26 logos package
-pdfpages.sty    2025/01/30 v0.6e Insert pages of external PDF documents (AM)
- eso-pic.sty    2023/05/03 v3.0c eso-pic (RN)
-pppdftex.def    2025/01/30 v0.6e Pdfpages driver for pdfTeX (AM)
 packages/pa-repeat.sty    2024-04-26 pa-repeat
 placeins.sty    2005/04/18  v 2.2
-    soul.sty    2023-06-14 v3.1 Permit use of UTF-8 characters in soul (HO)
-soul-ori.sty    2023-06-14 v3.1 letterspacing/underlining (mf)
-etexcmds.sty    2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
-textcomp.sty    2024/04/24 v2.1b Standard LaTeX package
 circuitikz.sty    2025/01/10{} The CircuiTikz circuit drawing package version 1.7.1
 menukeys.sty    2022/07/01 v1.6.2 -- A package to format menus, paths and shortcuts
  xstring.sty    2023/08/22 v1.86 String manipulations (CT)
@@ -2049,14 +1870,11 @@ translations-basic-dictionary-english.trsl    (english translation file `transla
 notoccite.sty    2000/07/20
  english.lbx    2024/03/21 v3.20 biblatex localization (PK/MW)
   thesis.bbl
-pdflscape.sty    2022-10-27 v0.13 Display of landscape pages in PDF
-pdflscape-nometadata.sty    2022-10-28 v0.13 Display of landscape pages in PDF (HO)
 graphics/gr-pu-seal-vector.pdf
 ch-front.tex    2024-09-12 front matter chapter
   omllmm.fd    2015/05/01 v1.6.1 Font defs for Latin Modern
  omslmsy.fd    2015/05/01 v1.6.1 Font defs for Latin Modern
  omxlmex.fd    2015/05/01 v1.6.1 Font defs for Latin Modern
-   ulasy.fd    1998/08/17 v2.2e LaTeX symbol font definitions
 ch-important.tex    2024-07-12 important chapter
  ot1lmtt.fd    2015/05/01 v1.6.1 Font defs for Latin Modern
 ap-about-appendices.tex    2022-10-05 about the appendicies appendix
@@ -2066,28 +1884,20 @@ ap-about-appendices.tex    2022-10-05 about the appendicies appendix
  se-utf8.def    2019/11/29 v1.12 stringenc: UTF-8
  ***********
 
-
-LaTeX Warning: There were undefined references.
-
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: D90B1E7D77E9F53097C9B520943B5870;1108.
-
-Package biblatex Warning: Please (re)run Biber on the file:
-(biblatex)                thesis
-(biblatex)                and rerun LaTeX afterwards.
-
+(rerunfilecheck)             Checksum: 66DDE7186D7ACE65DE42F2C6FBDF025E;1107.
 Package logreq Info: Writing requests to 'thesis.run.xml'.
 \openout1 = `thesis.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 69456 strings out of 473190
- 1595396 string characters out of 5715801
- 2684999 words of memory out of 5000000
- 91753 multiletter control sequences out of 15000+600000
- 592731 words of font info for 67 fonts, out of 8000000 for 9000
+ 65242 strings out of 473190
+ 1508699 string characters out of 5715801
+ 2568569 words of memory out of 5000000
+ 87633 multiletter control sequences out of 15000+600000
+ 592100 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 111i,8n,115p,1530b,2533s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 111i,8n,115p,1529b,2533s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 pdfTeX warning (dest): name{cite.0@knuth2012} has been referenced but does not exist, replaced by a fixed one
 
@@ -2095,10 +1905,10 @@ pdfTeX warning (dest): name{cite.0@knuth2012} has been referenced but does not e
 pdfTeX warning (dest): name{cite.0@PurdueThesis-mailing-list} has been referenced but does not exist, replaced by a fixed one
 
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmtt12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmtt8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/zapfding/uzdr.pfb>
-Output written on thesis.pdf (16 pages, 227282 bytes).
+Output written on thesis.pdf (16 pages, 227279 bytes).
 PDF statistics:
- 303 PDF objects out of 1000 (max. 8388607)
- 232 compressed objects within 3 object streams
- 44 named destinations out of 1000 (max. 500000)
+ 302 PDF objects out of 1000 (max. 8388607)
+ 231 compressed objects within 3 object streams
+ 43 named destinations out of 1000 (max. 500000)
  292 words of extra memory for PDF output out of 10000 (max. 10000000)
 

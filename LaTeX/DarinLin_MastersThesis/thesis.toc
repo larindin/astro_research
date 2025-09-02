@@ -1,14 +1,13 @@
-\@ifundefined {etoctocstyle}{\let \etoc@startlocaltoc \@gobble \let \etoc@settocdepth \@gobble \let \etoc@depthtag \@gobble \let \etoc@setlocaltop \@gobble }{}
-\contentsline {chapter}{LIST OF TABLES}{7}{chapter*.5}%
-\contentsline {chapter}{LIST OF FIGURES}{8}{chapter*.6}%
-\contentsline {chapter}{LIST OF LISTINGS}{9}{chapter*.7}%
-\contentsline {chapter}{LIST OF SYMBOLS}{10}{chapter*.8}%
-\contentsline {chapter}{ABBREVIATIONS}{11}{chapter*.9}%
-\contentsline {chapter}{ABSTRACT}{12}{chapter*.10}%
-\contentsline {chapter}{\numberline {1}{IMPORTANT---READ THIS FIRST}}{13}{chapter.11}%
-\contentsline {chapter}{\numberline {A}{ABOUT THE APPENDICES}}{14}{chapter.12}%
-\contentsline {section}{\numberline {A.1}Paragraphs}{14}{section.13}%
-\contentsline {section}{\numberline {A.2}Section Heading}{15}{section.14}%
-\contentsline {subsection}{\numberline {A.2.1}Subsection heading}{15}{subsection.15}%
-\contentsline {subsubsection}{Subsubsection heading}{15}{section*.16}%
-\contentsline {section}{\numberline {A.3}Text math}{16}{section.17}%
+\contentsline {chapter}{LIST OF TABLES}{7}{chapter*.4}%
+\contentsline {chapter}{LIST OF FIGURES}{8}{chapter*.5}%
+\contentsline {chapter}{LIST OF LISTINGS}{9}{chapter*.6}%
+\contentsline {chapter}{LIST OF SYMBOLS}{10}{chapter*.7}%
+\contentsline {chapter}{ABBREVIATIONS}{11}{chapter*.8}%
+\contentsline {chapter}{ABSTRACT}{12}{chapter*.9}%
+\contentsline {chapter}{\numberline {1}{IMPORTANT---READ THIS FIRST}}{13}{chapter.10}%
+\contentsline {chapter}{\numberline {A}{ABOUT THE APPENDICES}}{14}{chapter.11}%
+\contentsline {section}{\numberline {A.1}Paragraphs}{14}{section.12}%
+\contentsline {section}{\numberline {A.2}Section Heading}{15}{section.13}%
+\contentsline {subsection}{\numberline {A.2.1}Subsection heading}{15}{subsection.14}%
+\contentsline {subsubsection}{Subsubsection heading}{15}{section*.15}%
+\contentsline {section}{\numberline {A.3}Text math}{16}{section.16}%
