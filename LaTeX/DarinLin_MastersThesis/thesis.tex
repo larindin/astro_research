@@ -465,30 +465,6 @@
 % For chemical figures.
 \usepackage{chemfig}
 
-% For typesetting cryptography pseudocode, algorithms, and protocols.
-% See
-%     https://mirror.las.iastate.edu/tex-archive/macros/latex/contrib/cryptocode/cryptocode.pdf
-\usepackage
-[
-  n,            % or lambda
-  advantage,
-  operators,
-  sets,
-  adversary,
-  landau,
-  probability,
-  notions,
-  logic,
-  ff,
-  mm,
-  primitives,
-  events,
-  complexity,
-  oracles,
-  asymptotics,
-  keys,
-]
-{cryptocode}
 
 % Define
 %    \VerbatimInput[options]{filename}
@@ -500,9 +476,6 @@
 
 % For \InpuutIfFileExists.
 \usepackage{filehook}
-
-% Use OpenType fonts in LuaLaTeX.
-\usepackage{fontspec}
 
 % For nlui testing.
 \usepackage{listings}
@@ -597,9 +570,6 @@
 % For `\Box'.
 \usepackage{latexsym}
 
-% Used in ap-colophon.tex.
-\usepackage{luacode}
-
 % For indexing.  Making an index is optional.
 % Make these commands available:
 %     COMMAND           DESCRIPTION
@@ -658,29 +628,6 @@
 \usepackage{pa-logos}
 
 \usepackage{pdfpages}
-
-% Follow ISO 80000-2:2019:
-%   o  The e, i, j, and pi constants should be in an upright font.
-%   o  The ordinary derivative operator d should be in an upright font.
-\usepackage{pa-mismath}
-  % For letter in ('e', 'i', 'j'):
-  %     o  \MathUp{letter} typesets letter in an upright font from now on.
-  %        Use \mathit{letter} to get a math italic letter
-  %        when Mathup{letter} is active.
-  %     o  \MathIt{letter} typesets letter in a math italic font from now on.
-  %        Use \mathup{letter} to get an upright letter
-  %        when MathIt{letter} is active.
-  %
-  % \pinumber typesets pi in an upright font from now on.
-  %  Use \itpi to get a math italic pi when \pinumber is active.
-  %  
-  % \pinormal typesets pi in a math italic font from now on.
-  % Use \text{\pi} to get an upright pi when \pinormal is active.
-  %
-  % Adjust these are needed for your document.
-  \MathUp{e}  \MathUp{i}  \MathUp{j}  \pinumber
-  %
-  % Use \di for ordinary derivative operator.
   
 % This does not depend on the pa-mismath package.
 % Do more ISO 80000-2:2019 stuff.
@@ -753,12 +700,6 @@
   %
   % Draw the background after the foreground.
   \usetikzlibrary{backgrounds}	% drawing the background after the foreground
-
-% Needed for the Feynman diagram in ap-physics.tex.  Tikz-feynman
-% requires LuaLaTeX instead of pdflatex be run.  LuaLaTeX screws up
-% the horizontal position of the list of figures---this is a known bug.
-% The Thesis Office accepts theses with this problem.
-\usepackage[compat=1.1.0]{tikz-feynman}
 
 % The vertical space between a table heading and the table contents
 % in a tabular environment.
@@ -906,12 +847,6 @@
 %     \usepackage{tikz}
 \usepackage{pa-typographic-conventions}
 
-
-% For the \begin{example} ... \end{example} environment
-% used in ap-linguistics.tex.
-\usepackage{covington}
-\usepackage{slgloss}
-
 % "CTAN---Comprehensive" did not get hyphenated and extended
 % into the right margin when using BibLaTeX and the apa style.
 % These did not change it:
@@ -952,18 +887,6 @@
 
 \maketitle
 
-% Define front matter
-%     dedication
-%     acknowledgments
-%     preface
-%     table of contents
-%     list of tables
-%     list of figures
-%     list of symbols
-%     abbreviations
-%     nomenclature
-%     glossary
-%     abstract
 \include{ch-front}
 
 %
@@ -972,28 +895,6 @@
 
 % 'Important---Read This First' chapter.
 \include{ch-important}
-
-% Introductions may precede the first chapters or major divisions of theses.
-% Reference: TM2017, page 31.
-\include{ch-introduction}
-
-% Summary and/or conclusions are optional but often used.
-% The summary and/or conclusions often are the last
-% the last major division(s) of the text.
-% Reference: TM2017 page 32.
-\include{ch-summary}
-
-% Recommendations are optional.
-% You may include recommendations as a major division if your
-% subject matter and research dictate.
-% Reference: TM2017 page 32.
-\include{ch-recommendations}
-
-% Test \begin{chapteracknowledgement}...\end{chapteracknowledgement}, etc.
-%%%% \include{ch-test-miscellaneous}
-
-% Test per-chapter references.
-%%%% \include{ch-test-per-chapter-references}
 
 \makeatletter  % commented out on 2022-01-26
   \defbibenvironment{bibliography}
@@ -1022,16 +923,8 @@
 % \immediate\setlength{\labelnumberwidth}{1.5in} %%%%% was commented out
 \setlength{\labelwidth}{1.5in}
 
-{%
-  % Make _ in URLs visible.
-  % \def\t{\char'137}%
-  \catcode`*=\active
-  \def*{\char'137}%  \char'137 is _
-  \PrintBibliography
-}
-
 % Appendices are optional.  Not all theses contain appendices.
-% An appendix is used for supplementary illustrative material,
+% An appendix is used for suppleentary illustrative material,
 % original data, computer programs, and other material that is not
 % necessarily appropriate for inclusion within the text of your
 % thesis.
@@ -1041,6 +934,8 @@
 % one appendix.
 \appendices
 
+\include{ap-about-appendices}
+
 % My filename conventions:
 %     FILE THAT START WITH    ARE
 %     ap-                     appendices
@@ -1048,131 +943,4 @@
 %     gr-                     graphics
 %     pa-                     packages
 %     z                       temporary files
-
-  % "About Appendices" appendix.
-  \include{ap-about-appendices}
-
-  % Accessibility.
-  \include{ap-accessibility}
-  
-  % "Bugs" appendix.
-  \include{ap-bugs}
-
-  % Check margins.
-  \include{ap-check-margins}
-
-  % Demonstrate how to do separate appendices per chapter.
-  \include{ap-chapter-appendices}
-
-  % Citations and references.
-  \include{ap-citations-references}
-
-  % Common mistakes.
-  \include{ap-common-mistakes}
-
-  % Defining commands.
-  \include{ap-defining-commands}
-
-  % Deprecated software.
-  \include{ap-deprecated-software}
-
-  % Figures.
-  \include{ap-figures}
-
-  % Frequently Asked Questions.
-  \include{ap-frequently-asked-questions}
-
-  % Graphics.
-  \include{ap-graphics}
-
-  % How to debug LaTeX Problems.
-  \include{ap-how-to-debug-latex-problems}
-
-  % Ignore these references.
-  \include{ap-ignore-these-references}
-
-  % Logos.
-  \include{ap-logos}
-
-  % Numbers and Units.
-  \include{ap-numbers-and-units}
-
-  % Resources.
-  \include{ap-resources}
-
-  % Tables.
-  \include{ap-tables}
-
-  % Special characters.
-  \include{ap-special-characters}
-
-  % Testing.
-  \include{ap-testing}
-
-  % Text.
-  \include{ap-text}
-
-  % Video.
-  % \include{ap-video}
-
-  % Astronomy.
-  \include{ap-astronomy}
-
-  % Biology.
-  \include{ap-biology}
-
-  % Chemistry.
-  \include{ap-chemistry}
-
-  % Computer Science.
-  \include{ap-computer-science}
-
-  % Electrical Engineering.
-  \include{ap-electrical-engineering}
-
-  % Linguistics.
-  \include{ap-linguistics}
-
-  % Mathematics.
-  \include{ap-mathematics}
-
-  % Music.
-  \include{ap-music}
-
-  % Physics.
-  \include{ap-physics}
-
-  % Notes and footnotes are optional.
-  % Reference: TM2017 page 34.
-  % I have not implemented this yet.  Mark Senn 2002-06-03
-
-  % A vita is optional for masters theses
-  % and required for doctoral dissertations.
-  % Reference: TM2017 page 13.
-  \include{ap-vita}
-
-  % Listing or including publications(s) is optional.
-% \include{ap-publications}
-% \includepdf[scale=0.9, pages=1]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.25truein, scale=0.9, pages=1]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.2truein,  scale=0.9, pages=2]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.2truein,  scale=0.9, pages=3]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.2truein,  scale=0.9, pages=4]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.2truein,  scale=0.9, pages=5]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.2truein,  scale=0.9, pages=6]{ztemp-sgopalsa-paper.pdf}
-% \includepdf[offset=-1.5truein 0.2truein,  scale=0.9, pages=7]{ztemp-sgopalsa-paper.pdf}
-
-  % Print the index.
-  % The index is optional.
-  \pdfbookmark{INDEX}{index}
-  \printindex
-
-  % If \ZZshowcolophon is true, print the colophon.
-  \pdfbookmark{COLOPHON}{colophon}
-  \ifthen{\equal{true}{\ZZshowcolophon}}
-    {\include{ap-colophon}}
-
-% LaTeX won't read after the \end{document} command.
-% You can put notes to yourself or LaTeX input not
-% ready for use after "\end{document}" if you'd like.
 \end{document}

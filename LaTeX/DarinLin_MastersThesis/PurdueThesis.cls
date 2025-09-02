@@ -360,11 +360,6 @@
   \sys_ensure_backend:  % forces loading of backend, in older systems use \RequirePackage{expl3}
   \pdf_version_gset:n{1.7}
 
-  % Spaces are ignored inside \ExplSyntaxOn.
-  % Use ▯ (Unicode U+25AF) instead of \space for a space.
-  \catcode`\▯=\active
-  \def▯{\space }
-
   % Define some LaTeX 3 style variants of control sequences..
   \cs_generate_variant:Nn \prop_get:NnNTF {NV}
   \cs_generate_variant:Nn \str_case:nnTF {V}

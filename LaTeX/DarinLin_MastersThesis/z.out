@@ -1,0 +1,24 @@
+
+
+\section{Text math}
+
+If items in a list are narrow like these Greek characters,\\
+    \I2 \verb+$\alpha$, $\beta$, and $\gamma$+\\
+I'd input the line like this\\
+    \I2 \verb+$\alpha$,~$\beta$, and~$\gamma$+\\
+where the \verb+~+ is a tie
+that ties together what's before and after it on the same line of the output
+\cite[page~92]{knuth2012}.
+
+This text is the correct length to show what happens with and without ties:
+$\alpha$,
+$\beta$,
+and $\gamma$.
+See how the line gets split
+and the~$\gamma$ is at the beginning of the line?
+
+This text is the correct length to show what happens with and without ties:
+$\alpha$,~$\beta$,
+and~$\gamma$.
+See how the line gets compressed a little bit so the~$\gamma$
+is not at the beginning of the line?
