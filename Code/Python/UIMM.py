@@ -67,6 +67,7 @@ class UIMM_filter():
                  measurement_function,
                  process_noise_covariances,
                  mode_transition_matrix,
+                 ukf_parameters: tuple,
                  underweighting_ratio = 1.
                  ):
         
@@ -76,6 +77,9 @@ class UIMM_filter():
         self.dynamics_functions_args = dynamics_functions_args
         self.measurement_function = measurement_function
         self.process_noise_covariances = process_noise_covariances
+        self.alpha = ukf_parameters[0]
+        self.beta = ukf_parameters[1]
+        self.kappa = ukf_parameters[2]
         self.mode_transition_matrix = mode_transition_matrix
         self.underweighting_ratio = underweighting_ratio
     
@@ -134,7 +138,11 @@ class UIMM_filter():
 
                 mixed_state, mixed_covariance = self.mixed_initial_conditions(mode_index, previous_mode_probabilities, previous_posterior_estimates, previous_posterior_covariances)
 
-                anterior_estimate, anterior_covariance = self.time_update(time_index, mixed_state, mixed_covariance, timespan, mode_index, previous_mode_probabilities[mode_index])
+                initial_sigma_points, weights = self.generate_sigma_points(mixed_state, mixed_covariance)
+
+                propagated_sigma_points = self.time_update(time_index, initial_sigma_points, timespan, mode_index)
+
+                anterior_estimate, anterior_covariance = self.calculate_mean_covariance(propagated_sigma_points, weights, mode_index)
 
                 posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(time_index, anterior_estimate, anterior_covariance, measurement_function_args, current_measurement)
 
@@ -158,6 +166,61 @@ class UIMM_filter():
         
         return UIMM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, output_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, output_covariance_vals, 0, mode_probability_vals)
 
+    def generate_sigma_points(self, mean, covariance):
+
+        state_dim = len(mean)
+        num_sigma_points = 2*state_dim + 1
+        
+        l = self.alpha**2 * (state_dim + self.kappa) - state_dim
+        beta = self.beta
+        cov_sqrt = scipy.linalg.sqrtm((state_dim + l)*covariance)
+
+        sigma_points = np.empty((state_dim, num_sigma_points))
+        weights = np.empty(num_sigma_points)
+        sigma_points[:, 0] = mean
+        weights[0] = l / (state_dim + l)
+        weights[1:] = 1 / (2 * (state_dim + l))
+
+        for sigma_point_index in range(1, num_sigma_points):
+            if sigma_point_index % 2 == 1:
+                sigma_points[:, sigma_point_index] = mean + cov_sqrt[int((sigma_point_index - 1)/2), :]
+            else:
+                sigma_points[:, sigma_point_index] = mean - cov_sqrt[int((sigma_point_index - 1)/2), :]
+
+        return sigma_points, weights
+    
+    def calculate_mean_covariance(self, sigma_points, weights, mode_index):
+        
+        num_sigma_points = len(weights)
+        state_size = len(sigma_points[:, 0])
+        
+        mean = np.zeros(state_size)
+        for sigma_point_index in range(num_sigma_points):
+            mean += sigma_points[:, sigma_point_index] * weights[sigma_point_index]
+        
+        covariance = np.zeros((state_size, state_size))
+        for sigma_point_index in range(num_sigma_points):
+            difference = sigma_points[:, sigma_point_index] - mean
+            covariance += weights[sigma_point_index] * (difference[:, None] @ difference[None, :])
+        covariance += self.process_noise_covariances[mode_index]
+        covariance = enforce_symmetry(covariance)
+
+        return mean, covariance
+    
+    def time_update(self, time_index, sigma_points, timespan, mode_index):
+
+        dynamics_eq = self.dynamics_functions[mode_index]
+        args = self.dynamics_functions_args[mode_index]
+
+        num_sigma_points = np.size(sigma_points, axis=1)
+        propagated_sigma_points = np.empty(np.shape(sigma_points))
+
+        for sigma_point_index in range(num_sigma_points):
+            ICs = sigma_points[:, sigma_point_index]
+            propagated_sigma_points[:, sigma_point_index] = scipy.integrate.solve_ivp(dynamics_eq, [0,timespan], ICs, args=args, atol=1e-12, rtol=1e-12).y[:, -1]
+
+        return propagated_sigma_points
+    
     def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
 
         measurement = measurement[np.isnan(measurement) == False]
@@ -217,21 +280,6 @@ class UIMM_filter():
 
         return posterior_estimate, posterior_covariance, denominator, exponent
 
-    def time_update(self, time_index, mixed_initial_conditions, mixed_initial_covariance, timespan, mode_index, mode_probability):
-
-        state_size = len(mixed_initial_conditions)
-        dynamics_eq = self.dynamics_functions[mode_index]
-        args = self.dynamics_functions_args[mode_index]
-
-        ICs = np.concatenate((mixed_initial_conditions, np.eye(state_size).flatten()))
-        propagation = scipy.integrate.solve_ivp(dynamics_eq, [0,timespan], ICs, args=args, atol=1e-12, rtol=1e-12).y[:, -1]
-
-        STM = propagation[state_size:state_size**2 + state_size].reshape((state_size, state_size))
-        anterior_estimate = propagation[0:state_size]
-        anterior_covariance = enforce_symmetry(STM @ mixed_initial_covariance @ STM.T + self.process_noise_covariances[mode_index])
-
-        return anterior_estimate, anterior_covariance
-    
     def mode_probability_update(self, previous_mode_probabilities, denominators, exponents, current_measurement):
 
         # if len(current_measurement[np.isnan(current_measurement) == False]) == 0:

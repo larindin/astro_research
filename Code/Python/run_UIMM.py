@@ -6,7 +6,7 @@ import scipy.integrate
 from configuration_IMM import *
 from CR3BP import *
 from CR3BP_pontryagin import *
-from IMM import *
+from UIMM import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
@@ -17,54 +17,28 @@ def coasting_costate_dynamics_equation(t, X, mu, umax):
 
     state = X[0:6]
     costate = X[6:12]
-    STM = X[12:156].reshape((12, 12))
 
     ddt_state = CR3BP_DEs(t, state, mu)
 
     # natural costate dynamics
     ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
-    jacobian = minimum_time_jacobian(state, costate, mu, umax)
-    jacobian[0:6, 6:12] = 0
 
     # zero costate dynamics
-    # K = np.diag(np.full(6, 0))
-    # jacobian = coasting_costate_jacobian(state, mu, K)
     # ddt_costate = np.zeros(6)
 
-    # # exponential decay
+    # exponential decay
     # K = np.diag(np.full(6, 1e1))
-    # jacobian = coasting_costate_jacobian(state, mu, K)
     # ddt_costate = -K @ costate
-    
-    ddt_STM = jacobian @ STM
 
-    return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
+    return np.concatenate((ddt_state, ddt_costate))
 
 def min_energy_dynamics_equation(t, X, mu, umax):
-    
-    state = X[0:6]
-    costate = X[6:12]
-    STM = X[12:156].reshape((12, 12))
-
-    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
-
     ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
-    ddt_STM = jacobian @ STM
-
-    return np.concatenate((ddt_state, ddt_STM.flatten()))
+    return ddt_state
 
 def min_time_dynamics_equation(t, X, mu, umax):
-
-    state = X[0:6]
-    costate = X[6:12]
-    STM = X[12:156].reshape((12, 12))
-
-    jacobian = minimum_time_jacobian(state, costate, mu, umax)
-
-    ddt_state = minimum_time_ODE(0, X[0:12], mu, umax)
-    ddt_STM = jacobian @ STM
-
-    return np.concatenate((ddt_state, ddt_STM.flatten()))
+    ddt_state = minimum_time_ODE(0, X, mu, umax)
+    return ddt_state
 
 def angles_measurement_equation(time_index, X, measurement_variances, sensor_position_vals, check_results):
 
@@ -133,7 +107,7 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 coasting_dynamics_equation = coasting_costate_dynamics_equation
 maneuvering_dynamics_equation = min_time_dynamics_equation
 initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_costate_covariance)
-process_noise_covariances = [coasting_costate_process_noise_covariance, min_time_process_noise_covariance]
+process_noise_covariances = [coasting_costate_process_noise_covariance_unscented, min_time_process_noise_covariance_unscented]
 
 initial_estimates = []
 measurements = []
@@ -165,7 +139,8 @@ if vary_scenarios == False:
         moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
         check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
-    # check_results[:, :] = 1
+        if gap == False:
+            check_results[sensor_index, :] = 1
 
 for run_index in range(num_runs):
 
@@ -199,7 +174,8 @@ for run_index in range(num_runs):
     
     # check_results[:, :] = 1
 
-    initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e0)))
+    initial_estimates.append(generator.multivariate_normal(np.concatenate((truth_vals[0:6, 0], truth_vals[6:12, 0])), initial_covariance))
+    # initial_estimates.append(np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e0)))
     measurement_vals = generate_sensor_measurements(time_vals, truth_vals, measurement_equation, individual_measurement_size, measurement_noise_covariance, sensor_position_vals, check_results, generator)
     measurement_vals = angles2PV(measurement_vals)
     measurement_args.append((measurement_variances, sensor_position_vals, check_results))
@@ -213,14 +189,15 @@ dynamics_functions = (coasting_dynamics_equation, maneuvering_dynamics_equation)
 dynamics_functions_args = (dynamics_args, dynamics_args)
 
 
-IMM = IMM_filter(dynamics_functions,
-                 dynamics_functions_args,
-                 filter_measurement_function,
-                 process_noise_covariances,
-                 mode_transition_matrix,
-                 underweighting_ratio)
+UIMM = UIMM_filter(dynamics_functions,
+                dynamics_functions_args,
+                filter_measurement_function,
+                process_noise_covariances,
+                mode_transition_matrix,
+                ukf_parameters,
+                underweighting_ratio)
 
-results = IMM.run_MC(initial_estimates,
+results = UIMM.run_MC(initial_estimates,
                      initial_covariance,
                      initial_mode_probabilities,
                      time_vals,
@@ -296,12 +273,12 @@ if save == True:
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", scale="linear", alpha=0.15)
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15)
+# plot_3sigma(time_vals, control_errors, control_3sigmas, "control", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdar", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", scale="linear", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
-plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
+# plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdar", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", alpha=0.15)
 
@@ -313,32 +290,16 @@ for run_index in range(num_runs):
     ax.step(plot_time, np.sum(measurement_args[run_index][2], axis=0), alpha=0.25)
 ax.set_ylabel("num sensors")
 
-rmse_r_fig = plt.figure()
-rmse_ax_labels = ["$x$", "$y$", "$z$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_r_fig.add_subplot(thing)
-    ax.plot(plot_time, avg_error_vals[ax_index], alpha=0.75)
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-ax.set_xlabel("Time [days]")
-
-rmse_v_fig = plt.figure()
-rmse_ax_labels = ["$v_x$", "$v_y$", "$v_z$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_v_fig.add_subplot(thing)
-    ax.plot(plot_time, avg_error_vals[ax_index+3], alpha=0.75)
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-ax.set_xlabel("Time [days]")
-
-rmse_a_fig = plt.figure()
-rmse_ax_labels = ["$a_x$", "$a_y$", "$a_z$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = rmse_a_fig.add_subplot(thing)
-    ax.plot(plot_time, avg_ctrl_error_vals[ax_index], alpha=0.75)
-    ax.set_ylabel(rmse_ax_labels[ax_index])
-ax.set_xlabel("Time [days]")
+mae_fig = plt.figure()
+ax = mae_fig.add_subplot(311)
+ax.plot(plot_time, avg_position_norm_errors[0])
+ax.set_ylabel("position")
+ax = mae_fig.add_subplot(312)
+ax.plot(plot_time, avg_velocity_norm_errors[0])
+ax.set_ylabel("velocity")
+ax = mae_fig.add_subplot(313)
+ax.plot(plot_time, avg_ctrl_norm_errors[0])
+ax.set_ylabel("control")
 
 control_fig = plt.figure()
 control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
@@ -351,6 +312,16 @@ for ax_index in range(3):
     ax.set_ylabel(control_ax_labels[ax_index])
 ax.set_xlabel("Time [days]")
 control_fig.legend(["Truth", "Estimated"])
+
+costate_fig = plt.figure()
+costate_ax_labels = [r"$\lambda_4$", r"$\lambda_5$", r"$\lambda_6$"]
+for ax_index in range(3):
+    thing = int("31" + str(ax_index + 1))
+    ax = costate_fig.add_subplot(thing)
+    for run_index in range(num_runs):
+        ax.scatter(plot_time, output_estimates[run_index][ax_index+9], alpha=0.15, s=4)
+    ax.set_ylabel(costate_ax_labels[ax_index])
+ax.set_xlabel("Time [days]")
 
 ax = plt.figure().add_subplot(projection="3d")
 ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
@@ -380,27 +351,6 @@ ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
     ax.plot(plot_time, lambda_ratios[0, :, run_index])
 
-ax = plt.figure(layout="constrained").add_subplot()
-# ax.plot(plot_time, truth_vals[6])
-# ax.plot(plot_time, truth_vals[7])
-# ax.plot(plot_time, truth_vals[8])
-for run_index in range(num_runs):
-    ax.plot(plot_time, output_estimates[run_index][6])
-    ax.plot(plot_time, output_estimates[run_index][7])
-    ax.plot(plot_time, output_estimates[run_index][8])
-ax.set_ylim(-200, 200)
-# ax.set_yscale("log")
-
-ax = plt.figure(layout="constrained").add_subplot()
-# ax.plot(plot_time, truth_vals[9])
-# ax.plot(plot_time, truth_vals[10])
-# ax.plot(plot_time, truth_vals[11])
-for run_index in range(num_runs):
-    ax.plot(plot_time, output_estimates[run_index][9])
-    ax.plot(plot_time, output_estimates[run_index][10])
-    ax.plot(plot_time, output_estimates[run_index][11])
-# ax.set_ylim(-5, 5)
-# ax.set_yscale("log")
 
 plt.show(block=False)
 plt.pause(0.001) # Pause for interval seconds.

@@ -216,7 +216,6 @@ for run_index in range(num_runs):
 plot_moon(ax, mu, "nd")
 ax.set_aspect("equal")
 
-
 plt.show(block=False)
 plt.pause(0.001)
 input("press [enter] to close")
