@@ -1,0 +1,190 @@
+\ProvidesFile{ch-methodology.tex}
+
+\chapter{METHODOLOGY}
+
+\section{Pontryagin's Minimum Principle in the CR3BP}
+
+\subsection{Minimum-Fuel}
+
+We will first consider the minimum-fuel cost function, where the objective is to minimize the integral of the control norm $\|\bm{u}\|_2$ over the trajectory. The minimum-fuel Lagrangian and control Hamiltonian $L_{MF}$ and $H_{MF}$ are then
+\begin{align}
+    L_{MF} &= \|\bm{u}\|_2 \\
+    H_{MF} &= \|\bm{u}\|_2 + \bm{\lambda}^\top (\bm{g}(\bm{\xi}) + B\bm{u})
+\end{align}
+To apply the control optimality condition (Eq. \ref{PMP optimal control}), we rewrite the Hamiltonian $H_{MF}$ in terms of the primer vector $\bm{p} = B^\top \bm{\lambda}$. The rewritten Hamiltonian $H_{MF}$ is then
+\begin{equation}
+    H_{MF} = \|\bm{u}\|_2 + \bm{u}^\top \bm{p} + \bm{\lambda}^\top \bm{g}(\bm{\xi})
+\end{equation}
+After rewriting $H_{MF}$ with $\bm{p}$, it is seen that $H_{MF}$ is minimized when $\bm{u}$ has its largest admissible magnitude and is antiparallel to $\bm{p}$, but only when $\|\bm{p}\|_2 > 1$ \cite{lawden1963optimal}. When $\|\bm{p}\|_2 < 1$, $H_{MF}$ is minimized when $\bm{u} = \bm{0}$. The resulting optimal control is then
+\begin{equation}
+    \bm{u}_{MF}^* = \Gamma^*_0 \hat{\bm{u}}^*, \quad \Gamma^*_0 = \begin{cases}
+        u_{\text{max}}, & \|\bm{p}\|_2 > 1 \\
+        0, & \|\bm{p}\|_2 < 1
+    \end{cases}, \quad \hat{\bm{u}}^* = -\frac{\bm{p}}{\|\bm{p}\|_2}, \quad \bm{p} = B^\top \bm{\lambda} \label{eq:min-fuel control}
+\end{equation}
+Note that the resulting optimal control is "bang-bang," requiring instantaneous switching between maximum and minimum control magnitudes. To avoid the numerical difficulties in applying this control directly, the optimal control is approximated with a hyperbolic tangent smoothing function:  
+\begin{equation}
+    \Gamma^* = \frac{u_{\text{max}}}{2} \left[1 + \tanh \left(\frac{\|\bm{p}\|_2 - 1}{\rho} \right)\right] \approx \Gamma_0^* \label{hyperbolic tangent smoothing}
+\end{equation}
+\noindent where $\rho$ is a smoothing parameter such that $\lim_{\rho \rightarrow 0} \Gamma^* = \Gamma_0^*$ \cite{taheri2018generic, junkins2019exploration}.
+
+Applying the necessary condition for the costate dynamics in Eq. \ref{PMP costate dynamics} yields
+\begin{equation}
+    \dot{\bm{\lambda}}_{MF}^* = -G(\bm{\xi})^\top \bm{\lambda} \label{eq:min-fuel-costate-dynamics}
+\end{equation}
+\noindent where $G(\bm{\xi}) = \partial \bm{g}(\bm{\xi})/\partial \bm{\xi}$ is the Jacobian matrix of the ballistic CR3BP dynamics.
+
+\subsubsection{Minimum-Time}
+
+We will now consider the minimum-time optimal control problem. The Lagrangian and control Hamiltonian $L_{MT}$ and $H_{MT}$ are then
+\begin{align}
+    L_{MT} &= 1 \\
+    H_{MT} &= 1 + \bm{\lambda}^\top (\bm{g}(\bm{\xi}) + B\bm{u})
+\end{align}
+To apply the control optimality condition (Eq. \ref{PMP optimal control}), we rewrite the Hamiltonian with the primer vector $\bm{p} = B^\top \bm{\lambda}$. The rewritten Hamiltonian $H_{MT}$ is then
+\begin{align}
+    H_{MT} = 1 + \bm{u}^\top \bm{p}
+\end{align}
+Now considering $H_{MT}$ formulated with the primer vector $\bm{p}$, $H_{MT}$ is minimized when $\bm{u}$ has its largest admissible magnitude and is antiparallel to $\bm{p}$. The resulting optimal control is then
+\begin{align}
+    \bm{u}_{MT}^* = - u_\text{max}\hat{\bm{u}}^*, \quad \hat{\bm{u}}^* = -\frac{\bm{p}}{\|\bm{p}\|_2}, \quad \bm{p} = B^\top \bm{\lambda} \label{eq:min-time-control}
+\end{align}
+Note that $\bm{u}_{MT}^* = \bm{u}_{MF}^*$ when $\|\bm{p}\|_2 > 1$. This will be the justification for modeling minimum-fuel optimal control as minimum-time optimal control in the filtering implementation.
+
+Applying the necessary condition for the costate dynamics given in Eq. \ref{PMP costate dynamics} yields
+\begin{equation}
+    \dot{\bm{\lambda}}_{MT}^* = -G(\bm{\xi})^\top \bm{\lambda} \label{eq:min-time-costate-dynamics}
+\end{equation}
+\noindent where $G(\bm{\xi}) = \partial \bm{g}(\bm{\xi})/\partial \bm{\xi}$ is the Jacobian matrix of the natural CR3BP dynamics. Note that the expression for $\dot{\bm{\lambda}}_{MT}^*$ (Eq. \ref{eq:min-time-costate-dynamics}) is identical to the expression for $\dot{\bm{\lambda}}_{MF}^*$ (Eq. \ref{eq:min-fuel-costate-dynamics}).
+
+
+\subsection{Optimal Control IMM (OCIMM)}
+
+To track maneuvering low-thrust spacecraft in cislunar space, we utilize an IMM with two modes: a coasting mode ($\tau=1$) and a maneuvering mode ($\tau=2$). The state vector of the estimator includes the original CR3BP state as well as the costate, written as $\bm{x} = [\bm{\xi}^\top, \bm{\lambda}^\top]^\top \in \mathbb{R}^{12}$. The costate can further be subdivided to be written as $\bm{\lambda} = [\bm{\lambda}_r^\top, \bm{\lambda}_v^\top]^\top$, where $\bm{\lambda}_r \in \mathbb{R}^3$ and $\bm{\lambda}_v \in \mathbb{R}^3$ are the vectors of costates corresponding to the vectors of states $\bm{r}$ and $\bm{v}$, respectively. The dynamics of the maneuvering mode are a spacecraft operating under an assumed minimum-time optimal control policy:
+\begin{align}
+    \bm{f}^{(2)}(\bm{x}) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\lambda}}
+    \end{bmatrix} = \begin{bmatrix}
+        \bm{g}(\bm{\xi}) + B \bm{u}^*_{MT} \\
+        -G(\bm{\xi})^\top \bm{\lambda}
+    \end{bmatrix}
+\end{align}
+The justification behind assuming time-optimal dynamics is that the costates during a thrusting arc of a fuel-optimal control policy would produce an identical control profile under a time-optimal control policy. This is known by comparing the expressions for $\bm{u}^*_{MF}$ and $\dot{\bm{\lambda}}_{MF}^*$ (Eqs. \ref{eq:min-fuel control}, \ref{eq:min-fuel-costate-dynamics}) with the expressions for $\bm{u}^*_{MT}$ and $\dot{\bm{\lambda}}_{MT}^*$ (Eqs. \ref{eq:min-time-control}, \ref{eq:min-time-costate-dynamics}). While it is possible to directly implement an assumed fuel-optimal control policy into the OCIMM, the extreme nonlinearity resulting from the bang-bang control (even with hyperbolic tangent smoothing given in Eq. \ref{hyperbolic tangent smoothing}) causes divergence problems when used in a sequential filter, as observed from numerical experiments. Further research to enable direct implementation of assumed minimum-fuel control may prove beneficial for improved trajectory prediction, even in the presence of extended observation gaps. 
+
+The coasting mode ($\tau=1$) has assumed ballistic CR3BP dynamics for the state, and the same time-optimal dynamics for the costate:
+\begin{align}
+    \bm{f}^{(1)}(\bm{x}) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\lambda}}
+    \end{bmatrix} = \begin{bmatrix}
+        \bm{g}(\bm{\xi}) \\
+        -G(\bm{\xi})^\top \bm{\lambda}
+    \end{bmatrix}\label{eq:OCIMM-coasting-dynamics}
+\end{align}
+\noindent By having the costate dynamics of the coasting mode be the same time-optimal costate dynamics, we can track the a spacecraft maneuvering under a fuel-optimal trajectory with greater numerical stability. 
+
+Consider a spacecraft maneuvering under a fuel-optimal trajectory. Since the costate dynamics of fuel-optimal and time-optimal trajectories are the same, the OCIMM's assumed time-optimal costate dynamics are precisely correct. However, the problem with tracking this spacecraft is its bang-bang control law. From the perspective of an outside observer attempting to discern $\bm{\lambda}$, the only information available would be the spacecraft's state and control inputs. From this information, even if highly accurate, it is extremely difficult to obtain $\bm{\lambda}$, as many costates can produce the same control. This is demonstrated by examining the fuel-optimal control law (Eq. \ref{eq:min-fuel control}). During periods of coasting, the only information known is that $\|\bm{\lambda}_v\|_2 < 1$, and during periods of thrusting, the only information known is the direction of $\bm{\lambda}_v$ and that $\|\bm{\lambda}_v\|_2 > 1$. Then, even assuming a decent estimate of $\bm{\lambda}$ can be obtained, a slight error could be the difference between thrusting and coasting for a filter assuming fuel-optimal control. The proposed solution is to use an IMM with two modes, where the control during the thrusting arcs is modeled using the more well-behaved time-optimal dynamics. This effectively reconstructs the fuel-optimal control in aggregate using an IMM with two mdoes.
+
+The key benefit of assuming optimal maneuvers is that given some observation of the beginning of a maneuver, it is possible to somewhat predict the rest of the maneuver. Thus, if an observation gap were to occur over the rest of the maneuver due to either natural causes (e.g. Moon occultation) or artificial causes (e.g. sensor re-tasking), the estimator can obtain a more accurate estimate. 
+
+\subsection{Acceleration IMM}
+
+For a baseline, we compare the performance of the OCIMM to an IMM with assumed third order dynamics, denoted as the ``acceleration IMM." The acceleration IMM has two modes: a coasting mode ($\tau = 1$) and a maneuvering mode ($\tau = 2$). The acceleration IMM estimates the control (acceleration) of the spacecraft $\bm{\eta}$ in addition to its position and velocity, such that its state vector is defined as $\bm{x}_a = [\bm{\xi}^\top, \bm{\eta}^\top]^\top$. The dynamics of the acceleration IMM are given in Eq. 
+\begin{align}
+    \bm{f}^{(1)}_a (\bm{x}_a) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\eta}}
+    \end{bmatrix} = \begin{bmatrix}
+        \bm{g}(\bm{\xi}) \\
+        \bm{0}_{3 \times 1}
+    \end{bmatrix} \label{eq:accel-IMM-coasting-dynamics} \\
+    \bm{f}^{(2)}_a (\bm{x}_a) &= \begin{bmatrix}
+        \dot{\bm{\xi}} \\
+        \dot{\bm{\eta}}
+    \end{bmatrix} = \begin{bmatrix}
+        \bm{g}(\bm{\xi}) + B \bm{\eta} \\
+        \bm{0}_{3 \times 1}
+    \end{bmatrix} \label{eq:accel-IMM-thrusting-dynamics}
+\end{align}
+
+Notably, the dynamics of the acceleration IMM assume that the spacecraft's control is constant, i.e. $\dot{\bm{\eta}} = \bm{0}$. Therefore, the acceleration IMM is unable to predict how the control will evolve over time. This is the main advantage of the OCIMM over the acceleration IMM.
+
+It should be noted that the the OCIMM requires an assumption of knowledge of $u_\text{max}$, while the acceleration IMM does not. However, the process noise covariance corresponding to the acceleration IMM's control estimate must be tuned, which is informed by general knowledge of the maximum thrust of the spacecraft. Thus, the acceleration IMM also requires some knowledge of $u_\text{max}$. 
+
+\subsection{Observation Strategy}
+
+Because of the difficulty of observing cislunar spacecraft from Earth, angles-only measurements are obtained from a constellation of $m$ observer spacecraft in a distant retrograde orbit at a frequency of once per hour \cite{gupta2023constellation}. It is assumed that the positions of the observer satellites are known deterministically. The azimuth and elevation measurements $\theta_k^{(i)}$ and $\phi_k^{(i)}$ from observer spacecraft $i \in [1, \cdots, m]$ at time $t_k$ are given by
+\begin{align}
+    \begin{bmatrix}
+        \theta_k^{(i)} \\
+        \phi_k^{(i)}
+    \end{bmatrix} = \begin{bmatrix}
+        \tan^{-1}\left(\frac{y_k - \bar{y}_k^{(i)}}{x_k - \bar{x}_k^{(i)}}\right) \\
+        \tan^{-1}\left(\frac{z_k - \bar{z}_k^{(i)}}{\sqrt{(x_k - \bar{x}_k^{(i)})^2 + (y_k - \bar{y}_k^{(i)})^2}}\right)
+    \end{bmatrix} + w_k^{(i)}
+\end{align}
+\noindent where $\bar{x}_k^{(i)}$, $\bar{y}_k^{(i)}$, and $\bar{z}_k^{(i)}$ are the respective $x$, $y$, and $z$ components of the observer spacecraft's position in the CR3BP coordinate frame, and $w_k^{(i)} \sim \mathcal{N}(0, \text{diag}(\sigma_\theta, \sigma_\phi))$ is Gaussian, zero-mean measurement noise. 
+
+To improve estimation performance when using angles-only measurements, we implement the pointing vector reformulation developed by Craig and Oguri \cite{craig2024robust}. The general idea of the pointing vector reformulation is to transform the nonlinear angles-only measurement equation into a linear Cartesian measurement equation with a properly transformed measurement noise covariance matrix. The pointing vector measurement equation for a single sensor $i \in [1, \cdots, m]$ is then 
+\begin{align}
+    \bm{h}_k^{(i)}(\bm{x}_k) &= \begin{bmatrix}
+        I_3 & 0_{3 \times 9}
+    \end{bmatrix} \bm{x}_k - \bar{\bm{r}}_k^{(i)}
+\end{align}
+\noindent where $\bar{\bm{r}}_k^{(i)} = [\bar{x}_k^{(i)}, \bar{y}_k^{(i)}\bar{z}_k^{(i)}]^\top$ is the deterministically known position of observer spacecraft $i$ at time $t_k$. Implementation of the pointing vector measurement equation into the measurement update requires the measurement Jacobian $H_k^{(i)}$ and measurement noise covariance matrix $R_k^{(i)}$. These are given by
+\begin{align}
+    H_k^{(i)} &= \begin{bmatrix}
+        I_3 & \bm{0}_{3 \times 9} 
+    \end{bmatrix} \\
+    R_k^{(i)} &= \sigma_\theta^2 \bm{v}_1^{(i)}\bm{v}_1^{(i)}\top + \sigma_\phi^2\bm{v}_2^{(i)}\bm{v}_2^{(i)\top} + \sigma_\text{scl}^2 \bar{\bm{Z}}_k^{(i)} \bar{\bm{Z}}_k^{(i)\top} \\
+    \bm{v}_1^{(i)} &= \hat{r}_k^{(i)}\begin{bmatrix}
+        -\cos \theta_k^{(i)} \sin \phi_k^{(i)} \\
+        -\sin \theta_k^{(i)} \sin \phi_k^{(i)} \\
+        \cos \phi_k^{(i)}
+    \end{bmatrix}, \quad \bm{v}_2^{(i)} = \hat{r}_k^{(i)} \begin{bmatrix}
+        \sin \theta_k^{(i)} \\
+        -\cos \theta_k^{(i)} \\
+        0
+    \end{bmatrix} \notag \\
+    \bar{\bm{Z}}_k^{(i)} &= \bm{h}_k^{(i)}({}^-\hat{\bm{x}}_k), \quad \hat{r}_k^{(i)} = \|\bar{\bm{Z}}_k^{(i)}\|_2 \notag
+\end{align}
+The new measurement noise covariance transforms the uncertainty in the measurement angles to Cartesian space. The lack of range information in the radial direction is represented by $\sigma_\text{scl}$, which is some large uncertainty projected in the radial direction. 
+
+The measurements of $m$ spacecraft at the same time $t_k$ are processed in the measurement update by constructing a combined measurement vector with associated measurement Jacobian and measurement noise covariance matrix. 
+\begin{align}
+\begin{aligned}
+    \bm{z}_k &= \begin{bmatrix}
+        \bm{z}_k^{(1)} \\
+        \vdots \\
+        \bm{z}_k^{(m)}
+    \end{bmatrix}, \quad \hat{\bm{z}}_k = \begin{bmatrix}
+        \hat{\bm{z}}_k^{(1)} \\
+        \vdots \\
+        \hat{\bm{z}}_k^{(m)}
+    \end{bmatrix}, \quad H_k = \begin{bmatrix}
+        I_3 & 0_{3\times9} \\
+        \vdots & \vdots \\
+        I_3 & 0_{3\times9}
+    \end{bmatrix} \in \mathbb{R}^{3m \times 12} \\
+    \quad R_k &= \text{blkdiag}(R_k^{(1)}, \cdots, R_k^{(m)})
+\end{aligned}
+\end{align}
+
+\subsection{Observation Checks}
+
+To simulate realistic observation conditions, we implement two types of observation condition checks: exclusion angles and Moon shadows. The exclusion angles check whether the line of sight from the sensor to the target spacecraft is too close to the line of sight to an astronomical body. The three astronomical bodies considered are the Earth, Sun, and Moon. Mathematically, the sensor is unable to obtain a measurement of the target spacecraft if $\psi_{B}^{(i)} < \psi_{B}^{\text{min}}$, where $\psi_{B}^{(i)}$ is the angle between sensor $i$'s line of sight vectors to the target spacecraft and the body $B$ and $\psi_{B}^{\text{min}}$ is the minimum allowed separation angle. The subscript $B$ can be replaced by $E$, $S$, or $M$ to represent the Earth, Sun, or Moon, respectively.
+
+The Moon shadow exclusion check determines whether the line of sight from the target spacecraft to the Sun is occluded by the Moon, in which case the spacecraft would not be observable due to a lack of lighting. The Sun is assumed to be infinitely far away, which precipitates a cylindrical region of unobservability behind the Moon whose radius is assumed to be 1740 km.
+
+\subsection{Underweighting}
+
+Since the dynamics of the OCIMM are highly nonlinear and the magnitude of $\bm{\lambda}$ is not well known, a common issue is that the costate error covariance reduces too quickly at the end of observation gaps due to highly accurate measurements. This causes the OCIMM to become overconfident and unresponsive to changes in control. To help alleviate this issue, we utilize underweighting which applies a smaller update when there is a large difference between the predicted measurement error covariance and the actual measurement error covariance \cite{craig2024robust}. Underweighting is applied when the following condition is met:
+\begin{align}\label{eq:underweighting-check}
+    \text{tr}(H_k {}^-P_k H_k^\top) > \frac{p}{1 - p} \text{tr}(R_k)
+\end{align}
+In the case when underweighting is applied, the innovations covariance (originally given by Eq. \ref{eq:innovations covariance (last EKF eq)}) is modified to take the form
+\begin{align}\label{eq:underweighted-update}
+    W_k = \frac{1}{p} H_k({}^-\bm{\hat{x}}_k) {}^-P_k H_k^\top({}^-\bm{\hat{x}}_k) + R_k 
+\end{align}
+The rest of the measurement update proceeds as normal. Implementing underweighting allows the OCIMM to gradually adjust its estimate as new measurements are processed at the end of observation gaps. 

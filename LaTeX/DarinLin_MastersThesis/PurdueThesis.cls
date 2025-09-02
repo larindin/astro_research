@@ -2955,16 +2955,19 @@
           {false}
             {
               \usepackage[letterpaper,left=1in,top=1.1in,bottom=1in,right=1in]{geometry}
+              \setlength{\marginparwidth}{2cm}
               \usepackage[disable]{todonotes}
             }
           {true}
             {
               \usepackage[letterpaper,left=1in,top=1.1in,bottom=1in,right=1in]{geometry}
+              \setlength{\marginparwidth}{2cm}
               \usepackage[color=white,textwidth=0.8in]{todonotes}
             }
           {wide}
             {
               \usepackage[papersize={11.5in,11in},left=1in,top=1.1in,bottom=1in,right=4in]{geometry}
+              \setlength{\marginparwidth}{2cm}
               % See
               %   https://tug.ctan.org/macros/latex/contrib/todonotes/todonotes.pdf
               \usepackage[color=white,textwidth=2.8in]{todonotes}

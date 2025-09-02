@@ -167,6 +167,7 @@
   }
 
 \usepackage{mathtools}
+\usepackage{amsfonts}
 \usepackage{multicol}
 \usepackage{pa-logos}
 \def\pa{\rotatebox[origin=c]{14}{\partial}}
@@ -283,6 +284,10 @@
 \listfiles
 \usepackage{pa-typographic-conventions}
 
+% New definitions and math commands here
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 \begin{document}
 
 \makeatletter
@@ -296,12 +301,13 @@
 
 \include{ch-front}
 
-%
-% Put chapter \include commands here.
-%
-
-% 'Important---Read This First' chapter.
 \include{ch-important}
+
+\include{ch-introduction}
+
+\include{ch-theory}
+
+\include{ch-methodology}
 
 \makeatletter  % commented out on 2022-01-26
   \defbibenvironment{bibliography}

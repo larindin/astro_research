@@ -55,6 +55,806 @@
       \verb https://engineering.purdue.edu/ECN/mailman/listinfo/purduethesis-list
       \endverb
     \endentry
+    \entry{nelson2024moon}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=d7c556da01cd8ab443ed1b715e7fc7a3}{%
+           family={Nelson},
+           familyi={N\bibinitperiod},
+           given={Sue},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {BBC}%
+      }
+      \strng{namehash}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{fullhash}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{fullhashraw}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{bibnamehash}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{authorbibnamehash}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{authornamehash}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{authorfullhash}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \strng{authorfullhashraw}{d7c556da01cd8ab443ed1b715e7fc7a3}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{BBC News}
+      \field{month}{2}
+      \field{title}{Moon Race 2.0: Why so many nations and private companies are aiming for lunar landings}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://www.bbc.com/future/article/20240216-moon-race-20-why-so-many-nations-are-aiming-for-lunar-landings
+      \endverb
+      \verb{url}
+      \verb https://www.bbc.com/future/article/20240216-moon-race-20-why-so-many-nations-are-aiming-for-lunar-landings
+      \endverb
+    \endentry
+    \entry{bar1989tracking}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=ee3cd1febaf910c21ba784456c15ea05}{%
+           family={Bar-Shalom},
+           familyi={B\bibinithyphendelim S\bibinitperiod},
+           given={Y.},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=5ebeb823a21953e92cf542476c745120}{%
+           family={Chang},
+           familyi={C\bibinitperiod},
+           given={K.C.},
+           giveni={K\bibinitperiod}}}%
+        {{hash=433314f5953484c35418e343d66cb9b7}{%
+           family={Blom},
+           familyi={B\bibinitperiod},
+           given={H.A.P.},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{dfdf9ee665eb7ee40e22be9393b08f6c}
+      \strng{fullhash}{1ea4208c76f886bae6ad488b17572073}
+      \strng{fullhashraw}{1ea4208c76f886bae6ad488b17572073}
+      \strng{bibnamehash}{1ea4208c76f886bae6ad488b17572073}
+      \strng{authorbibnamehash}{1ea4208c76f886bae6ad488b17572073}
+      \strng{authornamehash}{dfdf9ee665eb7ee40e22be9393b08f6c}
+      \strng{authorfullhash}{1ea4208c76f886bae6ad488b17572073}
+      \strng{authorfullhashraw}{1ea4208c76f886bae6ad488b17572073}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Aerospace and Electronic Systems}
+      \field{number}{2}
+      \field{title}{Tracking a maneuvering target using input estimation versus the interacting multiple model algorithm}
+      \field{volume}{25}
+      \field{year}{1989}
+      \field{pages}{296\bibrangedash 300}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1109/7.18693
+      \endverb
+      \keyw{Target tracking;State estimation;Filters}
+    \endentry
+    \entry{bar2007variable}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=a01ea5a6fd3b000f4e53c2b816b56101}{%
+           family={Bar-Shalom},
+           familyi={B\bibinithyphendelim S\bibinitperiod},
+           given={Yaakov},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=854caae1ac93ad7787150913d8ac8bc1}{%
+           family={Birmiwal},
+           familyi={B\bibinitperiod},
+           given={Kailash},
+           giveni={K\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{fullhash}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{fullhashraw}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{bibnamehash}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{authorbibnamehash}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{authornamehash}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{authorfullhash}{1357eddd61a4bcfdce7ac32c402c7321}
+      \strng{authorfullhashraw}{1357eddd61a4bcfdce7ac32c402c7321}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE transactions on Aerospace and Electronic Systems}
+      \field{number}{5}
+      \field{title}{Variable dimension filter for maneuvering target tracking}
+      \field{year}{2007}
+      \field{pages}{621\bibrangedash 629}
+      \range{pages}{9}
+    \endentry
+    \entry{goff2015orbit}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=87d59bcf756a5c5ae078bcaae261e0c7}{%
+           family={Goff},
+           familyi={G\bibinitperiod},
+           given={Gary\bibnamedelima M},
+           giveni={G\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=3e77d0b642476f058a98954f88709462}{%
+           family={Black},
+           familyi={B\bibinitperiod},
+           given={Johnathan\bibnamedelima T},
+           giveni={J\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=4f7b1fb83ad77ed3ce7b3e68553213fc}{%
+           family={Beck},
+           familyi={B\bibinitperiod},
+           given={Joseph\bibnamedelima A},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {American Institute of Aeronautics}%
+        {Astronautics}%
+      }
+      \strng{namehash}{3ad4cf8f343b47658b9bb6c1d4c7b3a6}
+      \strng{fullhash}{2fb2d3e746e872d71b191d2b98ce846b}
+      \strng{fullhashraw}{2fb2d3e746e872d71b191d2b98ce846b}
+      \strng{bibnamehash}{2fb2d3e746e872d71b191d2b98ce846b}
+      \strng{authorbibnamehash}{2fb2d3e746e872d71b191d2b98ce846b}
+      \strng{authornamehash}{3ad4cf8f343b47658b9bb6c1d4c7b3a6}
+      \strng{authorfullhash}{2fb2d3e746e872d71b191d2b98ce846b}
+      \strng{authorfullhashraw}{2fb2d3e746e872d71b191d2b98ce846b}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Guidance, Control, and Dynamics}
+      \field{number}{12}
+      \field{title}{Orbit estimation of a continuously thrusting spacecraft using variable dimension filters}
+      \field{volume}{38}
+      \field{year}{2015}
+      \field{pages}{2407\bibrangedash 2420}
+      \range{pages}{14}
+    \endentry
+    \entry{wetterer2022cislunar}{inproceedings}{}{}
+      \name{author}{6}{}{%
+        {{hash=363f14fac87756d52de09e3f6814413e}{%
+           family={Wetterer},
+           familyi={W\bibinitperiod},
+           given={Charles\bibnamedelima J},
+           giveni={C\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=257effaec8751214ddd2fce484c9270f}{%
+           family={Chow},
+           familyi={C\bibinitperiod},
+           given={CC},
+           giveni={C\bibinitperiod}}}%
+        {{hash=dc8512f9892bfb9b6c52e22afb468db7}{%
+           family={Baldwin},
+           familyi={B\bibinitperiod},
+           given={J},
+           giveni={J\bibinitperiod}}}%
+        {{hash=c3549a587f7b516c5070564620ec8c93}{%
+           family={Dilley},
+           familyi={D\bibinitperiod},
+           given={Micah},
+           giveni={M\bibinitperiod}}}%
+        {{hash=46e1c6e2e3e16bf62e59b47c60ecb7ee}{%
+           family={Keri},
+           familyi={K\bibinitperiod},
+           given={AJ},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f30c2e4a3071be66f1e3509b23e37655}{%
+           family={Howell},
+           familyi={H\bibinitperiod},
+           given={KC},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{4681735c3d977011952464ddfe07bc2e}
+      \strng{fullhash}{cf6802125c611036659736face5d0054}
+      \strng{fullhashraw}{cf6802125c611036659736face5d0054}
+      \strng{bibnamehash}{cf6802125c611036659736face5d0054}
+      \strng{authorbibnamehash}{cf6802125c611036659736face5d0054}
+      \strng{authornamehash}{4681735c3d977011952464ddfe07bc2e}
+      \strng{authorfullhash}{cf6802125c611036659736face5d0054}
+      \strng{authorfullhashraw}{cf6802125c611036659736face5d0054}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the Advanced Maui Optical and Space Surveillance Technologies Conference (AMOS)}
+      \field{title}{Cislunar maneuver detection and classification}
+      \field{year}{2022}
+    \endentry
+    \entry{demars2013entropy}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=91eba0dd1058a5a421c9aa0ba0eac765}{%
+           family={DeMars},
+           familyi={D\bibinitperiod},
+           given={Kyle\bibnamedelima J.},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=4f5de3d0d08678b9effc8f4f0a306cab}{%
+           family={Bishop},
+           familyi={B\bibinitperiod},
+           given={Robert\bibnamedelima H.},
+           giveni={R\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=33b0bb6a0777743c745c616e48d008b7}{%
+           family={Jah},
+           familyi={J\bibinitperiod},
+           given={Moriba\bibnamedelima K.},
+           giveni={M\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+      }
+      \strng{namehash}{b8fbcc23ebff71b7ff7aed4d64a15cc6}
+      \strng{fullhash}{6f52f575f13f0b842c41ac81e79a34b4}
+      \strng{fullhashraw}{6f52f575f13f0b842c41ac81e79a34b4}
+      \strng{bibnamehash}{6f52f575f13f0b842c41ac81e79a34b4}
+      \strng{authorbibnamehash}{6f52f575f13f0b842c41ac81e79a34b4}
+      \strng{authornamehash}{b8fbcc23ebff71b7ff7aed4d64a15cc6}
+      \strng{authorfullhash}{6f52f575f13f0b842c41ac81e79a34b4}
+      \strng{authorfullhashraw}{6f52f575f13f0b842c41ac81e79a34b4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Guidance, Control, and Dynamics}
+      \field{number}{4}
+      \field{title}{Entropy-Based Approach for Uncertainty Propagation of Nonlinear Dynamical Systems}
+      \field{volume}{36}
+      \field{year}{2013}
+      \field{pages}{1047\bibrangedash 1057}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.2514/1.58987
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.2514/1.58987
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.2514/1.58987
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.2514/1.58987
+      \endverb
+    \endentry
+    \entry{vishwajet2018adaptive}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=931d5b27473c4455d88e2c9e4d9952ed}{%
+           family={Vishwajeet},
+           familyi={V\bibinitperiod},
+           given={Kumar},
+           giveni={K\bibinitperiod}}}%
+        {{hash=88f2b47242909cbaf5f0153bcc75c979}{%
+           family={Singla},
+           familyi={S\bibinitperiod},
+           given={Puneet},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{fullhash}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{fullhashraw}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{bibnamehash}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{authorbibnamehash}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{authornamehash}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{authorfullhash}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \strng{authorfullhashraw}{13a73f7148310ffd80e9437cfbfa2ffd}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Guidance, Control, and Dynamics}
+      \field{number}{3}
+      \field{title}{Adaptive Split/Merge-Based Gaussian Mixture Model Approach for Uncertainty Propagation}
+      \field{volume}{41}
+      \field{year}{2018}
+      \field{pages}{603\bibrangedash 617}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.2514/1.G002801
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.2514/1.G002801
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.2514/1.G002801
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.2514/1.G002801
+      \endverb
+    \endentry
+    \entry{iannamorelli2025adaptive}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=424bfdcc55293ac3284b028e87d38792}{%
+           family={Iannamorelli},
+           familyi={I\bibinitperiod},
+           given={John\bibnamedelima L},
+           giveni={J\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=587d2463fc4d821cbf0f5517ad49dd03}{%
+           family={LeGrand},
+           familyi={L\bibinitperiod},
+           given={Keith\bibnamedelima A},
+           giveni={K\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{659364b03c3163226742a527ad5325f6}
+      \strng{fullhash}{659364b03c3163226742a527ad5325f6}
+      \strng{fullhashraw}{659364b03c3163226742a527ad5325f6}
+      \strng{bibnamehash}{659364b03c3163226742a527ad5325f6}
+      \strng{authorbibnamehash}{659364b03c3163226742a527ad5325f6}
+      \strng{authornamehash}{659364b03c3163226742a527ad5325f6}
+      \strng{authorfullhash}{659364b03c3163226742a527ad5325f6}
+      \strng{authorfullhashraw}{659364b03c3163226742a527ad5325f6}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The Journal of the Astronautical Sciences}
+      \field{number}{1}
+      \field{title}{Adaptive Gaussian Mixture Filtering for Multi-Sensor Maneuvering Cislunar Space Object Tracking}
+      \field{volume}{72}
+      \field{year}{2025}
+      \field{pages}{2}
+      \range{pages}{1}
+    \endentry
+    \entry{holzinger2012object}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=fc54fd223b03df14a60a8d8f76980a8b}{%
+           family={Holzinger},
+           familyi={H\bibinitperiod},
+           given={Marcus\bibnamedelima J.},
+           giveni={M\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=cc843f6690abe15bb39b57c0fd4678a7}{%
+           family={Scheeres},
+           familyi={S\bibinitperiod},
+           given={Daniel\bibnamedelima J.},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=bda899410e386bdbfa8a7bdd63c5dec8}{%
+           family={Alfriend},
+           familyi={A\bibinitperiod},
+           given={Kyle\bibnamedelima T.},
+           giveni={K\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+      }
+      \strng{namehash}{81966cfae4ebb3a0c8a0ae51550a8f57}
+      \strng{fullhash}{247b974d644a35a73a0363390d53e310}
+      \strng{fullhashraw}{247b974d644a35a73a0363390d53e310}
+      \strng{bibnamehash}{247b974d644a35a73a0363390d53e310}
+      \strng{authorbibnamehash}{247b974d644a35a73a0363390d53e310}
+      \strng{authornamehash}{81966cfae4ebb3a0c8a0ae51550a8f57}
+      \strng{authorfullhash}{247b974d644a35a73a0363390d53e310}
+      \strng{authorfullhashraw}{247b974d644a35a73a0363390d53e310}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Guidance, Control, and Dynamics}
+      \field{number}{4}
+      \field{title}{Object Correlation, Maneuver Detection, and Characterization Using Control Distance Metrics}
+      \field{volume}{35}
+      \field{year}{2012}
+      \field{pages}{1312\bibrangedash 1325}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.2514/1.53245
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.2514/1.53245
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.2514/1.53245
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.2514/1.53245
+      \endverb
+    \endentry
+    \entry{lubey2013optimal}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=cbdcce635f64b5f181c8b273008d8646}{%
+           family={Lubey},
+           familyi={L\bibinitperiod},
+           given={Daniel\bibnamedelima P},
+           giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=cc843f6690abe15bb39b57c0fd4678a7}{%
+           family={Scheeres},
+           familyi={S\bibinitperiod},
+           given={Daniel\bibnamedelima J},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{fullhash}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{fullhashraw}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{bibnamehash}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{authorbibnamehash}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{authornamehash}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{authorfullhash}{200aa81eeed4dbfc946a3608516fa4cd}
+      \strng{authorfullhashraw}{200aa81eeed4dbfc946a3608516fa4cd}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 2013 Advanced Maui Optical and Space Surveillance Technologies Conference}
+      \field{title}{An optimal control based estimator for maneuver and natural dynamics reconstruction}
+      \field{year}{2013}
+    \endentry
+    \entry{greaves2021observation}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=0d897dfe46e99424f1036df66015d96a}{%
+           family={Greaves},
+           familyi={G\bibinitperiod},
+           given={Jesse\bibnamedelima A},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=cc843f6690abe15bb39b57c0fd4678a7}{%
+           family={Scheeres},
+           familyi={S\bibinitperiod},
+           given={Daniel\bibnamedelima J},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{4fe63de80d3829fc9871c8c483169236}
+      \strng{fullhash}{4fe63de80d3829fc9871c8c483169236}
+      \strng{fullhashraw}{4fe63de80d3829fc9871c8c483169236}
+      \strng{bibnamehash}{4fe63de80d3829fc9871c8c483169236}
+      \strng{authorbibnamehash}{4fe63de80d3829fc9871c8c483169236}
+      \strng{authornamehash}{4fe63de80d3829fc9871c8c483169236}
+      \strng{authorfullhash}{4fe63de80d3829fc9871c8c483169236}
+      \strng{authorfullhashraw}{4fe63de80d3829fc9871c8c483169236}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The Journal of the Astronautical Sciences}
+      \field{number}{4}
+      \field{title}{Observation and maneuver detection for cislunar vehicles: Using optical measurements and the optimal control based estimator}
+      \field{volume}{68}
+      \field{year}{2021}
+      \field{pages}{826\bibrangedash 854}
+      \range{pages}{29}
+    \endentry
+    \entry{pontryagin1962}{inbook}{}{}
+      \name{author}{1}{}{%
+        {{hash=4f19262103c066c0b9489483f762ecf4}{%
+           family={Pontryagin},
+           familyi={P\bibinitperiod},
+           given={L},
+           giveni={L\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York}%
+      }
+      \list{publisher}{1}{%
+        {Interscience}%
+      }
+      \strng{namehash}{4f19262103c066c0b9489483f762ecf4}
+      \strng{fullhash}{4f19262103c066c0b9489483f762ecf4}
+      \strng{fullhashraw}{4f19262103c066c0b9489483f762ecf4}
+      \strng{bibnamehash}{4f19262103c066c0b9489483f762ecf4}
+      \strng{authorbibnamehash}{4f19262103c066c0b9489483f762ecf4}
+      \strng{authornamehash}{4f19262103c066c0b9489483f762ecf4}
+      \strng{authorfullhash}{4f19262103c066c0b9489483f762ecf4}
+      \strng{authorfullhashraw}{4f19262103c066c0b9489483f762ecf4}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Mathematical Theory of Optimal Processes}
+      \field{year}{1962}
+      \field{pages}{1\bibrangedash 114}
+      \range{pages}{114}
+    \endentry
+    \entry{zimovan2017characteristics}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{hash=1c4c8baa2d1b101967c19660d5b678d0}{%
+           family={Zimovan},
+           familyi={Z\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Purdue University}%
+      }
+      \strng{namehash}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{fullhash}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{fullhashraw}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{bibnamehash}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{authorbibnamehash}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{authornamehash}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{authorfullhash}{1c4c8baa2d1b101967c19660d5b678d0}
+      \strng{authorfullhashraw}{1c4c8baa2d1b101967c19660d5b678d0}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Characteristics and Design Strategies for Near Rectilinear Halo Orbits Within the Earth-Moon System}
+      \field{type}{mathesis}
+      \field{year}{2017}
+    \endentry
+    \entry{williams2024dynamics}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{hash=0cf7d83b3c925107374947fe98b35589}{%
+           family={Williams},
+           familyi={W\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Purdue University}%
+      }
+      \strng{namehash}{0cf7d83b3c925107374947fe98b35589}
+      \strng{fullhash}{0cf7d83b3c925107374947fe98b35589}
+      \strng{fullhashraw}{0cf7d83b3c925107374947fe98b35589}
+      \strng{bibnamehash}{0cf7d83b3c925107374947fe98b35589}
+      \strng{authorbibnamehash}{0cf7d83b3c925107374947fe98b35589}
+      \strng{authornamehash}{0cf7d83b3c925107374947fe98b35589}
+      \strng{authorfullhash}{0cf7d83b3c925107374947fe98b35589}
+      \strng{authorfullhashraw}{0cf7d83b3c925107374947fe98b35589}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Dyanmics of Long-Term Orbit Maintenance Strategies in the Circular Restricted Three Body Problem}
+      \field{type}{mathesis}
+      \field{year}{2024}
+    \endentry
+    \entry{smith1962application}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=8ee274c6f9a3f3128a74572f142dee73}{%
+           family={Smith},
+           familyi={S\bibinitperiod},
+           given={Gerald\bibnamedelima L},
+           giveni={G\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=0d37317167a66356366cf7d866959abe}{%
+           family={Schmidt},
+           familyi={S\bibinitperiod},
+           given={Stanley\bibnamedelima F},
+           giveni={S\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+        {{hash=319149ee9bcd841f7f148e174ed60ca9}{%
+           family={McGee},
+           familyi={M\bibinitperiod},
+           given={Leonard\bibnamedelima A},
+           giveni={L\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {National Aeronautics}%
+        {Space Administration}%
+      }
+      \strng{namehash}{4b5d7187ff50c5ab7e3071ad1923a6e6}
+      \strng{fullhash}{81a7c99a9ed3a86fa9099dd60967bac0}
+      \strng{fullhashraw}{81a7c99a9ed3a86fa9099dd60967bac0}
+      \strng{bibnamehash}{81a7c99a9ed3a86fa9099dd60967bac0}
+      \strng{authorbibnamehash}{81a7c99a9ed3a86fa9099dd60967bac0}
+      \strng{authornamehash}{4b5d7187ff50c5ab7e3071ad1923a6e6}
+      \strng{authorfullhash}{81a7c99a9ed3a86fa9099dd60967bac0}
+      \strng{authorfullhashraw}{81a7c99a9ed3a86fa9099dd60967bac0}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Application of statistical filter theory to the optimal estimation of position and velocity on board a circumlunar vehicle}
+      \field{volume}{135}
+      \field{year}{1962}
+    \endentry
+    \entry{blom1988interacting}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=433314f5953484c35418e343d66cb9b7}{%
+           family={Blom},
+           familyi={B\bibinitperiod},
+           given={H.A.P.},
+           giveni={H\bibinitperiod}}}%
+        {{hash=ee3cd1febaf910c21ba784456c15ea05}{%
+           family={Bar-Shalom},
+           familyi={B\bibinithyphendelim S\bibinitperiod},
+           given={Y.},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{fullhash}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{fullhashraw}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{bibnamehash}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{authorbibnamehash}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{authornamehash}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{authorfullhash}{6ef88e049e102bf17df7471262afbd5c}
+      \strng{authorfullhashraw}{6ef88e049e102bf17df7471262afbd5c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Automatic Control}
+      \field{number}{8}
+      \field{title}{The interacting multiple model algorithm for systems with Markovian switching coefficients}
+      \field{volume}{33}
+      \field{year}{1988}
+      \field{pages}{780\bibrangedash 783}
+      \range{pages}{4}
+      \verb{doi}
+      \verb 10.1109/9.1299
+      \endverb
+      \keyw{Nonlinear filters;Filtering algorithms;Linear systems;Merging;Automatic control;State feedback;Programmable control;Adaptive control;Silicon compounds;Adaptive filters}
+    \endentry
+    \entry{genovese2001interacting}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=a6a50de526263af4c27fd9963ecc310b}{%
+           family={Genovese},
+           familyi={G\bibinitperiod},
+           given={A.F.},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{fullhash}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{fullhashraw}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{bibnamehash}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{authorbibnamehash}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{authornamehash}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{authorfullhash}{a6a50de526263af4c27fd9963ecc310b}
+      \strng{authorfullhashraw}{a6a50de526263af4c27fd9963ecc310b}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Johns Hopkins APL Technical Digest (Applied Physics Laboratory)}
+      \field{month}{10}
+      \field{title}{The interacting multiple model algorithm for accurate state estimation of maneuvering targets}
+      \field{volume}{22}
+      \field{year}{2001}
+      \field{pages}{614\bibrangedash 623}
+      \range{pages}{10}
+    \endentry
+    \entry{lawden1963optimal}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=0763f7bcc24e32cb19f4eae68b8a3dfb}{%
+           family={Lawden},
+           familyi={L\bibinitperiod},
+           given={D.F.},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Butterworths}%
+      }
+      \strng{namehash}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{fullhash}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{fullhashraw}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{bibnamehash}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{authorbibnamehash}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{authornamehash}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{authorfullhash}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \strng{authorfullhashraw}{0763f7bcc24e32cb19f4eae68b8a3dfb}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{series}{Butterworths mathematical texts}
+      \field{title}{Optimal Trajectories for Space Navigation}
+      \field{year}{1963}
+    \endentry
+    \entry{taheri2018generic}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=aebcc6fa7930667a908f0617f760efe8}{%
+           family={Taheri},
+           familyi={T\bibinitperiod},
+           given={Ehsan},
+           giveni={E\bibinitperiod}}}%
+        {{hash=fc213a94bb17c691b35d3ec947794815}{%
+           family={Junkins},
+           familyi={J\bibinitperiod},
+           given={John\bibnamedelima L},
+           giveni={J\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {American Institute of Aeronautics}%
+        {Astronautics}%
+      }
+      \strng{namehash}{1631744d003cedfc8968d25bf6b35805}
+      \strng{fullhash}{1631744d003cedfc8968d25bf6b35805}
+      \strng{fullhashraw}{1631744d003cedfc8968d25bf6b35805}
+      \strng{bibnamehash}{1631744d003cedfc8968d25bf6b35805}
+      \strng{authorbibnamehash}{1631744d003cedfc8968d25bf6b35805}
+      \strng{authornamehash}{1631744d003cedfc8968d25bf6b35805}
+      \strng{authorfullhash}{1631744d003cedfc8968d25bf6b35805}
+      \strng{authorfullhashraw}{1631744d003cedfc8968d25bf6b35805}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Guidance, Control, and Dynamics}
+      \field{number}{11}
+      \field{title}{Generic smoothing for optimal bang-off-bang spacecraft maneuvers}
+      \field{volume}{41}
+      \field{year}{2018}
+      \field{pages}{2470\bibrangedash 2475}
+      \range{pages}{6}
+    \endentry
+    \entry{junkins2019exploration}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=fc213a94bb17c691b35d3ec947794815}{%
+           family={Junkins},
+           familyi={J\bibinitperiod},
+           given={John\bibnamedelima L},
+           giveni={J\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=aebcc6fa7930667a908f0617f760efe8}{%
+           family={Taheri},
+           familyi={T\bibinitperiod},
+           given={Ehsan},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {American Institute of Aeronautics}%
+        {Astronautics}%
+      }
+      \strng{namehash}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{fullhash}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{fullhashraw}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{bibnamehash}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{authorbibnamehash}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{authornamehash}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{authorfullhash}{1092ec17a79a40ac24c3431a1b377201}
+      \strng{authorfullhashraw}{1092ec17a79a40ac24c3431a1b377201}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Guidance, Control, and Dynamics}
+      \field{number}{1}
+      \field{title}{Exploration of alternative state vector choices for low-thrust trajectory optimization}
+      \field{volume}{42}
+      \field{year}{2019}
+      \field{pages}{47\bibrangedash 64}
+      \range{pages}{18}
+    \endentry
+    \entry{gupta2023constellation}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=8f8cdb1632d41735ea006c391ed3642a}{%
+           family={Gupta},
+           familyi={G\bibinitperiod},
+           given={Maaninee},
+           giveni={M\bibinitperiod}}}%
+        {{hash=94d673903920b36b87fae9d672d3b50d}{%
+           family={Howell},
+           familyi={H\bibinitperiod},
+           given={Kathleen\bibnamedelima C},
+           giveni={K\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=7f5d706b5c5d6e75023cb1b5250c900e}{%
+           family={Frueh},
+           familyi={F\bibinitperiod},
+           given={Carolin},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{7f96b1b9207673fd8893a8c8a8eeeaf5}
+      \strng{fullhash}{51de241067480852dac0e5cd59137d07}
+      \strng{fullhashraw}{51de241067480852dac0e5cd59137d07}
+      \strng{bibnamehash}{51de241067480852dac0e5cd59137d07}
+      \strng{authorbibnamehash}{51de241067480852dac0e5cd59137d07}
+      \strng{authornamehash}{7f96b1b9207673fd8893a8c8a8eeeaf5}
+      \strng{authorfullhash}{51de241067480852dac0e5cd59137d07}
+      \strng{authorfullhashraw}{51de241067480852dac0e5cd59137d07}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{33rd AAS/AIAA Space Flight Mechanics Meeting}
+      \field{title}{Constellation design to support cislunar surveillance leveraging sidereal resonant orbits}
+      \field{year}{2023}
+    \endentry
+    \entry{craig2024robust}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=9b85a9f38fec64f4a1cb3b6322ce174d}{%
+           family={Craig},
+           familyi={C\bibinitperiod},
+           given={Nicholas\bibnamedelima H},
+           giveni={N\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=1693b50c551b4e0b2b5c8b22f4255b99}{%
+           family={Oguri},
+           familyi={O\bibinitperiod},
+           given={Kenshiro},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{fullhash}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{fullhashraw}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{bibnamehash}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{authorbibnamehash}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{authornamehash}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{authorfullhash}{42b7a5fbae184d7f204d248809ec3e40}
+      \strng{authorfullhashraw}{42b7a5fbae184d7f204d248809ec3e40}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{35th AAS/AIAA Space Flight Mechanics Meeting}
+      \field{title}{Robust cislunar object tracking with infrequent measurements: variable-range pointing vector approach}
+      \field{year}{2024}
+    \endentry
     \entry{knuth2012}{book}{}{}
       \name{author}{1}{}{%
         {{hash=16ba958eaf56fad580491eef4f771cee}{%
