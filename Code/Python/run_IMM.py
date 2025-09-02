@@ -165,7 +165,8 @@ if vary_scenarios == False:
         moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
         check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
-    # check_results[:, :] = 1
+        if gap == False:
+            check_results[sensor_index, :] = 1
 
 for run_index in range(num_runs):
 
@@ -379,28 +380,6 @@ ax.set_yscale("log")
 ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
     ax.plot(plot_time, lambda_ratios[0, :, run_index])
-
-ax = plt.figure(layout="constrained").add_subplot()
-# ax.plot(plot_time, truth_vals[6])
-# ax.plot(plot_time, truth_vals[7])
-# ax.plot(plot_time, truth_vals[8])
-for run_index in range(num_runs):
-    ax.plot(plot_time, output_estimates[run_index][6])
-    ax.plot(plot_time, output_estimates[run_index][7])
-    ax.plot(plot_time, output_estimates[run_index][8])
-ax.set_ylim(-200, 200)
-# ax.set_yscale("log")
-
-ax = plt.figure(layout="constrained").add_subplot()
-# ax.plot(plot_time, truth_vals[9])
-# ax.plot(plot_time, truth_vals[10])
-# ax.plot(plot_time, truth_vals[11])
-for run_index in range(num_runs):
-    ax.plot(plot_time, output_estimates[run_index][9])
-    ax.plot(plot_time, output_estimates[run_index][10])
-    ax.plot(plot_time, output_estimates[run_index][11])
-# ax.set_ylim(-5, 5)
-# ax.set_yscale("log")
 
 plt.show(block=False)
 plt.pause(0.001) # Pause for interval seconds.

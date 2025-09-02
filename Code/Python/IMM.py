@@ -187,42 +187,46 @@ class IMM_filter():
 
         return posterior_estimate, posterior_covariance, denominator, exponent
     
-    def constrained_measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
+    # def constrained_measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
 
-        measurement = measurement[np.isnan(measurement) == False]
-        if len(measurement) == 0:
-            return anterior_estimate, anterior_covariance, 1, 1
+    #     measurement = measurement[np.isnan(measurement) == False]
+    #     if len(measurement) == 0:
+    #         return anterior_estimate, anterior_covariance, 1, 1
         
-        posterior_estimate = np.full(len(anterior_estimate), np.nan)
-        posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
+    #     posterior_estimate = np.full(len(anterior_estimate), np.nan)
+    #     posterior_covariance = np.full(np.shape(anterior_covariance), np.nan)
 
-        lr_norm = np.linalg.norm(anterior_estimate[6:9])
-        lv_norm = np.linalg.norm(anterior_estimate[9:12])
+    #     costate_norm = np.linalg.norm(anterior_estimate[6:12])
 
-        predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *measurement_function_args)
+    #     predicted_measurement, measurement_jacobian, measurement_noise_covariance, rs = self.measurement_function(time_index, anterior_estimate, *measurement_function_args)
 
-        if np.trace(measurement_jacobian @ np.linalg.inv(anterior_covariance) @ measurement_jacobian.T) < (1 - self.underweighting_ratio)/self.underweighting_ratio * np.trace(np.linalg.inv(measurement_noise_covariance)):
-            innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T/self.underweighting_ratio + measurement_noise_covariance
-            # print(f"{time_index/24} underweighting")
-        else:
-            innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
-        innovations_covariance = enforce_symmetry(innovations_covariance)
-        cross_covariance = anterior_covariance @ measurement_jacobian.T
-        gain_matrix = cross_covariance @ np.linalg.inv(innovations_covariance)
+    #     if np.trace(measurement_jacobian @ np.linalg.inv(anterior_covariance) @ measurement_jacobian.T) < (1 - self.underweighting_ratio)/self.underweighting_ratio * np.trace(np.linalg.inv(measurement_noise_covariance)):
+    #         innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T/self.underweighting_ratio + measurement_noise_covariance
+    #         # print(f"{time_index/24} underweighting")
+    #     else:
+    #         innovations_covariance = measurement_jacobian @ anterior_covariance @ measurement_jacobian.T + measurement_noise_covariance
+    #     innovations_covariance = enforce_symmetry(innovations_covariance)
+    #     inverse_innovations_cov = np.linalg.inv(innovations_covariance)
 
-        innovations = measurement - predicted_measurement
-        # innovations = check_innovations(innovations)
-        for sensor_index, r in enumerate(rs):
-            innovations[sensor_index*3:(sensor_index+1)*3]*= r
+    #     anterior_state_covariance = anterior_covariance[:, 0:6]
+    #     anterior_costate_covariance = anterior_covariance[:, 6:12]
 
-        posterior_estimate = anterior_estimate + gain_matrix @ innovations
-        # posterior_estimate[6:9] *= lr_norm/np.linalg.norm(posterior_estimate[6:9])
-        posterior_estimate[9:12] *= lv_norm/np.linalg.norm(posterior_estimate[9:12])
-        posterior_covariance= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
+    #     state_gain_matrix = anterior_state_covariance.T @ measurement_jacobian.T @ inverse_innovations_cov
+    #     unconstrained_costate_gain_matrix = anterior_costate_covariance.T @ measurement_jacobian.T @ inverse_innovations_cov
 
-        denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)
 
-        return posterior_estimate, posterior_covariance, denominator, exponent
+
+    #     innovations = measurement - predicted_measurement
+    #     # innovations = check_innovations(innovations)
+    #     for sensor_index, r in enumerate(rs):
+    #         innovations[sensor_index*3:(sensor_index+1)*3]*= r
+
+    #     posterior_estimate = anterior_estimate + gain_matrix @ innovations
+    #     posterior_covariance= enforce_symmetry(anterior_covariance - cross_covariance @ gain_matrix.T - gain_matrix @ cross_covariance.T + gain_matrix @ innovations_covariance @ gain_matrix.T)
+ 
+    #     denominator, exponent = assess_measurement_likelihood(innovations, innovations_covariance)
+
+    #     return posterior_estimate, posterior_covariance, denominator, exponent
 
     
     def underweighted_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
