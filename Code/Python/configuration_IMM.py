@@ -11,7 +11,7 @@ seed = 2
 generator = np.random.default_rng(seed)
 num_runs = 50
 save = False
-gap = True
+gap = False
 vary_scenarios = False
 
 #10, 13, 31, 32 are good
@@ -28,7 +28,7 @@ final_time = 25 / NONDIM_TIME_DAYS
 # final_time = 0.25 / NONDIM_TIME_DAYS
 # backprop_time = 5 * 24 / NONDIM_TIME_HR
 # backprop_time = 1 / NONDIM_TIME_DAYS
-backprop_time = 0
+backprop_time = 5
 additional_time = 5 * 24 / NONDIM_TIME_HR
 additional_time = 0
 dt = 1/NONDIM_TIME_HR
@@ -67,6 +67,7 @@ sun_exclusion_angle = np.deg2rad(30)
 # IMM parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
 initial_costate_covariance = np.diag(abs(initial_costate*1e-1)**2)
+initial_costate_covariance = np.eye(6)*1e-1**2
 # print(initial_costate_covariance)
 # quit()
 initial_acceleration_covariance = np.eye(3)*1e-2**2

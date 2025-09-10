@@ -6,33 +6,16 @@ import scipy.integrate
 from configuration_IMM import *
 from CR3BP import *
 from CR3BP_pontryagin import *
-from IMM import *
+from UKF import *
 from helper_functions import *
 from measurement_functions import *
 from plotting import *
 
 time_vals, truth_vals = generate_truth_vals(dynamics_equation, CR3BP_DEs, final_time, dt, initial_truth, backprop_time, additional_time, truth_dynamics_args)
 
-def coasting_acceleration_ODE(t, X, mu, umax):
-    
-    state = X[0:9]
-    STM = X[9:90].reshape((9, 9))
-
-    ddt_state = CR3BP_DEs(0, state[0:6], mu)
-    ddt_accel = np.zeros(3)
-    ddt_STM = coasting_acceleration_jacobian(state, mu) @ STM
-
-    return np.concatenate((ddt_state, ddt_accel, ddt_STM.flatten()))
-
-def acceleration_ODE(t, X, mu, umax):
-    
-    state = X[0:9]
-    STM = X[9:90].reshape((9, 9))
-
-    ddt_state = CR3BP_accel_DEs(0, state, mu)
-    ddt_STM = CR3BP_accel_jacobian(state, mu) @ STM
-
-    return np.concatenate((ddt_state, ddt_STM.flatten()))
+def CR3BP_dynamics_equation(t, X, mu, umax):
+    ddt_state = CR3BP_accel_DEs(0, X, mu)
+    return ddt_state
 
 def angles_measurement_equation(time_index, X, measurement_variances, sensor_position_vals, check_results):
 
@@ -97,17 +80,8 @@ def PV_measurement_equation(time_index, X, measurement_variances, sensor_positio
 
     return measurement, measurement_jacobian, measurement_noise_covariance, rs
 
-
-# coasting_dynamics_equation = coasting_costate_dynamics_equation
-# maneuvering_dynamics_equation = min_time_dynamics_equation
-# initial_estimate = np.concatenate((generator.multivariate_normal(truth_vals[0:6, 0], initial_state_covariance), np.ones(6)*1e-6))
-# initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_costate_covariance)
-# process_noise_covariances = [coasting_costate_process_noise_covariance, min_time_process_noise_covariance]
-
-coasting_dynamics_equation = coasting_acceleration_ODE
-maneuvering_dynamics_equation = acceleration_ODE
 initial_covariance = scipy.linalg.block_diag(initial_state_covariance, initial_acceleration_covariance)
-process_noise_covariances = [coasting_accel_process_noise_covariance, accel_process_noise_covariance]
+
 
 initial_estimates = []
 measurements = []
@@ -139,7 +113,8 @@ if vary_scenarios == False:
         moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
         sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
         check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
-    check_results[:, :] = 1
+        if gap == False:
+            check_results[sensor_index, :] = 1
 
 for run_index in range(num_runs):
 
@@ -163,13 +138,12 @@ for run_index in range(num_runs):
         moon_results = np.empty((num_sensors, len(time_vals)))
         sun_results = np.empty((num_sensors, len(time_vals)))
         check_results = np.empty((num_sensors, len(time_vals)))
-        shadow_results = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[0:3, :], check_shadow)
         for sensor_index in range(num_sensors):
             sensor_positions = sensor_position_vals[sensor_index*3:(sensor_index + 1)*3, :]
             earth_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, earth_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (earth_exclusion_angle,))
             moon_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, moon_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (moon_exclusion_angle,))
             sun_results[sensor_index, :] = check_validity(time_vals, truth_vals[0:3, :], sensor_positions, sun_vectors[sensor_index*3:(sensor_index+1)*3, :], check_exclusion, (sun_exclusion_angle,))
-            check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :] * shadow_results
+            check_results[sensor_index, :] = earth_results[sensor_index, :] * moon_results[sensor_index, :] * sun_results[sensor_index, :]
     
     # check_results[:, :] = 1
 
@@ -178,53 +152,49 @@ for run_index in range(num_runs):
     measurement_vals = angles2PV(measurement_vals)
     measurement_args.append((measurement_variances, sensor_position_vals, check_results))
     measurements.append(measurement_vals.measurements)
-# filter_measurement_function = angles_measurement_equation
+
+# filter_measurement_function = angles_measurement_equ`ation
+
+dynamics_function = CR3BP_dynamics_equation
+dynamics_function_args = (mu, umax)
 filter_measurement_function = PV_measurement_equation
 
-dynamics_args = (mu, umax)
-dynamics_functions = (coasting_dynamics_equation, maneuvering_dynamics_equation)
-dynamics_functions_args = (dynamics_args, dynamics_args)
 
+myUKF = UKF(dynamics_function,
+            dynamics_function_args,
+            filter_measurement_function,
+            accel_process_noise_covariance,
+            ukf_parameters,
+            0.5)
 
-IMM = IMM_filter(dynamics_functions,
-                 dynamics_functions_args,
-                 filter_measurement_function,
-                 process_noise_covariances,
-                 mode_transition_matrix,
-                 underweighting_ratio)
+filter_output = myUKF.run_MC(initial_estimates,
+                             initial_covariance,
+                             time_vals,
+                             measurements,
+                             measurement_args)
 
-results = IMM.run_MC(initial_estimates,
-                     initial_covariance,
-                     initial_mode_probabilities,
-                     time_vals,
-                     measurements,
-                     measurement_args)
-
-filter_time = results.t
-output_estimates = results.output_estimates
-output_covariances = results.output_covariances
-mode_probabilities = results.mode_probabilities
+filter_time = filter_output.t
+posterior_estimates = filter_output.posterior_estimates
+posterior_covariances = filter_output.posterior_covariances
 
 truth_control = get_min_fuel_control(truth_vals[6:12, :], umax, truth_rho)
 estimated_controls = []
 control_errors = []
 control_covariances = []
 for run_index in range(num_runs):
-    coasting_bool = mode_probabilities[run_index][0] > 0.5
-    posterior_control = output_estimates[run_index][6:9]
-    posterior_control[:, coasting_bool] *= mode_probabilities[run_index][1, coasting_bool]
-    estimated_controls.append(posterior_control)
-    control_errors.append(posterior_control - truth_control)
-    control_covariance = output_covariances[run_index][6:9, 6:9]
-    control_covariances.append(control_covariance)
+    estimated_controls.append(posterior_estimates[run_index][6:9])
+    control_errors.append(posterior_estimates[run_index][6:9] - truth_control)
+    control_covariances.append(posterior_covariances[run_index][6:9, 6:9])
 
-estimation_errors = compute_estimation_errors(truth_vals, output_estimates, (0, 9))
-three_sigmas = compute_3sigmas(output_covariances, (0, 9))
+estimation_errors = compute_estimation_errors(truth_vals, posterior_estimates, (0, 9))
+three_sigmas = compute_3sigmas(posterior_covariances, (0, 9))
 control_3sigmas = compute_3sigmas(control_covariances, (0, 3))
 
-for run_index in range(num_runs):
-    for ax_index in range(3):
-        control_3sigmas[run_index][ax_index, coasting_bool] *= mode_probabilities[run_index][1, coasting_bool]
+avg_error_vals = compute_avg_error(estimation_errors, (0, 9))
+avg_error_vals[0:3] *= NONDIM_LENGTH
+avg_error_vals[3:6] *= NONDIM_LENGTH*1e3/NONDIM_TIME
+avg_ctrl_error_vals = compute_avg_error(control_errors, (0, 3))
+avg_ctrl_error_vals *= NONDIM_LENGTH*1e6/NONDIM_TIME**2
 
 position_norm_errors = compute_norm_errors(estimation_errors, (0, 3))
 velocity_norm_errors = compute_norm_errors(estimation_errors, (3, 6))
@@ -234,35 +204,7 @@ avg_position_norm_errors = compute_avg_error(position_norm_errors, (0, 1)) * NON
 avg_velocity_norm_errors = compute_avg_error(velocity_norm_errors, (0, 1)) * NONDIM_LENGTH*1e3/NONDIM_TIME
 avg_ctrl_norm_errors = compute_avg_error(ctrl_norm_errors, (0, 1)) * NONDIM_LENGTH*1e6/NONDIM_TIME**2
 
-avg_error_vals = compute_avg_error(estimation_errors, (0, 6))
-avg_error_vals[0:3] *= NONDIM_LENGTH
-avg_error_vals[3:6] *= NONDIM_LENGTH*1e3/NONDIM_TIME
-avg_ctrl_error_vals = compute_avg_error(control_errors, (0, 3))
-avg_ctrl_error_vals *= NONDIM_LENGTH*1e6/NONDIM_TIME**2
-anees_vals = compute_anees(estimation_errors, output_covariances, (0, 6))
-
-output_estimated_control = np.array(estimated_controls) * NONDIM_LENGTH*1e6/NONDIM_TIME**2
-
-avg_error_vals = np.vstack((avg_error_vals, avg_ctrl_error_vals))
-avg_norm_error_vals = np.vstack((avg_position_norm_errors, avg_velocity_norm_errors, avg_ctrl_norm_errors))
-
-if save == True:
-    if gap == True:
-        np.save("data/accel_est_control1.npy", output_estimated_control)
-        np.save("data/accel_avg_error1.npy", avg_error_vals)
-        np.save("data/accel_avg_norm_error1.npy", avg_norm_error_vals)
-        np.save("data/accel_est_errors1.npy", estimation_errors)
-        np.save("data/accel_est_3sigmas1.npy", three_sigmas)
-        np.save("data/accel_ctrl_errors1.npy", control_errors)
-        np.save("data/accel_ctrl_3sigmas1.npy", control_3sigmas)
-    elif gap == False:
-        np.save("data/accel_est_control.npy", output_estimated_control)
-        np.save("data/accel_avg_error.npy", avg_error_vals)
-        np.save("data/accel_avg_norm_error.npy", avg_norm_error_vals)
-        np.save("data/accel_est_errors.npy", estimation_errors)
-        np.save("data/accel_est_3sigmas.npy", three_sigmas)
-        np.save("data/accel_ctrl_errors.npy", control_errors)
-        np.save("data/accel_ctrl_3sigmas.npy", control_3sigmas)
+plot_time = time_vals * NONDIM_TIME_HR/24
 
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15, scale="linear")
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15, scale="linear")
@@ -270,15 +212,6 @@ plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15, s
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "position", alpha=0.15)
 plot_3sigma(time_vals, estimation_errors, three_sigmas, "velocity", alpha=0.15)
 plot_3sigma(time_vals, control_errors, control_3sigmas, "control", alpha=0.15)
-# plot_3sigma(time_vals, [estimation_errors[0][6:9]], [three_sigmas[0][6:9]], "lambdar", scale="linear")
-# plot_3sigma(time_vals, [estimation_errors[0][9:12]], [three_sigmas[0][9:12]], "lambdav", scale="linear")
-
-plot_time = time_vals * NONDIM_TIME_HR/24
-
-ax = plt.figure(layout="constrained").add_subplot()
-for run_index in range(num_runs):
-    ax.step(plot_time, np.sum(measurement_args[run_index][2], axis=0), alpha=0.25)
-ax.set_ylabel("num sensors")
 
 mae_fig = plt.figure()
 ax = mae_fig.add_subplot(311)
@@ -291,31 +224,19 @@ ax = mae_fig.add_subplot(313)
 ax.plot(plot_time, avg_ctrl_norm_errors[0])
 ax.set_ylabel("control")
 
-control_fig = plt.figure()
-control_ax_labels = ["$u_1$", "$u_2$", "$u_3$"]
-for ax_index in range(3):
-    thing = int("31" + str(ax_index + 1))
-    ax = control_fig.add_subplot(thing)
-    ax.scatter(plot_time, truth_control[ax_index], alpha=0.75, s=4)
-    for run_index in range(num_runs):
-        ax.scatter(plot_time, estimated_controls[run_index][ax_index], alpha=0.15, s=4)
-    ax.set_ylabel(control_ax_labels[ax_index])
-ax.set_xlabel("Time [days]")
-control_fig.legend(["Truth", "Estimated"])
-
 ax = plt.figure(layout="constrained").add_subplot()
 for run_index in range(num_runs):
-    ax.scatter(plot_time, mode_probabilities[run_index][0], c="black", alpha=0.2, s=4)
-    ax.scatter(plot_time, mode_probabilities[run_index][1], c="red", alpha=0.2, s=4)
+    ax.step(plot_time, np.sum(measurement_args[run_index][2], axis=0), alpha=0.25)
+ax.set_ylabel("num sensors")
 
 ax = plt.figure().add_subplot(projection="3d")
-ax.plot(truth_vals[0], truth_vals[1], truth_vals[2], alpha=0.75)
+ax.plot(truth_vals[0], truth_vals[1], truth_vals[2])
 for run_index in range(num_runs):
-    ax.plot(output_estimates[run_index][0], output_estimates[run_index][1], output_estimates[run_index][2], alpha=0.15)
-plot_moon(ax, mu)
+    ax.plot(posterior_estimates[run_index][0], posterior_estimates[run_index][1], posterior_estimates[run_index][2], alpha=0.25)
+plot_moon(ax, mu, "nd")
 ax.set_aspect("equal")
 
 plt.show(block=False)
-plt.pause(0.001) # Pause for interval seconds.
-input("hit[enter] to end.")
-plt.close('all')
+plt.pause(0.001)
+input("press [enter] to close")
+plt.close("all")
