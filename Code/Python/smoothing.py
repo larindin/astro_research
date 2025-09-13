@@ -5,32 +5,31 @@ import scipy.integrate
 from EKF import *
 from helper_functions import *
 
-def run_EKF_smoothing(results):
+def run_EKF_smoothing(dynamics_equation, dynamics_args, time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, horizon):
 
-    t = results.t
-    anterior_estimate_vals = results.anterior_estimate_vals
-    posterior_estimate_vals = results.posterior_estimate_vals
-    anterior_covariance_vals = results.anterior_covariance_vals
-    posterior_covariance_vals = results.posterior_covariance_vals
-    STM_vals = results.STM_vals
-    innovations_vals = results.innovations_vals
-
-    num_vals = len(t)
+    num_vals = horizon + 1
     state_size = np.size(posterior_estimate_vals, 0)
 
     smoothed_estimate_vals = np.empty((state_size, num_vals))
     smoothed_covariance_vals = np.empty((state_size, state_size, num_vals))
 
     smoothed_estimate_vals[:, -1] = posterior_estimate_vals[:, -1]
+    smoothed_covariance_vals[:, :, -1] = posterior_covariance_vals[:, :, -1]
 
-    for val_index in range(num_vals-2, 0, -1):
-
-        STM = STM_vals[:, :, val_index+1]
+    for val_index in range(-2, -num_vals-1, -1):
+        
+        tspan = [time_vals[val_index+1], time_vals[val_index]]
+        initial_state = smoothed_estimate_vals[:, val_index+1]
+        ICs = np.concatenate((initial_state, np.eye(state_size).flatten()))
+        propagation = scipy.integrate.solve_ivp(dynamics_equation, tspan, ICs, args=dynamics_args, atol=1e-12, rtol=1e-12).y[:, -1]
+        
+        STM = np.linalg.inv(np.reshape(propagation[state_size:], (state_size, state_size)))
 
         S = posterior_covariance_vals[:, :, val_index] @ STM.T @ np.linalg.inv(anterior_covariance_vals[:, :, val_index+1])
-        smoothed_estimate_vals[:, val_index] = posterior_estimate_vals[:, val_index] + S @ (smoothed_estimate_vals[:, val_index+1] - STM @ posterior_estimate_vals[:, val_index])
+        smoothed_estimate_vals[:, val_index] = posterior_estimate_vals[:, val_index] + S @ (smoothed_estimate_vals[:, val_index+1] - anterior_estimate_vals[:, val_index+1])
+        smoothed_covariance_vals[:, :, val_index] = posterior_covariance_vals[:, :, val_index] + S @ (smoothed_covariance_vals[:, :, val_index+1] - anterior_covariance_vals[:, :, val_index+1]) @ S.T
         
-    return smoothed_estimate_vals
+    return smoothed_estimate_vals, smoothed_covariance_vals
 
 def run_OCBE_smoothing(results, control_noise_covariance):
 

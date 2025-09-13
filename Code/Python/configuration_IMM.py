@@ -9,7 +9,7 @@ from helper_functions import *
 # Monte-carlo parameters
 seed = 2
 generator = np.random.default_rng(seed)
-num_runs = 50
+num_runs = 1
 save = False
 gap = False
 vary_scenarios = False
@@ -28,9 +28,9 @@ final_time = 25 / NONDIM_TIME_DAYS
 # final_time = 0.25 / NONDIM_TIME_DAYS
 # backprop_time = 5 * 24 / NONDIM_TIME_HR
 # backprop_time = 1 / NONDIM_TIME_DAYS
-backprop_time = 5
-additional_time = 5 * 24 / NONDIM_TIME_HR
-additional_time = 0
+backprop_time = 5 / NONDIM_TIME_DAYS
+additional_time = 5 / NONDIM_TIME_DAYS
+# additional_time = 0
 dt = 1/NONDIM_TIME_HR
 # dt = 0.01
 dynamics_equation = minimum_fuel_ODE
@@ -96,3 +96,5 @@ mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])
 alpha, beta, kappa = 1e-2, 2, 0
 ukf_parameters = (alpha, beta, kappa)
+
+horizon = 100
