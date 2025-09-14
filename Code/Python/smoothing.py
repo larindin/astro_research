@@ -2,6 +2,7 @@
 
 import numpy as np
 import scipy.integrate
+from joblib import Parallel, delayed, parallel_config
 from EKF import *
 from helper_functions import *
 
@@ -30,6 +31,76 @@ def run_EKF_smoothing(dynamics_equation, dynamics_args, time_vals, anterior_esti
         smoothed_covariance_vals[:, :, val_index] = posterior_covariance_vals[:, :, val_index] + S @ (smoothed_covariance_vals[:, :, val_index+1] - anterior_covariance_vals[:, :, val_index+1]) @ S.T
         
     return smoothed_estimate_vals, smoothed_covariance_vals
+
+def run_EKF_smoothing_MC(dynamics_equation, dynamics_args, time_vals, anterior_estimates, posterior_estimates, anterior_covariances, posterior_covariances, horizon):
+
+    num_runs = len(anterior_estimates)
+    smoothed_estimates = []
+    smoothed_covariances = []
+
+    with parallel_config(verbose=100, n_jobs=-1):
+        results = Parallel()(delayed(run_EKF_smoothing)(dynamics_equation, dynamics_args, time_vals, anterior_estimates[run_index], posterior_estimates[run_index], anterior_covariances[run_index], posterior_covariances[run_index], horizon) for run_index in range(num_runs))
+    
+    for run_index in range(num_runs):
+        smoothed_estimates.append(results[run_index][0])
+        smoothed_covariances.append(results[run_index][1])
+
+    return smoothed_estimates, smoothed_covariances
+
+def run_smoothing_consistency_test(posterior_estimate_vals, smoothed_estimate_vals, posterior_covariance_vals, smoothed_covariance_vals, detection_threshold):
+
+    num_timesteps = np.size(posterior_estimate_vals, 1)
+
+    estimate_differences = posterior_estimate_vals - smoothed_estimate_vals
+    covariance_differences = posterior_covariance_vals - smoothed_covariance_vals
+
+    violated_bool_vector = np.full(num_timesteps, False)
+    for timestep_index in range(num_timesteps):
+        cov_difference_diag = np.diag(covariance_differences[:, :, timestep_index])
+        violation_vector = np.diag(1/np.sqrt(cov_difference_diag)) @ estimate_differences[:, timestep_index]
+        violated_bool_vector[timestep_index] = max(violation_vector) > detection_threshold
+    
+    return violated_bool_vector
+
+def run_maneuver_detection_alg(dynamics_equation, dynamics_args, time_vals, anterior_estimate_vals, posterior_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, horizon, detection_threshold):
+
+    num_timesteps = len(time_vals)
+
+    previous_timestep_index = 0
+    next_timestep_index = horizon
+    maneuver_start_index = np.empty(0)
+
+    while next_timestep_index < num_timesteps:
+
+        current_anterior_vals = anterior_estimate_vals[:, previous_timestep_index:next_timestep_index+1]
+        current_anterior_covs = anterior_covariance_vals[:, :, previous_timestep_index:next_timestep_index+1]
+        current_posterior_vals = posterior_estimate_vals[:, previous_timestep_index:next_timestep_index+1]
+        current_posterior_covs = posterior_covariance_vals[:, :, previous_timestep_index:next_timestep_index+1]
+
+        current_smoothed_estimates, current_smoothed_covariances = run_EKF_smoothing(dynamics_equation,
+                                                                                     dynamics_args,
+                                                                                     time_vals,
+                                                                                     current_anterior_vals,
+                                                                                     current_posterior_vals,
+                                                                                     current_anterior_covs,
+                                                                                     current_posterior_covs,
+                                                                                     horizon)
+        
+        maneuver_detection_bool = run_smoothing_consistency_test(current_posterior_vals,
+                                                                 current_smoothed_estimates,
+                                                                 current_posterior_covs,
+                                                                 current_smoothed_covariances,
+                                                                 detection_threshold)
+        
+        maneuvering_indices = np.where(maneuver_detection_bool)
+        if np.size(maneuvering_indices) != 0:
+            maneuver_start_index = previous_timestep_index + maneuvering_indices[0]
+            break
+        
+        previous_timestep_index = next_timestep_index
+        next_timestep_index += horizon
+
+    return maneuver_start_index
 
 def run_OCBE_smoothing(results, control_noise_covariance):
 
