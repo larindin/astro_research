@@ -7,7 +7,7 @@ from configuration_IMM import *
 from CR3BP import *
 from CR3BP_pontryagin import *
 from UKF import *
-from UIMM import *
+from IMM import *
 from smoothing import *
 from helper_functions import *
 from measurement_functions import *
@@ -49,28 +49,54 @@ def coasting_costate_dynamics_equation(t, X, mu, umax):
 
     state = X[0:6]
     costate = X[6:12]
+    STM = X[12:156].reshape((12, 12))
 
     ddt_state = CR3BP_DEs(t, state, mu)
 
     # natural costate dynamics
     ddt_costate = CR3BP_costate_DEs(0, state, costate, mu)
+    jacobian = minimum_time_jacobian(state, costate, mu, umax)
+    jacobian[0:6, 6:12] = 0
 
     # zero costate dynamics
+    # K = np.diag(np.full(6, 0))
+    # jacobian = coasting_costate_jacobian(state, mu, K)
     # ddt_costate = np.zeros(6)
 
-    # exponential decay
+    # # exponential decay
     # K = np.diag(np.full(6, 1e1))
+    # jacobian = coasting_costate_jacobian(state, mu, K)
     # ddt_costate = -K @ costate
+    
+    ddt_STM = jacobian @ STM
 
-    return np.concatenate((ddt_state, ddt_costate))
+    return np.concatenate((ddt_state, ddt_costate, ddt_STM.flatten()))
 
 def min_energy_dynamics_equation(t, X, mu, umax):
+    
+    state = X[0:6]
+    costate = X[6:12]
+    STM = X[12:156].reshape((12, 12))
+
+    jacobian = minimum_energy_jacobian(state, costate, mu, umax)
+
     ddt_state = minimum_energy_ODE(0, X[0:12], mu, umax)
-    return ddt_state
+    ddt_STM = jacobian @ STM
+
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
 
 def min_time_dynamics_equation(t, X, mu, umax):
-    ddt_state = minimum_time_ODE(0, X, mu, umax)
-    return ddt_state
+
+    state = X[0:6]
+    costate = X[6:12]
+    STM = X[12:156].reshape((12, 12))
+
+    jacobian = minimum_time_jacobian(state, costate, mu, umax)
+
+    ddt_state = minimum_time_ODE(0, X[0:12], mu, umax)
+    ddt_STM = jacobian @ STM
+
+    return np.concatenate((ddt_state, ddt_STM.flatten()))
 
 def angles_measurement_equation(time_index, X, measurement_variances, sensor_position_vals, check_results):
 
@@ -273,6 +299,7 @@ accel_UKF_posterior_estimates = accel_UKF_results.posterior_estimates
 accel_UKF_posterior_covariances = accel_UKF_results.posterior_covariances
 
 # Run costate guessing algorithm
+# Run costate guessing algorithm
 initial_costate_guesses = []
 initial_OCIMM_estimates = []
 OCIMM_measurement_args = []
@@ -282,6 +309,7 @@ for run_index in range(num_runs):
     initial_guessing_state = accel_UKF_posterior_estimates[run_index][:, maneuver_start_index]
     final_guessing_state = accel_UKF_posterior_estimates[run_index][:, maneuver_start_index+horizon]
     guessing_timespan = accel_UKF_time[maneuver_start_index+horizon] - accel_UKF_time[maneuver_start_index]
+    magnitude_ratios = [np.linalg.norm(truth_vals[9:12, maneuver_start_index])/np.linalg.norm(truth_vals[9:12, maneuver_start_index+horizon])]
     initial_costate_guesses.append(get_min_time_costates(final_guessing_state[0:6], 
                                                     -final_guessing_state[6:9]/np.linalg.norm(final_guessing_state[6:9]), 
                                                     mu, umax, guessing_timespan, magnitude_ratios, "final", "initial")[:, 0])
@@ -292,18 +320,25 @@ for run_index in range(num_runs):
     OCIMM_measurement_args.append((measurement_variances, sensor_position_vals[:, maneuver_start_index:], check_results[:, maneuver_start_index:]))
     OCIMM_measurements.append(measurements[run_index][:, maneuver_start_index:])
 
-initial_OCIMM_cov = scipy.linalg.block_diag(accel_UKF_posterior_covariances[0][0:6, 0:6, int(maneuver_start_indices[0])], initial_costate_covariance)
+# initial_OCIMM_cov = scipy.linalg.block_diag(accel_UKF_posterior_covariance_vals[0:6, 0:6, maneuver_start_index], initial_costate_covariance)
+
+print(truth_vals[:, maneuver_start_index])
+difference = initial_OCIMM_estimates[-1][0:6] - truth_vals[0:6, maneuver_start_index]
+difference[0:3] *= NONDIM_LENGTH
+difference[3:6] *= NONDIM_LENGTH/NONDIM_TIME *1000
+print(difference)
+
 
 # Run OCIMM starting from maneuver start index
-UIMM = UIMM_filter(dynamics_functions,
+IMM = IMM_filter(dynamics_functions,
                 dynamics_functions_args,
                 filter_measurement_function,
                 process_noise_covariances,
                 mode_transition_matrix,
-                ukf_parameters,
                 underweighting_ratio)
 
-results = UIMM.run_MC(initial_OCIMM_estimates,
+print(initial_OCIMM_estimates[0])
+results = IMM.run_MC(initial_OCIMM_estimates,
                      initial_OCIMM_cov,
                      initial_mode_probabilities,
                      time_vals[maneuver_start_index:],
@@ -393,10 +428,10 @@ plot_3sigma(time_vals, estimation_errors, three_sigmas, "lambdav", alpha=0.15)
 plot_time = time_vals * NONDIM_TIME_HR/24
 # plot_time = time_vals
 
-# ax = plt.figure(layout="constrained").add_subplot()
-# for run_index in range(num_runs):
-#     ax.step(plot_time, np.sum(measurement_args[run_index][2], axis=0), alpha=0.25)
-# ax.set_ylabel("num sensors")
+ax = plt.figure(layout="constrained").add_subplot()
+for run_index in range(num_runs):
+    ax.step(plot_time, np.sum(measurement_args[run_index][2][:, maneuver_start_index:], axis=0), alpha=0.25)
+ax.set_ylabel("num sensors")
 
 mae_fig = plt.figure()
 ax = mae_fig.add_subplot(311)

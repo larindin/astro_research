@@ -113,7 +113,8 @@ class UIMM_filter():
             anterior_covariance_vals[:, :, 0, mode_index] = initial_covariance
 
         for mode_index in range(num_modes):
-            posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(0, initial_estimate, initial_covariance, measurement_function_args, measurement_vals[:, 0])
+            # posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(0, initial_estimate, initial_covariance, measurement_function_args, measurement_vals[:, 0])
+            posterior_estimate, posterior_covariance, denominator, exponent = initial_estimate, initial_covariance, 1, 1
             posterior_estimate_vals[:, 0, mode_index] = posterior_estimate
             posterior_covariance_vals[:, :, 0, mode_index] = posterior_covariance
             denominators[mode_index], exponents[mode_index] = denominator, exponent
@@ -122,7 +123,7 @@ class UIMM_filter():
         output_estimate, output_covariance = self.mixed_outputs(mode_probability_vals[:, 0], posterior_estimate_vals[:, 0, :], posterior_covariance_vals[:, :, 0, :])
         output_estimate_vals[:, 0], output_covariance_vals[:, :, 0] = output_estimate, output_covariance
 
-        previous_time = 0
+        previous_time = time_vals[0]
         previous_posterior_estimates = posterior_estimate_vals[:, 0, :]
         previous_posterior_covariances = posterior_covariance_vals[:, :, 0, :]
         previous_mode_probabilities = mode_probability_vals[:, 0]

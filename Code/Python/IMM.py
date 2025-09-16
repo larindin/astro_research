@@ -119,7 +119,7 @@ class IMM_filter():
         output_estimate, output_covariance = self.mixed_outputs(mode_probability_vals[:, 0], posterior_estimate_vals[:, 0, :], posterior_covariance_vals[:, :, 0, :])
         output_estimate_vals[:, 0], output_covariance_vals[:, :, 0] = output_estimate, output_covariance
 
-        previous_time = 0
+        previous_time = time_vals[0]
         previous_posterior_estimates = posterior_estimate_vals[:, 0, :]
         previous_posterior_covariances = posterior_covariance_vals[:, :, 0, :]
         previous_mode_probabilities = mode_probability_vals[:, 0]
@@ -291,7 +291,7 @@ class IMM_filter():
         new_mode_probabilities = np.empty(num_modes)
         normalized_denominators = denominators / denominators.min()
         normalized_exponents = exponents - exponents.max()
-
+        
         anterior_mode_probabilities = np.empty(num_modes)
         for mode_index in range(num_modes):
             anterior_mode_probabilities[mode_index] = np.sum(previous_mode_probabilities * self.mode_transition_matrix[:, mode_index])

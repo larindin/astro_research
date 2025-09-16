@@ -58,7 +58,7 @@ def run_smoothing_consistency_test(posterior_estimate_vals, smoothed_estimate_va
     for timestep_index in range(num_timesteps):
         cov_difference_diag = np.diag(covariance_differences[:, :, timestep_index])
         violation_vector = np.diag(1/np.sqrt(cov_difference_diag)) @ estimate_differences[:, timestep_index]
-        violated_bool_vector[timestep_index] = max(violation_vector) > detection_threshold
+        violated_bool_vector[timestep_index] = max(violation_vector.flatten()) > detection_threshold
     
     return violated_bool_vector
 
@@ -100,7 +100,21 @@ def run_maneuver_detection_alg(dynamics_equation, dynamics_args, time_vals, ante
         previous_timestep_index = next_timestep_index
         next_timestep_index += horizon
 
-    return maneuver_start_index
+    return int(maneuver_start_index[0])
+
+def run_maneuver_detection_alg_MC(dynamics_equation, dynamics_args, time_vals, anterior_estimates, posterior_estimates, anterior_covariances, posterior_covariances, horizon, detection_threshold):
+
+    num_runs = len(anterior_estimates)
+    maneuver_start_indices = np.empty(num_runs)
+
+    with parallel_config(verbose=100, n_jobs=-1):
+        results = Parallel()(delayed(run_maneuver_detection_alg)(dynamics_equation, dynamics_args, time_vals, anterior_estimates[run_index], posterior_estimates[run_index], anterior_covariances[run_index], posterior_covariances[run_index], horizon, detection_threshold) for run_index in range(num_runs))
+    
+    for run_index in range(num_runs):
+        maneuver_start_indices[run_index] = results[run_index]
+
+    return maneuver_start_indices
+
 
 def run_OCBE_smoothing(results, control_noise_covariance):
 

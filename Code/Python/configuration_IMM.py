@@ -7,11 +7,11 @@ from catalogue import *
 from helper_functions import *
 
 # Monte-carlo parameters
-seed = 2
+seed = 0
 generator = np.random.default_rng(seed)
-num_runs = 1
+num_runs = 10
 save = False
-gap = False
+gap = True
 vary_scenarios = False
 
 #10, 13, 31, 32 are good
@@ -29,8 +29,8 @@ final_time = 25 / NONDIM_TIME_DAYS
 # backprop_time = 5 * 24 / NONDIM_TIME_HR
 # backprop_time = 1 / NONDIM_TIME_DAYS
 backprop_time = 5 / NONDIM_TIME_DAYS
-additional_time = 5 / NONDIM_TIME_DAYS
-# additional_time = 0
+# additional_time = 5 / NONDIM_TIME_DAYS
+additional_time = 0
 dt = 1/NONDIM_TIME_HR
 # dt = 0.01
 dynamics_equation = minimum_fuel_ODE
@@ -67,11 +67,16 @@ sun_exclusion_angle = np.deg2rad(30)
 # IMM parameters
 initial_state_covariance =  scipy.linalg.block_diag(np.eye(3)*1.30072841e-4**2, np.eye(3)*9.76041363e-4**2)
 initial_costate_covariance = np.diag(abs(initial_costate*1e-1)**2)
-initial_costate_covariance = np.eye(6)*1e-1**2
+initial_costate_covariance = np.eye(6)*1e-0**2
 # print(initial_costate_covariance)
 # quit()
 initial_acceleration_covariance = np.eye(3)*1e-2**2
 # initial_estimate = initial_truth
+
+initial_UKF_cov = initial_state_covariance
+initial_accel_UKF_cov = scipy.linalg.block_diag(initial_state_covariance, initial_acceleration_covariance)
+initial_OCIMM_cov = scipy.linalg.block_diag(initial_state_covariance, initial_costate_covariance)
+
 IMM_measurement_covariance = measurement_noise_covariance * (1)**2
 measurement_variances = np.array([np.deg2rad(1e-3)**2, (1e5*np.deg2rad(1e-3))**2])
 underweighting_ratio = 0.5
@@ -86,12 +91,12 @@ coasting_accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)
 accel_umax_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(5e-3)**2)
 
 coasting_accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-2)**2)
-accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2, np.eye(3)*(1e-15)**2)
+accel_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-9)**2, np.eye(3)*(1e-2)**2)
 
 CR3BP_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(2e-3)**2)
 UKF_process_noise_covariance = scipy.linalg.block_diag(np.eye(3)*(1e-15)**2, np.eye(3)*(1e-12)**2)
 
-initial_mode_probabilities = np.array([0.99, 0.01])
+initial_mode_probabilities = np.array([0.01, 0.99])
 mode_transition_matrix = np.array([[0.99, 0.01],
                                    [0.01, 0.99]])
 alpha, beta, kappa = 1e-2, 2, 0
@@ -99,3 +104,6 @@ ukf_parameters = (alpha, beta, kappa)
 
 horizon = 5
 detection_threshold = 4.5
+magnitude_ratios = np.linspace(0.7, 1.4, 11)
+magnitude_ratios = [magnitude_ratios[5]]
+# magnitude_ratios = [1.08]

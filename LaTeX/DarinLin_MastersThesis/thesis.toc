@@ -21,9 +21,11 @@
 \contentsline {subsection}{\numberline {4.1.4}Observation Strategy}{28}{subsection.68}%
 \contentsline {subsection}{\numberline {4.1.5}Observation Checks}{30}{subsection.74}%
 \contentsline {subsection}{\numberline {4.1.6}Underweighting}{30}{subsection.75}%
-\contentsline {chapter}{\numberline {A}{ABOUT THE APPENDICES}}{32}{chapter.78}%
-\contentsline {section}{\numberline {A.1}Paragraphs}{32}{section.79}%
-\contentsline {section}{\numberline {A.2}Section Heading}{33}{section.80}%
-\contentsline {subsection}{\numberline {A.2.1}Subsection heading}{33}{subsection.81}%
-\contentsline {subsubsection}{Subsubsection heading}{33}{section*.82}%
-\contentsline {section}{\numberline {A.3}Text math}{34}{section.83}%
+\contentsline {subsection}{\numberline {4.1.7}Costate Guessing Algorithm}{31}{subsection.78}%
+\contentsline {subsection}{\numberline {4.1.8}Smoother Consistency Test}{31}{subsection.79}%
+\contentsline {chapter}{\numberline {A}{ABOUT THE APPENDICES}}{32}{chapter.80}%
+\contentsline {section}{\numberline {A.1}Paragraphs}{32}{section.81}%
+\contentsline {section}{\numberline {A.2}Section Heading}{33}{section.82}%
+\contentsline {subsection}{\numberline {A.2.1}Subsection heading}{33}{subsection.83}%
+\contentsline {subsubsection}{Subsubsection heading}{33}{section*.84}%
+\contentsline {section}{\numberline {A.3}Text math}{34}{section.85}%
