@@ -193,5 +193,11 @@ The rest of the measurement update proceeds as normal. Implementing underweighti
 
 \subsection{Smoother Consistency Test}
 
-To apply the costate guessing algorithm, first, a maneuver must be detected. We choose to apply the smoother consistency test to detect a maneuver, which was demonstrated effectively to detect maneuvers in a variable state dimension filter scheme (CITE GOFF HERE). The smoother consistency test is conducted by periodically running a smoother over a smoothing horizon $h$, consisting of the last $h$ measurements. This results in the smoothed estimates and covariances $\hat{\bm{x}}_k^s$ and $P_k^s$, respectively. A maneuver is detected when the difference between the smoothed estimate and the forward estimate $\hat{\bm{x}}_k$ reaches a certain statistical threshold, determined by the difference between the smoothed covariance and forward covariance $P_k$.
+To apply the costate guessing algorithm, first, a maneuver must be detected. We choose to apply the smoother consistency test to detect a maneuver, which was demonstrated effectively to detect maneuvers in a variable state dimension filter scheme (CITE GOFF HERE). The smoother consistency test is conducted by periodically running a smoother over a smoothing horizon $h \in \mathbb{N}$, consisting of the last $h$ measurements. This results in the smoothed estimates and covariances $\hat{\bm{x}}_k^s$ and $P_k^s$, respectively, for the timesteps $[k-h, k]$. A maneuver is detected when the difference between the smoothed estimate and the forward estimate $\hat{\bm{x}}_k$ reaches a certain statistical threshold, which is determined by the difference between the smoothed covariance and forward covariance $P_k$. Mathematically, this is described as
 
+\begin{align}
+    \Delta P_k &= P_k - P_k^s \\
+    \Delta \bm{x}_k &= \hat{\bm{x}}_k - \hat{\bm{x}}_k^s
+\end{align}
+
+Let $\bm{\sigma}_k \in \mathbb{R}^{n\times n}$ be a matrix whose diagonals are given by the difference in standard deviations, or 

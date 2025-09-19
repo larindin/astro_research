@@ -15,6 +15,7 @@ class GMIMM_FilterResults:
                  posterior_covariance_vals, 
                  output_covariance_vals,
                  innovations_vals, 
+                 kernel_probability_vals, 
                  mode_probability_vals):
         self.t = time_vals
         self.anterior_estimate_vals = anterior_estimate_vals
@@ -24,6 +25,7 @@ class GMIMM_FilterResults:
         self.posterior_covariance_vals = posterior_covariance_vals
         self.output_covariance_vals = output_covariance_vals
         self.innovations_vals = innovations_vals
+        self.kernel_probability_vals = kernel_probability_vals
         self.mode_probability_vals = mode_probability_vals
 
 class GMIMM_MCResults:
@@ -37,6 +39,7 @@ class GMIMM_MCResults:
         posterior_covariances = []
         output_covariances = []
         innovations = []
+        kernel_probabilities = []
         mode_probabilities = []
         for result in GMIMM_results:
             anterior_estimates.append(result.anterior_estimate_vals)
@@ -46,6 +49,7 @@ class GMIMM_MCResults:
             posterior_covariances.append(result.posterior_covariance_vals)
             output_covariances.append(result.output_covariance_vals)
             innovations.append(result.innovations_vals)
+            kernel_probabilities.append(result.kernel_probability_vals)
             mode_probabilities.append(result.mode_probability_vals)
         
         self.t = result.t
@@ -56,6 +60,7 @@ class GMIMM_MCResults:
         self.posterior_covariances = posterior_covariances
         self.output_covariances = output_covariances
         self.innovations = innovations
+        self.kernel_probabilities = kernel_probabilities
         self.mode_probabilities = mode_probabilities
 
 
@@ -98,6 +103,7 @@ class GMIMM_filter():
         output_covariance_vals = np.full((state_size, state_size, num_measurements), np.nan)
         innovations_vals = np.full((measurement_size, num_measurements, num_modes, kernels_per_mode), np.nan)
         kernel_probabilitiy_vals = np.full((num_modes, kernels_per_mode, num_measurements), np.nan)
+        mode_probability_vals = np.full((num_modes, num_measurements), np.nan)
 
         denominators = np.empty((num_modes, kernels_per_mode))
         exponents = np.empty((num_modes, kernels_per_mode))
@@ -109,10 +115,11 @@ class GMIMM_filter():
         else:
             measurement_update = self.measurement_update
 
-        kernel_probabilitiy_vals[:, :, 0] = initial_kernel_probabilities
         for mode_index in range(num_modes):
-            anterior_estimate_vals[:, 0, mode_index, :] = initial_estimates[:, mode_index, :]
-            anterior_covariance_vals[:, :, 0, mode_index, :] = initial_covariances[:, :, mode_index, :]
+            for kernel_index in range(kernels_per_mode):
+                anterior_estimate_vals[:, 0, mode_index, kernel_index] = initial_estimates[:, mode_index, kernel_index]
+                anterior_covariance_vals[:, :, 0, mode_index, kernel_index] = initial_covariances[:, :, mode_index, kernel_index]
+        kernel_probabilitiy_vals[:, :, 0] = initial_kernel_probabilities
 
         for mode_index in range(num_modes):
             for kernel_index in range(kernels_per_mode):
@@ -122,8 +129,8 @@ class GMIMM_filter():
                 denominators[mode_index, kernel_index], exponents[mode_index, kernel_index] = denominator, exponent
         
         kernel_probabilitiy_vals[:, :, 0] = self.kernel_probability_update(initial_kernel_probabilities, denominators, exponents, measurement_vals[:, 0])
-        output_estimate, output_covariance = self.mixed_outputs(kernel_probabilitiy_vals[:, :, 0], posterior_estimate_vals[:, 0, :, :], posterior_covariance_vals[:, :, 0, :, :])
-        output_estimate_vals[:, 0], output_covariance_vals[:, :, 0] = output_estimate, output_covariance
+        output_estimate, output_covariance, mode_probabilities = self.mixed_outputs(kernel_probabilitiy_vals[:, :, 0], posterior_estimate_vals[:, 0, :, :], posterior_covariance_vals[:, :, 0, :, :])
+        output_estimate_vals[:, 0], output_covariance_vals[:, :, 0], mode_probability_vals[:, 0] = output_estimate, output_covariance, mode_probabilities
 
         previous_time = time_vals[0]
         previous_posterior_estimates = posterior_estimate_vals[:, 0, :, :]
@@ -131,7 +138,7 @@ class GMIMM_filter():
         previous_kernel_probabilities = kernel_probabilitiy_vals[:, :, 0]
 
         for time_index in range(1, num_measurements):
-            
+
             current_time = time_vals[time_index]
             timespan = current_time - previous_time
             
@@ -142,11 +149,18 @@ class GMIMM_filter():
                 initial_states, initial_covariances, mode_anterior_kernel_probabilities = self.mixed_initial_conditions(mode_index, previous_kernel_probabilities, previous_posterior_estimates, previous_posterior_covariances)
                 
                 for kernel_index in range(kernels_per_mode):
-                    initial_state, initial_covariance = initial_states[:, kernel_index], initial_covariances[:, :, kernel_index]
-                    anterior_estimate, anterior_covariance = self.time_update(time_index, initial_state, initial_covariance, timespan, mode_index, previous_mode_probabilities[mode_index])
+                    if mode_anterior_kernel_probabilities[kernel_index] != 0:
+                        initial_state, initial_covariance = initial_states[:, kernel_index], initial_covariances[:, :, kernel_index]
+                        anterior_estimate, anterior_covariance = self.time_update(time_index, initial_state, initial_covariance, timespan, mode_index, previous_kernel_probabilities[mode_index, kernel_index])
 
-                    posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(time_index, anterior_estimate, anterior_covariance, measurement_function_args, current_measurement)
-
+                        posterior_estimate, posterior_covariance, denominator, exponent = measurement_update(time_index, anterior_estimate, anterior_covariance, measurement_function_args, current_measurement)
+                    else:
+                        anterior_estimate = np.zeros(state_size)
+                        anterior_covariance = np.zeros((state_size, state_size))
+                        posterior_estimate = np.zeros(state_size)
+                        posterior_covariance = np.zeros((state_size, state_size))
+                        denominator = 1
+                        exponent = 1
                     anterior_estimate_vals[:, time_index, mode_index, kernel_index] = anterior_estimate
                     anterior_covariance_vals[:, :, time_index, mode_index, kernel_index] = anterior_covariance
                     posterior_estimate_vals[:, time_index, mode_index, kernel_index] = posterior_estimate
@@ -155,18 +169,19 @@ class GMIMM_filter():
                     exponents[mode_index, kernel_index] = exponent
                 anterior_kernel_probabilities[mode_index, :] = mode_anterior_kernel_probabilities
             
-            new_mode_probabilities = self.kernel_probability_update(anterior_kernel_probabilities, denominators, exponents, current_measurement)
-            mode_probability_vals[:, time_index] = new_mode_probabilities
+            new_kernel_probabilities = self.kernel_probability_update(anterior_kernel_probabilities, denominators, exponents, current_measurement)
+            kernel_probabilitiy_vals[:, :, time_index] = new_kernel_probabilities
 
-            output_estimate, output_covariance = self.mixed_outputs(new_mode_probabilities, posterior_estimate_vals[:, time_index, :], posterior_covariance_vals[:, :, time_index, :])
+            output_estimate, output_covariance, mode_probabilities = self.mixed_outputs(new_kernel_probabilities, posterior_estimate_vals[:, time_index, :, :], posterior_covariance_vals[:, :, time_index, :, :])
             output_estimate_vals[:, time_index] = output_estimate
             output_covariance_vals[:, :, time_index] = output_covariance
+            mode_probability_vals[:, time_index] = mode_probabilities
 
-            previous_posterior_estimates, previous_posterior_covariances = posterior_estimate_vals[:, time_index, :], posterior_covariance_vals[:, :, time_index, :]
-            previous_mode_probabilities = new_mode_probabilities
+            previous_posterior_estimates, previous_posterior_covariances = posterior_estimate_vals[:, time_index, :, :], posterior_covariance_vals[:, :, time_index, :, :]
+            previous_kernel_probabilities = new_kernel_probabilities
             previous_time = current_time
         
-        return GMIMM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, output_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, output_covariance_vals, 0, mode_probability_vals)
+        return GMIMM_FilterResults(time_vals, anterior_estimate_vals, posterior_estimate_vals, output_estimate_vals, anterior_covariance_vals, posterior_covariance_vals, output_covariance_vals, 0, kernel_probabilitiy_vals, mode_probability_vals)
 
     def measurement_update(self, time_index, anterior_estimate, anterior_covariance, measurement_function_args, measurement):
 
@@ -298,7 +313,7 @@ class GMIMM_filter():
         
         num_modes = np.size(denominators, 0)
         kernels_per_mode = np.size(denominators, 1)
-        new_kernel_probabilities = np.empty(num_modes, kernels_per_mode)
+        new_kernel_probabilities = np.empty((num_modes, kernels_per_mode))
         normalized_denominators = denominators / denominators.min()
         normalized_exponents = exponents - exponents.max()
         
@@ -341,7 +356,7 @@ class GMIMM_filter():
                     anterior_kernel_probabilities[IC_index] = raw_mixing_proportions[mode_index, kernel_index]
                     IC_index += 1
                 else:
-                    mixed_state += mixing_proportions[mode_index, kernel_index] * previous_posterior_estimates[:, mode_index, kernel_index]
+                    mixed_state += raw_mixing_proportions[mode_index, kernel_index] * previous_posterior_estimates[:, mode_index, kernel_index]
                     anterior_kernel_probabilities[-1] += raw_mixing_proportions[mode_index, kernel_index]
                 overall_index += 1
 
@@ -350,34 +365,41 @@ class GMIMM_filter():
             for kernel_index in range(kernels_per_mode):
                 if overall_index not in ind:
                     difference = (previous_posterior_estimates[:, mode_index, kernel_index] - mixed_state)[:, None]
-                    mixed_covariance += mixing_proportions[mode_index, kernel_index] * (previous_posterior_covariances[:, :, mode_index, kernel_index] + difference @ difference.T)
+                    mixed_covariance += raw_mixing_proportions[mode_index, kernel_index] * (previous_posterior_covariances[:, :, mode_index, kernel_index] + difference @ difference.T)
         
-        initial_states[:, -1] = mixed_state
-        initial_covariances[:, :, -1] = mixed_covariance
+        initial_states[:, -1] = mixed_state/anterior_kernel_probabilities[-1]
+        initial_covariances[:, :, -1] = mixed_covariance/anterior_kernel_probabilities[-1]
         
         return initial_states, initial_covariances, anterior_kernel_probabilities
     
-    def mixed_outputs(self, mode_probabilities, posterior_estimates, posterior_covariances):
-
-        num_modes = len(mode_probabilities)
-        mixed_state = np.zeros(posterior_estimates[:, 0].shape)
-        mixed_covariance = np.zeros(posterior_covariances[:, :, 0].shape)
-
-        for mode_index in range(num_modes):
-            mixed_state += mode_probabilities[mode_index] * posterior_estimates[:, mode_index]
-        for mode_index in range(num_modes):
-            difference = (posterior_estimates[:, mode_index] - mixed_state)[:, None]
-            mixed_covariance += mode_probabilities[mode_index] * (posterior_covariances[:, :, mode_index] + difference @ difference.T)
+    def mixed_outputs(self, kernel_probabilities, posterior_estimates, posterior_covariances):
         
-        return mixed_state, mixed_covariance
+        state_size = np.size(posterior_estimates, 0)
+        num_modes = np.size(kernel_probabilities, 0)
+        kernels_per_mode = np.size(kernel_probabilities, 1)
+        mixed_state = np.zeros(state_size)
+        mixed_covariance = np.zeros((state_size, state_size))
+        mode_probabilities = np.zeros(num_modes)
+
+        for mode_index in range(num_modes):
+            for kernel_index in range(kernels_per_mode):
+                mixed_state += kernel_probabilities[mode_index, kernel_index] * posterior_estimates[:, mode_index, kernel_index]
+        for mode_index in range(num_modes):
+            for kernel_index in range(kernels_per_mode):
+                difference = (posterior_estimates[:, mode_index, kernel_index] - mixed_state)[:, None]
+                mixed_covariance += kernel_probabilities[mode_index, kernel_index] * (posterior_covariances[:, :, mode_index, kernel_index] + difference @ difference.T)
+        
+        mode_probabilities = np.sum(kernel_probabilities, axis=1)
+        
+        return mixed_state, mixed_covariance, mode_probabilities
     
-    def run_MC(self, initial_estimates, initial_covariance, initial_mode_probabilities, time_vals, measurements, measurement_args):
+    def run_MC(self, initial_estimates, initial_covariances, initial_mode_probabilities, time_vals, measurements, measurement_args):
 
         num_runs = len(initial_estimates)
         results = []
 
         with parallel_config(verbose=100, n_jobs=-1):
-            results = Parallel()(delayed(self.run)(initial_estimates[run_index], initial_covariance, initial_mode_probabilities, time_vals, measurements[run_index], measurement_args[run_index]) for run_index in range(num_runs))
+            results = Parallel()(delayed(self.run)(initial_estimates[run_index], initial_covariances[run_index], initial_mode_probabilities, time_vals, measurements[run_index], measurement_args[run_index]) for run_index in range(num_runs))
         
         return GMIMM_MCResults(results)
 

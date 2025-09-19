@@ -1,10 +1,25 @@
 \ProvidesFile{ch-theory.tex}
 
-\chapter{THEORY}
+\chapter{PRELIMINARIES}
 
-\section{Circular-Restricted Three-Body Problem (CR3BP) with Control}
+\section{Dynamics}
+\subsection{The Circular-Restricted Three-Body Problem (CR3BP)}
 
-To model the motion of a maneuvering spacecraft in cislunar space, we utilize the circular restricted three-body problem dynamics model with low-thrust control modeled as an affine acceleration. This model assumes circular motion of two massive primary bodies around their barycenter. A third massless body is then subject to the gravities of the other two massive bodies. This third body represents the spacecraft of interest, and its state $\bm{\xi} = [\bm{r}^\top, \bm{v}^\top]^\top$ consists of a three-dimensional position and velocity, $\bm{r} = [x, y, z]^\top$ and $\bm{v} = [v_x, v_y, v_z]^\top$, respectively. The control is a three-dimensional additive acceleration $\bm{u} = [u_x, u_y, u_z]^\top$. To define the coordinate frame, the origin is fixed at the barycenter, the X-axis is aligned with the line between the two massive bodies, the Z-axis is aligned with the angular velocity vector, and the Y-axis completes the X-Y-Z right-handed coordinate frame. The CR3BP coordinate frame is illustrated in Figure \ref{fig:CR3BP}. 
+To model the motion of spacecraft in cislunar space, we utilize the famous circular restricted three-body problem (CR3BP) dynamics model. These dynamics consider three bodies: two massive bodies (in this investigation, the Earth and the Moon) and one massless body (the spacecraft). The CR3BP assumes that the two massive bodies are both in circular orbits about their barycenter, governed by Keplerian dynamics. The third massless body is then subject to the gravities of the other two massive bodies. 
+
+To define the coordinate system of the CR3BP, we first consider a set of inertial coordinates with its origin set at the barycenter. The reference frame of the CR3BP dynamics is defined to be the rotating frame fixed to the line which connects the two massive bodies, which rotates relative to the inertial coordinates with an angular velocity equal to the massive bodies' mean motion, $n$. Since this frame is rotating relative to the inertial frame, the final CR3BP dynamics will include terms for coriolis and centripetal accelerations in addition to the accelerations caused by the gravity of the two bodies.
+
+With the reference frame established, the Cartesian coordinate directions of the CR3BP are defined such that the origin is once again at the barycenter, the positive X-axis is in the direction of the vector going from the more massive body to the less massive body, the positive Z-axis is in the direction of the angular velocity, and the positive Y-axis completes the X-Y-Z right-handed triad. The CR3BP coordinate frame is illustrated in \cref{fig:CR3BP}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.75\textwidth]{graphics/cr3bp.png}
+    \end{center}
+    \caption{CR3BP Coordinate system}
+    \label{fig:CR3BP}
+\end{figure}
+
+This third body represents the spacecraft of interest, and its state $\bm{\xi} = [\bm{r}^\top, \bm{v}^\top]^\top$ consists of a three-dimensional position and velocity, $\bm{r} = [x, y, z]^\top$ and $\bm{v} = [v_x, v_y, v_z]^\top$, respectively. The control is a three-dimensional additive acceleration $\bm{u} = [u_x, u_y, u_z]^\top$. To define the coordinate frame, the origin is fixed at the barycenter, the X-axis is aligned with the line between the two massive bodies, the Z-axis is aligned with the angular velocity vector, and the Y-axis completes the X-Y-Z right-handed coordinate frame. The CR3BP coordinate frame is illustrated in Figure \ref{fig:CR3BP}. 
 
 The units of the system are normalized such that the unit length is the distance between the two massive bodies, and the unit time is the inverse of the angular velocity of the two massive bodies. The motion of the massless body is then described by a system of nonlinear differential equations given by 
 \begin{align}
